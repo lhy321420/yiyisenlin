@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>壹一森林</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{
+            background:#fff9f5;
+            font-family:"Microsoft YaHei";
+        }
+        .header{
+            background:rgb(255,255,158);
+            margin:10px 100px;
+            padding:12px 20px;
+            border-radius:15px;
+            color:rgb(146,86,30);
+            font-size:16px;
+            font-weight:bold;
+            cursor:pointer;
+            display:inline-block;
+            transition: 0.3s;
+        }
+        .header:hover{
+            background:rgb(252, 252, 192);
+        }
+        .back{
+            cursor:pointer;
+            color:#e67a8a;
+        }
+        .container{
+            max-width:600px;
+            margin:30px auto;
+            padding:0 20px;
+        }
+        .card{
+            background:#fff;
+            border-radius:20px;
+            padding:30px;
+            box-shadow:0 6px 20px rgba(255,180,180,0.1);
+            margin-bottom:20px;
+        }
+        .title{
+            color:#e67a8a;
+            font-size:22px;
+            margin-bottom:25px;
+            text-align:center;
+        }
+        .avatar-section{
+            text-align:center;
+            margin-bottom:25px;
+            position:relative;
+        }
+        .avatar{
+            width:120px;
+            height:120px;
+            border-radius:50%;
+            background:#ffe8e8;
+            margin:0 auto 10px;
+            overflow:hidden;
+            cursor:pointer;
+            transition:0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: #c74c70;
+        }
+        .avatar:hover{
+            transform:scale(1.05);
+        }
+        .avatar img{
+            width:100%;
+            height:100%;
+            object-fit:cover;
+        }
+        .avatar-btns{
+            display:flex;
+            justify-content:center;
+            gap:10px;
+            margin-top:8px;
+        }
+        .avatar-btn{
+            padding:6px 14px;
+            background:#ffccd5;
+            color:#c74c70;
+            border:none;
+            border-radius:12px;
+            font-size:13px;
+            cursor:pointer;
+            transition: 0.3s;
+        }
+        .avatar-btn:hover{
+            background:#ffb3c1;
+        }
+        #avatarInput{
+            display:none;
+        }
+        .item{
+            margin-bottom:16px;
+        }
+        label{
+            display:block;
+            font-size:14px;
+            color:#9c5a22;
+            margin-bottom:6px;
+        }
+        input, select{
+            width:100%;
+            padding:12px 16px;
+            border:1px solid #f7d3c2;
+            border-radius:16px;
+            outline:none;
+            font-size:14px;
+            background:#fff;
+        }
+        input:disabled, select:disabled{
+            background:#f9f9f9;
+            color:#666;
+            cursor: not-allowed;
+        }
+        .btn-group{
+            display:flex;
+            gap:12px;
+            margin-top:20px;
+        }
+        .save-btn{
+            flex:1;
+            padding:12px;
+            background:#ffccd5;
+            color:#c74c70;
+            border:none;
+            border-radius:16px;
+            font-weight:bold;
+            cursor:pointer;
+            transition:0.3s;
+        }
+        .save-btn:hover{
+            background:#ffb3c1;
+        }
+        .edit-btn{
+            flex:1;
+            padding:12px;
+            background:#f9ce85;
+            color:#9c5a22;
+            border:none;
+            border-radius:16px;
+            font-weight:bold;
+            cursor:pointer;
+            transition:0.3s;
+        }
+        .edit-btn:hover{
+            background:#f9c26a;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header" onclick="location.href='index.html'">
+    <span class="back">← 返回首页</span>
+</div>
+
+<div class="container">
+    <div class="card">
+        <div class="title">森林信息</div>
+
+        <div class="avatar-section">
+            <div class="avatar" onclick="previewAvatar()">
+                <img id="avatarImg" src="" alt="头像">
+            </div>
+            <div class="avatar-btns">
+                <button class="avatar-btn" onclick="previewAvatar()">查看头像</button>
+                <button class="avatar-btn" onclick="chooseAvatar()">上传头像</button>
+            </div>
+            <input type="file" id="avatarInput" accept="image/*" onchange="uploadAvatar()">
+        </div>
+
+        <div class="item">
+            <label>你的名字</label>
+            <input type="text" id="username" placeholder="请输入你的名字" disabled>
+        </div>
+
+        <div class="item">
+            <label>手机号码</label>
+            <input type="text" id="phone" placeholder="请输入手机号码" disabled>
+        </div>
+
+        <div class="item">
+            <label>生日</label>
+            <input type="text" id="birthday" placeholder="例如：2000-01-01" disabled>
+        </div>
+
+        <div class="item">
+            <label>个性签名</label>
+            <input type="text" id="description" placeholder="一句话介绍自己" disabled>
+        </div>
+
+        <div class="item">
+            <label>MBTI 人格类型</label>
+            <select id="mbti" disabled>
+                <option value="">请选择</option>
+                <option value="INTJ">INTJ</option><option value="INTP">INTP</option>
+                <option value="ENTJ">ENTJ</option><option value="ENTP">ENTP</option>
+                <option value="INFJ">INFJ</option><option value="INFP">INFP</option>
+                <option value="ENFJ">ENFJ</option><option value="ENFP">ENFP</option>
+                <option value="ISTJ">ISTJ</option><option value="ISFJ">ISFJ</option>
+                <option value="ESTJ">ESTJ</option><option value="ESFJ">ESFJ</option>
+                <option value="ISTP">ISTP</option><option value="ISFP">ISFP</option>
+                <option value="ESTP">ESTP</option><option value="ESFP">ESFP</option>
+            </select>
+        </div>
+
+        <div class="item">
+            <label>星座</label>
+            <select id="zodiac" disabled>
+                <option value="">请选择</option>
+                <option value="白羊座">白羊座</option><option value="金牛座">金牛座</option>
+                <option value="双子座">双子座</option><option value="巨蟹座">巨蟹座</option>
+                <option value="狮子座">狮子座</option><option value="处女座">处女座</option>
+                <option value="天秤座">天秤座</option><option value="天蝎座">天蝎座</option>
+                <option value="射手座">射手座</option><option value="摩羯座">摩羯座</option>
+                <option value="水瓶座">水瓶座</option><option value="双鱼座">双鱼座</option>
+            </select>
+        </div>
+
+        <div class="btn-group">
+            <button class="edit-btn" id="editBtn" onclick="enableEdit()">编辑信息</button>
+            <button class="save-btn" id="saveBtn" onclick="saveInfo()" disabled>保存信息</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let isEdit = false;
+
+    window.onload = async function () {
+        try {
+            const res = await fetch("/user/info", {
+                method: "GET",
+                credentials: "include"
+            });
+            const result = await res.json();
+            if (result.code === 200) {
+                const user = result.data;
+                document.getElementById("username").value = user.username || "";
+                document.getElementById("phone").value = user.phone || "";
+                document.getElementById("birthday").value = user.birthday || "";
+                document.getElementById("description").value = user.description || "";
+                if (user.mbti) document.getElementById("mbti").value = user.mbti;
+                if (user.zodiac) document.getElementById("zodiac").value = user.zodiac;
+                if (user.avatar && user.avatar.startsWith("data:image")) {
+                    document.getElementById("avatarImg").src = user.avatar;
+                    document.getElementById("avatarImg").style.display = "block";
+                } else {
+                    document.getElementById("avatarImg").style.display = "none";
+                }
+            } else {
+                alert("您尚未登录，请登录后查看个人信息");
+            }
+        } catch (err) {
+            alert("加载失败，请检查后端是否启动");
+        }
+    };
+
+    function enableEdit() {
+        isEdit = true;
+        document.getElementById("username").disabled = false;
+        document.getElementById("phone").disabled = false;
+        document.getElementById("birthday").disabled = false;
+        document.getElementById("description").disabled = false;
+        document.getElementById("mbti").disabled = false;
+        document.getElementById("zodiac").disabled = false;
+        document.getElementById("saveBtn").disabled = false;
+        document.getElementById("editBtn").textContent = "取消编辑";
+        document.getElementById("editBtn").onclick = cancelEdit;
+    }
+
+    function cancelEdit() {
+        isEdit = false;
+        document.getElementById("username").disabled = true;
+        document.getElementById("phone").disabled = true;
+        document.getElementById("birthday").disabled = true;
+        document.getElementById("description").disabled = true;
+        document.getElementById("mbti").disabled = true;
+        document.getElementById("zodiac").disabled = true;
+        document.getElementById("saveBtn").disabled = true;
+        document.getElementById("editBtn").textContent = "编辑信息";
+        document.getElementById("editBtn").onclick = enableEdit;
+        window.location.reload();
+    }
+
+    async function saveInfo() {
+        if (!isEdit) return;
+        let birthdayInput = document.getElementById("birthday").value;
+        let birthdayFormatted = birthdayInput.replace(/\//g, "-");
+        const userData = {
+            username: document.getElementById("username").value,
+            phone: document.getElementById("phone").value,
+            birthday: birthdayFormatted,
+            description: document.getElementById("description").value,
+            mbti: document.getElementById("mbti").value,
+            zodiac: document.getElementById("zodiac").value
+        };
+        try {
+            const res = await fetch("/user/update-info", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(userData),
+                credentials: "include"
+            });
+            if (!res.ok) throw new Error("请求失败，状态码：" + res.status);
+            const result = await res.json();
+            alert(result.msg);
+            if (result.code === 200) window.location.reload();
+        } catch (err) {
+            alert("保存失败：" + err.message);
+            console.error(err);
+        }
+    }
+
+    // 头像相关函数（保持不变）
+    function chooseAvatar() { document.getElementById("avatarInput").click(); }
+    async function uploadAvatar() {
+        const file = document.getElementById("avatarInput").files[0];
+        if (!file) return;
+        if (!file.type.startsWith("image/")) { alert("请选择图片文件"); return; }
+        if (file.size > 2 * 1024 * 1024) { alert("图片大小不能超过 2MB"); return; }
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            const base64 = e.target.result;
+            document.getElementById("avatarImg").src = base64;
+            document.getElementById("avatarImg").style.display = "block";
+            try {
+                const res = await fetch("/user/upload-avatar", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ avatar: base64 }),
+                    credentials: "include"
+                });
+                const result = await res.json();
+                if (result.code === 200) alert("头像上传成功");
+                else alert("头像上传失败：" + result.msg);
+            } catch (err) { alert("上传失败：" + err.message); }
+        };
+        reader.readAsDataURL(file);
+    }
+    function previewAvatar() {
+        let src = document.getElementById("avatarImg").src;
+        if (!src) { alert("还未上传头像！"); return; }
+        let mask = document.createElement('div');
+        mask.style.position = 'fixed'; mask.style.left = '0'; mask.style.top = '0';
+        mask.style.width = '100%'; mask.style.height = '100%';
+        mask.style.background = 'rgba(0,0,0,0.5)'; mask.style.zIndex = '9998';
+        mask.onclick = () => document.body.removeChild(mask);
+        let div = document.createElement('div');
+        div.style.position = 'fixed'; div.style.left = '50%'; div.style.top = '50%';
+        div.style.transform = 'translate(-50%,-50%)'; div.style.background = '#fff';
+        div.style.padding = '20px'; div.style.borderRadius = '16px'; div.style.zIndex = '9999';
+        div.style.textAlign = 'center';
+        let img = new Image();
+        img.src = src;
+        img.style.width = '250px'; img.style.borderRadius = '12px';
+        div.appendChild(img);
+        let close = document.createElement('button');
+        close.innerText = '关闭';
+        close.style.marginTop = '10px'; close.style.width = '100%'; close.style.padding = '8px';
+        close.style.background = '#ffccd5'; close.style.border = 'none'; close.style.borderRadius = '12px';
+        close.style.color = '#c74c70'; close.style.fontWeight = 'bold';
+        close.onclick = () => { document.body.removeChild(mask); document.body.removeChild(div); };
+        div.appendChild(close);
+        document.body.appendChild(mask);
+        document.body.appendChild(div);
+    }
+</script>
+</body>
+</html>

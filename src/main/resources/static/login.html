@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>壹一森林</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #fff9f5;
+            font-family: "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: #fff;
+            width: 100%;
+            max-width: 360px;
+            padding: 40px 30px;
+            border-radius: 24px;
+            box-shadow: 0 12px 30px rgba(230, 122, 138, 0.12);
+            transition: all 0.3s ease;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 600;
+            color: #e67a8a;
+            margin-bottom: 30px;
+            letter-spacing: 1px;
+        }
+
+        .input-item {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #f7d3c2;
+            border-radius: 40px;
+            outline: none;
+            font-size: 15px;
+            background: #fff;
+            transition: all 0.2s;
+        }
+
+        input:focus {
+            border-color: #ffb3c1;
+            box-shadow: 0 0 0 3px rgba(255, 179, 193, 0.2);
+        }
+
+        /* 密码眼睛按钮 */
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #c74c70;
+            font-size: 18px;
+            background: transparent;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: #ffccd5;
+            color: #c74c70;
+            border: none;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.2s;
+        }
+
+        .login-btn:hover {
+            background: #ffb3c1;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(255, 179, 193, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(1px);
+        }
+
+        .login-btn.loading {
+            background: #f0d0d5;
+            cursor: not-allowed;
+            opacity: 0.7;
+            transform: none;
+        }
+
+        .to-reg {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #999;
+        }
+
+        .to-reg a {
+            color: #e67a8a;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .to-reg a:hover {
+            text-decoration: underline;
+        }
+
+        .error-msg {
+            color: #f8446e;
+            font-size: 12px;
+            margin-top: 6px;
+            padding-left: 12px;
+            display: none;
+        }
+
+        /* 简单动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        .login-box {
+            animation: fadeIn 0.4s ease;
+        }
+    </style>
+</head>
+<body>
+<div class="login-box">
+    <div class="title">🌲 壹一森林</div>
+    <div class="input-item">
+        <input type="text" id="username" placeholder="用户名 / 手机号" autocomplete="username">
+    </div>
+    <div class="input-item" style="position: relative;">
+        <input type="password" id="password" placeholder="密码" autocomplete="current-password">
+        <button type="button" class="password-toggle" id="togglePwd" aria-label="显示/隐藏密码">👁️</button>
+    </div>
+    <div class="error-msg" id="errorMsg"></div>
+    <button class="login-btn" id="loginBtn">登 录</button>
+    <div class="to-reg">
+        没有账号？<a href="register.html">去注册</a>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // DOM 元素
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+        const errorMsgDiv = document.getElementById('errorMsg');
+        const togglePwdBtn = document.getElementById('togglePwd');
+
+        // 状态标记
+        let isLoading = false;
+
+        // 显示错误信息
+        function showError(msg) {
+            errorMsgDiv.innerText = msg;
+            errorMsgDiv.style.display = 'block';
+            // 3秒后自动隐藏
+            setTimeout(() => {
+                errorMsgDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        // 清除错误
+        function clearError() {
+            errorMsgDiv.style.display = 'none';
+        }
+
+        // 设置加载状态
+        function setLoading(loading) {
+            isLoading = loading;
+            if (loading) {
+                loginBtn.classList.add('loading');
+                loginBtn.innerText = '登录中...';
+            } else {
+                loginBtn.classList.remove('loading');
+                loginBtn.innerText = '登 录';
+            }
+        }
+
+        // 执行登录
+        async function performLogin() {
+            if (isLoading) return;
+
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+
+            if (!username || !password) {
+                showError('请填写用户名和密码');
+                return;
+            }
+
+            clearError();
+            setLoading(true);
+
+            try {
+                const response = await fetch('/user/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ username, password })
+                });
+
+                // 检查 HTTP 状态
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                if (data.code === 200 && data.data) {
+                    // 登录成功，存储用户信息到 localStorage
+                    localStorage.setItem('isLogin', 'true');
+                    localStorage.setItem('username', data.data.username);
+                    localStorage.setItem('userId', data.data.id);
+                    // 可选：存储头像等其他信息
+                    if (data.data.avatar) {
+                        localStorage.setItem('avatar', data.data.avatar);
+                    }
+                    // 显示成功提示（短暂）
+                    const originalText = loginBtn.innerText;
+                    loginBtn.innerText = '✓ 登录成功';
+                    setTimeout(() => {
+                        window.location.href = '/index.html';
+                    }, 300);
+                } else {
+                    // 登录失败（用户名或密码错误）
+                    showError(data.msg || '用户名或密码错误');
+                    setLoading(false);
+                }
+            } catch (error) {
+                console.error('登录请求失败:', error);
+                showError('网络异常，请检查后端服务是否启动');
+                setLoading(false);
+            }
+        }
+
+        // 密码显示/隐藏切换
+        function togglePasswordVisibility() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            togglePwdBtn.innerText = type === 'password' ? '👁️' : '🙈';
+        }
+
+        // 绑定事件
+        loginBtn.addEventListener('click', performLogin);
+
+        // 回车键登录
+        const handleKeyPress = (e) => {
+            if (e.key === 'Enter' && !isLoading) {
+                performLogin();
+            }
+        };
+        usernameInput.addEventListener('keypress', handleKeyPress);
+        passwordInput.addEventListener('keypress', handleKeyPress);
+
+        // 密码眼睛切换
+        togglePwdBtn.addEventListener('click', togglePasswordVisibility);
+
+        // 输入时清除错误提示
+        usernameInput.addEventListener('input', clearError);
+        passwordInput.addEventListener('input', clearError);
+
+        // 自动聚焦用户名输入框
+        usernameInput.focus();
+    })();
+</script>
+</body>
+</html>

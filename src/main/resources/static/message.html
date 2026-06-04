@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>壹一森林</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/pinyin-pro@3.19.6/dist/index.js"></script>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background-color:#fff9f5;font-family:"Microsoft YaHei",sans-serif;}
+        .big{display:flex;align-items:center;background:rgb(255,255,158);padding:8px 15px;justify-content:space-between;margin:10px 100px;border-radius:15px;height:46px;}
+        .first{display:flex;align-items:center;gap:6px;}
+        .heart{font-size:16px;cursor:pointer;transition:0.2s;}
+        .heart:hover{transform:scale(1.1);}
+        .name p{font-size:12px;line-height:1.2;color:rgb(146,86,30);}
+        .bell{font-size:18px;color:rgb(199,199,158);cursor:pointer;margin-left:6px;transition:0.3s;position:relative;}
+        .bell:hover{color:#f8446e;}
+        .red-dot{position:absolute;top:-5px;right:-8px;width:10px;height:10px;background:#f8446e;border-radius:50%;display:none;}
+        .nav{display:flex;background:rgb(252,252,192);color:rgb(146,86,30);padding:2px 10px;border-radius:15px;height:28px;gap:12px;}
+        .nav-item{padding:2px 10px;border:2px solid transparent;border-radius:15px;transition:all 0.3s ease;font-size:14px;cursor:pointer;}
+        .nav-item.active{background-color:rgb(255,239,200);transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+        .nav-item:hover{background-color:rgb(255,239,200);transform:translateY(-1px);}
+        .user-right{display:flex;align-items:center;gap:8px;background:#ffdde0;padding:4px 12px;border-radius:20px;color:#c74c70;font-weight:bold;font-size:13px;cursor:pointer;}
+        .switch-btn{width:28px;height:14px;background:#fff;border-radius:10px;position:relative;}
+        .switch-btn::before{content:'';width:10px;height:10px;background:#f8446e;border-radius:50%;position:absolute;top:2px;left:2px;transition:0.2s;}
+        .switch-btn.active::before{left:16px;}
+        .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.3);display:none;align-items:center;justify-content:center;z-index:999;}
+        .modal-content{background:#fff;width:280px;padding:25px;border-radius:16px;text-align:center;}
+        .modal-title{font-size:16px;margin-bottom:15px;}
+        .modal-btns{display:flex;gap:10px;justify-content:center;}
+        .modal-btn{padding:6px 18px;border-radius:20px;border:none;cursor:pointer;font-size:13px;}
+        .cancel{background:#f1f1f1;color:#666;}
+        .logout{background:#f8446e;color:#fff;}
+
+        .message-container{max-width:800px;margin:30px auto 60px;padding:0 20px;}
+        .message-title{font-size:28px;color:#e67a8a;margin-bottom:20px;text-align:center;}
+
+        .tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;justify-content:center;}
+        .tab{padding:8px 20px;border-radius:30px;background:#f0e0d0;color:#9c5a22;cursor:pointer;transition:all 0.2s;font-size:14px;border:none;}
+        .tab.active{background:#e67a8a;color:#fff;}
+
+        .message-list{background:#fff;border-radius:20px;padding:10px;box-shadow:0 4px 12px rgba(245,190,150,0.1);margin-bottom:20px;}
+        .message-item{display:flex;align-items:center;gap:15px;padding:15px;border-bottom:1px solid #f0d8c0;cursor:pointer;transition:background 0.2s;}
+        .message-item:last-child{border-bottom:none;}
+        .message-item:hover{background:#fffaf5;}
+        .message-item.unread{background:#fff0e8;}
+
+        .module-icon{width:45px;height:45px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+        .module-icon.friend{background:#e3f2fd;}
+        .module-icon.record{background:#e8f5e9;}
+        .module-icon.album{background:#fff3e0;}
+        .module-icon.map{background:#fce4ec;}
+
+        .message-info{flex:1;}
+        .message-text{font-size:14px;color:#5a3a1a;margin-bottom:5px;line-height:1.4;}
+        .message-from{font-size:12px;color:#e67a8a;margin-bottom:3px;}
+        .message-time{font-size:11px;color:#999;}
+
+        .unread-dot{width:10px;height:10px;background:#f8446e;border-radius:50%;flex-shrink:0;}
+        .no-messages{text-align:center;padding:60px;color:#9c5a22;}
+
+        .section-title{font-size:18px;color:#9c5a22;margin:20px 0 10px;padding-left:10px;border-left:3px solid #e67a8a;}
+        .request-list{background:#fff;border-radius:20px;padding:10px;margin-bottom:20px;box-shadow:0 4px 12px rgba(245,190,150,0.1);}
+        .request-item{display:flex;align-items:center;justify-content:space-between;padding:15px;border-bottom:1px solid #f0d8c0;}
+        .request-item:last-child{border-bottom:none;}
+        .request-info{display:flex;align-items:center;gap:15px;}
+        .request-avatar{width:45px;height:45px;border-radius:50%;background:#ffe8e8;background-size:cover;}
+        .request-name{font-size:15px;font-weight:bold;color:#9c5a22;}
+        .request-time{font-size:11px;color:#999;margin-top:3px;}
+        .request-buttons button{padding:6px 20px;border-radius:25px;border:none;font-size:13px;cursor:pointer;margin-left:10px;}
+        .accept-btn{background:#7ccd7c;color:#fff;}
+        .reject-btn{background:#ddd;color:#666;}
+    </style>
+</head>
+<body>
+
+<div class="big">
+    <div class="first">
+        <div class="heart" onclick="toUserInfo()">❤️</div>
+        <div class="name">
+            <p>SPACE</p>
+            <p>壹一森林</p>
+        </div>
+        <div class="bell" onclick="goToMessage()">
+            <i class="fa-solid fa-bell"></i>
+            <span class="red-dot" id="redDot"></span>
+        </div>
+    </div>
+    <div class="nav">
+        <div class="nav-item" onclick="go('index')">首页</div>
+        <div class="nav-item" onclick="go('role')">朋友</div>
+        <div class="nav-item" onclick="go('record')">记录</div>
+        <div class="nav-item" onclick="go('album')">相册</div>
+        <div class="nav-item" onclick="go('map')">地图</div>
+    </div>
+    <div class="user-right" onclick="showLogoutModal()">
+        <span id="userInitial">加载中...</span>
+        <div class="switch-btn" id="switch"></div>
+    </div>
+</div>
+
+<div class="modal" id="logoutModal">
+    <div class="modal-content">
+        <div class="modal-title">确定要退出登录吗？</div>
+        <div class="modal-btns">
+            <button class="modal-btn cancel" onclick="closeModal()">取消</button>
+            <button class="modal-btn logout" onclick="logout()">退出</button>
+        </div>
+    </div>
+</div>
+
+<div class="message-container">
+    <h1 class="message-title">消息中心</h1>
+
+    <div class="tabs">
+        <button class="tab active" data-module="all">全部</button>
+        <button class="tab" data-module="friend">👥 朋友</button>
+        <button class="tab" data-module="record">📝 记录</button>
+        <button class="tab" data-module="album">📷 相册</button>
+        <button class="tab" data-module="map">🗺️ 地图</button>
+    </div>
+
+    <div class="section-title">📢 互动通知</div>
+    <div class="message-list" id="notificationList">
+        <div class="no-messages">加载中...</div>
+    </div>
+
+    <div class="section-title">👫 好友申请</div>
+    <div class="request-list" id="requestList">
+        <div class="no-messages">加载中...</div>
+    </div>
+</div>
+
+<script>
+    let currentModule = 'all';
+    let notifications = [];
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;'));
+    }
+
+    function showMessage(msg) { alert(msg); }
+    function closeModal() { document.getElementById('logoutModal').style.display = 'none'; document.getElementById('switch').classList.remove('active'); }
+
+    function formatTime(timeStr) {
+        if (!timeStr) return '';
+        try {
+            let date = new Date(timeStr);
+            let now = new Date();
+            let diff = now - date;
+            if (diff < 60000) return '刚刚';
+            if (diff < 3600000) return Math.floor(diff / 60000) + '分钟前';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + '小时前';
+            if (diff < 604800000) return Math.floor(diff / 86400000) + '天前';
+            return date.toLocaleDateString();
+        } catch(e) {
+            return timeStr;
+        }
+    }
+
+    function getModuleIcon(module) {
+        switch(module) {
+            case 'friend': return '👥';
+            case 'record': return '📝';
+            case 'album': return '📷';
+            case 'map': return '🗺️';
+            default: return '📢';
+        }
+    }
+
+    function getModuleName(module) {
+        switch(module) {
+            case 'friend': return '朋友';
+            case 'record': return '记录';
+            case 'album': return '相册';
+            case 'map': return '地图';
+            default: return '通知';
+        }
+    }
+
+    function getNameInitials(username) {
+        if (!username) return '游客';
+        const { pinyin } = window.pinyinPro || window.pinyin;
+        if (!pinyin) return username.charAt(0).toUpperCase();
+        return username.split('').map(ch => {
+            if (/[a-zA-Z]/.test(ch)) return ch.toUpperCase();
+            if (/[\u4e00-\u9fa5]/.test(ch)) {
+                const py = pinyin(ch, { pattern: 'first', toneType: 'none' });
+                return py ? py.toUpperCase() : ch;
+            }
+            return ch.toUpperCase();
+        }).join(' ');
+    }
+
+    // ========== 跳转函数（挂载到window） ==========
+    window.navigateByNotification = function(notif) {
+        console.log('【跳转入参】', notif);
+        const module = notif.module;
+        const type = notif.type;
+        const targetId = notif.targetId;
+        let jumpUrl = '';
+        switch(module) {
+            case 'album':
+                jumpUrl = 'about.html';
+                break;
+            case 'record':
+                if(targetId && ['NEW_DIARY','LIKE','COMMENT','REPLY'].includes(type)){
+                    jumpUrl = `diary-detail.html?id=${targetId}`;
+                }else{
+                    jumpUrl = 'diary.html';
+                }
+                break;
+            case 'map':
+                jumpUrl = 'travel.html';
+                break;
+            case 'friend':
+                jumpUrl = 'member.html';
+                break;
+            default:
+                if(targetId && ['LIKE','COMMENT','REPLY'].includes(type)){
+                    jumpUrl = `diary-detail.html?id=${targetId}`;
+                }else{
+                    jumpUrl = 'index.html';
+                }
+                break;
+        }
+        console.log('【最终跳转路径】', jumpUrl);
+        location.href = jumpUrl;
+    }
+
+    // ========== 最终版：已读变灰 + 仅删除/照片不跳转 + 过期可跳转 ==========
+    window.handleNotificationClick = async function(notificationId) {
+        console.log('【进入点击】消息ID：', notificationId);
+
+        // 1. 查找消息
+        const notif = notifications.find(n => n.id === notificationId);
+        if (!notif) {
+            alert('该消息已删除，无法跳转');
+            return;
+        }
+
+        const temp = { ...notif };
+        console.log('【消息数据】', temp);
+
+        try {
+            // 标记已读请求
+            const res = await fetch("/user/notification/read", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: notif.id }),
+                credentials: "include"
+            });
+            console.log('【标记已读成功】', res.ok);
+
+            // ✅ 已读变灰
+            notif.isRead = 1;
+            renderNotifications();
+
+        } catch (err) {
+            console.error('请求异常', err);
+        }
+
+        // ==============================================
+        // ✅ 核心规则：只有【删除/照片类】不跳转，其余都跳转
+        // ==============================================
+        const cannotJumpTypes = ['DELETED', 'DELETE', 'NEW_PHOTO', 'PHOTO'];
+
+        if (cannotJumpTypes.includes(temp.type)) {
+            alert('该内容已删除或不支持跳转');
+            return;
+        }
+
+        // ✅ 过期消息 → 照样跳转！
+        // ✅ 其他所有正常消息 → 跳转
+        console.log('【正常跳转】');
+        window.navigateByNotification(temp);
+    }
+
+    // 加载通知
+    async function loadNotifications() {
+        try {
+            const res = await fetch("/user/notifications", { method: "GET", credentials: "include" });
+            const result = await res.json();
+            const container = document.getElementById('notificationList');
+            if (result.code === 200 && result.data && result.data.length > 0) {
+                notifications = result.data;
+                console.log('加载到的通知:', notifications);
+                renderNotifications();
+            } else {
+                container.innerHTML = '<div class="no-messages">暂无互动消息</div>';
+                notifications = [];
+            }
+        } catch (err) {
+            document.getElementById('notificationList').innerHTML = '<div class="no-messages">加载失败，请检查网络</div>';
+        }
+    }
+
+    // 渲染通知（已启用）
+    function renderNotifications() {
+        const container = document.getElementById('notificationList');
+        let filtered = currentModule === 'all' ? notifications : notifications.filter(n => n.module === currentModule);
+
+        if (!filtered || filtered.length === 0) {
+            container.innerHTML = '<div class="no-messages">暂无消息</div>';
+            return;
+        }
+
+        container.innerHTML = filtered.map(notif => `
+            <div class="message-item ${notif.isRead === 0 ? 'unread' : ''}" onclick="window.handleNotificationClick(${notif.id})">
+                <div class="module-icon ${notif.module || 'friend'}">
+                    ${getModuleIcon(notif.module)}
+                </div>
+                <div class="message-info">
+                    <div class="message-from">${escapeHtml(notif.fromUsername || '用户')} · ${getModuleName(notif.module)}</div>
+                    <div class="message-text">${escapeHtml(notif.content)}</div>
+                    <div class="message-time">${formatTime(notif.createTime)}</div>
+                </div>
+                ${notif.isRead === 0 ? '<div class="unread-dot"></div>' : ''}
+            </div>
+        `).join('');
+    }
+
+    // 加载好友申请
+    async function loadFriendRequests() {
+        try {
+            const res = await fetch("/user/pendingRequests", { method: "GET", credentials: "include" });
+            const result = await res.json();
+            const container = document.getElementById('requestList');
+            if (result.code === 200 && result.data && result.data.length > 0) {
+                let html = '';
+                for (let req of result.data) {
+                    let avatarStyle = req.avatar && req.avatar.startsWith('data:image')
+                        ? `style="background-image: url('${req.avatar}'); background-size: cover; background-position: center;"`
+                        : '';
+                    html += `
+                        <div class="request-item" data-id="${req.id}">
+                            <div class="request-info">
+                                <div class="request-avatar" ${avatarStyle}></div>
+                                <div class="request-detail">
+                                    <div class="request-name">${escapeHtml(req.username)}</div>
+                                    <div class="request-time">申请添加好友</div>
+                                </div>
+                            </div>
+                            <div class="request-buttons">
+                                <button class="accept-btn" onclick="window.handleFriendRequest(${req.id}, 'accept', this)">接受</button>
+                                <button class="reject-btn" onclick="window.handleFriendRequest(${req.id}, 'reject', this)">拒绝</button>
+                            </div>
+                        </div>
+                    `;
+                }
+                container.innerHTML = html;
+            } else {
+                container.innerHTML = '<div class="no-messages">暂无好友申请</div>';
+            }
+        } catch (err) {
+            document.getElementById('requestList').innerHTML = '<div class="no-messages">加载失败</div>';
+        }
+    }
+
+    // 处理好友申请
+    window.handleFriendRequest = async function(requestId, action, btnElement) {
+        const url = action === 'accept' ? "/user/acceptRequest" : "/user/rejectRequest";
+        try {
+            const res = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ requestId }),
+                credentials: "include"
+            });
+            const result = await res.json();
+            if (result.code === 200) {
+                showMessage(action === 'accept' ? "已添加好友" : "已拒绝申请");
+                const item = btnElement.closest('.request-item');
+                if (item) item.remove();
+                if (document.querySelectorAll('.request-item').length === 0) {
+                    document.getElementById('requestList').innerHTML = '<div class="no-messages">暂无好友申请</div>';
+                }
+            } else {
+                showMessage("操作失败：" + (result.msg || "未知错误"));
+            }
+        } catch (err) {
+            showMessage("网络错误");
+        }
+    }
+
+    // 更新红点（修复，防止报错）
+    async function updateTotalRedDot() {
+        try {
+            const notifRes = await fetch("/user/unreadNotificationCount", { method: "GET", credentials: "include" });
+            const notifResult = await notifRes.json();
+            let unreadCount = notifResult.code === 200 ? (notifResult.data || 0) : 0;
+
+            const requestRes = await fetch("/user/unreadRequestCount", { method: "GET", credentials: "include" });
+            const requestResult = await requestRes.json();
+            let requestCount = requestResult.code === 200 ? (requestResult.data || 0) : 0;
+
+            const totalUnread = unreadCount + requestCount;
+            const redDot = document.getElementById('redDot');
+            if (redDot) redDot.style.display = totalUnread > 0 ? 'block' : 'none';
+        } catch (err) {}
+    }
+
+    // 标签切换
+    function setupTabs() {
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentModule = tab.getAttribute('data-module');
+                renderNotifications();
+            });
+        });
+    }
+
+    // 页面初始化
+    window.onload = async function() {
+        try {
+            const res = await fetch("/user/info", { method: "GET", credentials: "include" });
+            const result = await res.json();
+            if (result.code === 200 && result.data && result.data.username) {
+                const initials = getNameInitials(result.data.username);
+                document.getElementById('userInitial').innerText = initials;
+                localStorage.setItem('username', result.data.username);
+            } else {
+                window.location.href = 'login.html';
+                return;
+            }
+        } catch (e) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        await Promise.all([loadNotifications(), loadFriendRequests()]);
+        setupTabs();
+        updateTotalRedDot();
+        setInterval(updateTotalRedDot, 30000);
+    };
+
+    // 导航函数
+    function toUserInfo() { location.href = "user-info.html"; }
+    function goToMessage() { location.href = "message.html"; }
+    function go(page) {
+        const links = { index:"index.html", role:"member.html", record:"diary.html", album:"about.html", map:"travel.html" };
+        window.location.href = links[page];
+    }
+    function showLogoutModal() {
+        document.getElementById('logoutModal').style.display = 'flex';
+        document.getElementById('switch').classList.add('active');
+    }
+    function logout() {
+        localStorage.removeItem('isLogin');
+        localStorage.removeItem('username');
+        fetch("/user/logout", { method: "POST", credentials: "include" }).catch(e=>{});
+        location.href = 'login.html';
+    }
+</script>
+</body>
+</html>

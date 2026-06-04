@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>用户列表</title>
+</head>
+<body>
+    <h1>用户列表</h1>
+    <ul id="userList"></ul>
+
+    <script>
+        // 后端接口地址
+        const API_URL = "http://localhost:8080/user/list";
+
+        // 页面加载后请求接口
+        window.onload = async () => {
+            try {
+                // 发送GET请求
+                const response = await fetch(API_URL, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+                const userList = await response.json();
+
+                // 渲染到页面
+                const userListDom = document.getElementById("userList");
+                userList.forEach(user => {
+                    const li = document.createElement("li");
+                    li.innerText = `ID: ${user.id} | 用户名: ${user.username} | 创建时间: ${new Date(user.createTime).toLocaleString()}`;
+                    userListDom.appendChild(li);
+                });
+            } catch (error) {
+                console.error("请求失败：", error);
+                alert("获取用户列表失败！");
+            }
+        };
+    </script>
+</body>
+</html>

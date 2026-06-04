@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>壹一森林</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:#fff9f5;font-family:"Microsoft YaHei"}
+        .big{display:flex;align-items:center;background:rgb(255,255,158);padding:8px 15px;margin:10px 100px;border-radius:15px;height:46px;justify-content:space-between}
+        .first{display:flex;align-items:center;gap:6px}
+        .heart{font-size:16px;cursor:pointer}
+        .name p{font-size:12px;color:rgb(146,86,30)}
+        .bell{font-size:18px;color:rgb(199,199,158);cursor:pointer;position:relative}
+        .red-dot{position:absolute;top:-5px;right:-8px;width:10px;height:10px;background:#f8446e;border-radius:50%;display:none}
+        .nav{display:flex;background:rgb(252,252,192);color:rgb(146,86,30);padding:2px 10px;border-radius:15px;height:28px;gap:12px}
+        .nav-item{padding:2px 10px;border-radius:15px;font-size:14px;cursor:pointer}
+        .nav-item.active{background:rgb(255,239,200);transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.1)}
+        .user-right{display:flex;align-items:center;background:#ffdde0;padding:4px 12px;border-radius:20px;color:#c74c70;font-size:13px;font-weight:bold;cursor:pointer}
+        .switch-btn{width:28px;height:14px;background:#fff;border-radius:10px;position:relative}
+        .switch-btn::before{content:'';width:10px;height:10px;background:#f8446e;border-radius:50%;position:absolute;top:2px;left:2px}
+        .container{max-width:700px;margin:30px auto;padding:20px;background:#fff;border-radius:24px;box-shadow:0 4px 12px rgba(245,190,150,.15)}
+        .img-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:1000}
+        .img-modal img{max-width:90%;max-height:90%;border-radius:16px}
+        .comment-item{background:#fff0e8;border-radius:16px;padding:12px;margin-top:12px}
+        .comment-reply{background:#ffe8e0;border-radius:12px;padding:10px;margin:8px 0 8px 30px}
+        .like-btn,.comment-btn,.fav-btn{background:none;border:none;color:#c74c70;cursor:pointer;font-size:14px}
+    </style>
+</head>
+<body>
+<div class="big">
+    <div class="first">
+        <div class="heart" onclick="toUserInfo()">❤️</div>
+        <div class="name"><p>SPACE</p><p>壹一森林</p></div>
+        <div class="bell" onclick="goToMessage()"><i class="fa-solid fa-bell"></i><span class="red-dot" id="redDot"></span></div>
+    </div>
+    <div class="nav">
+        <div class="nav-item" onclick="go('index')">首页</div>
+        <div class="nav-item" onclick="go('role')">朋友</div>
+        <div class="nav-item active" onclick="go('record')">记录</div>
+        <div class="nav-item" onclick="go('album')">相册</div>
+        <div class="nav-item" onclick="go('map')">地图</div>
+    </div>
+    <div class="user-right" onclick="showLogoutModal()"><span id="userInitial">加载中...</span><div class="switch-btn"></div></div>
+</div>
+
+<div class="container" id="detailContainer"></div>
+
+<div class="img-modal" id="imgModal" onclick="closeModal()">
+    <img id="enlargedImg" src="">
+</div>
+
+<script>
+    let diaryId = null, currentUserId = null;
+
+    window.onload = async function () {
+        if (!localStorage.getItem('isLogin')) {
+            location.href = 'login.html';
+            return;
+        }
+
+        try {
+            const res = await fetch("/user/info", { credentials: 'include' });
+            const result = await res.json();
+            if (result.code === 200 && result.data) {
+                currentUserId = result.data.id;
+                document.getElementById('userInitial').innerText = getNameInitials(result.data.username);
+            }
+        } catch (e) {
+            console.log("用户信息加载失败");
+        }
+
+        const params = new URLSearchParams(location.search);
+        diaryId = params.get('id');
+        if (!diaryId) {
+            alert('参数错误');
+            return;
+        }
+        await loadDetail();
+    };
+
+    async function loadDetail() {
+        const res = await fetch(`/user/diary/detail?id=${diaryId}`, { credentials: 'include' });
+        const result = await res.json();
+        if (result.code !== 200) {
+            alert('无法查看');
+            return;
+        }
+        const d = result.data;
+
+        let photosHtml = '';
+        if (d.photos) {
+            try {
+                const arr = JSON.parse(d.photos);
+                arr.forEach(p => {
+                    photosHtml += `<img src="${p}" style="width:100px;height:100px;border-radius:12px;margin:4px;cursor:pointer" onclick="openImg('${p}')">`;
+                });
+            } catch (e) {}
+        }
+
+        const resC = await fetch(`/user/diary/comments?diaryId=${diaryId}`, { credentials: 'include' });
+        const resultC = await resC.json();
+        let commentsHtml = '';
+        if (resultC.code === 200 && resultC.data) {
+            resultC.data.filter(c => !c.parentId).forEach(c => {
+                commentsHtml += `
+                <div class="comment-item">
+                    <div><strong>${escapeHtml(c.username)}</strong> ${c.createTime}</div>
+                    <div>${escapeHtml(c.content)}</div>
+                    <button class="like-btn" onclick="toggleCommentLike(this,${c.id})">❤️ ${c.likeCount}</button>
+                    <button class="comment-btn" onclick="showReplyBox(${c.id})">回复</button>
+                    <div id="reply-${c.id}"></div>
+                </div>
+                `;
+                resultC.data.filter(r => r.parentId === c.id).forEach(r => {
+                    commentsHtml += `
+                    <div class="comment-reply">
+                        <div><strong>${escapeHtml(r.username)}</strong> 回复 ${escapeHtml(r.replyToUsername)}</div>
+                        <div>${escapeHtml(r.content)}</div>
+                        <button class="like-btn" onclick="toggleCommentLike(this,${r.id})">❤️ ${r.likeCount}</button>
+                    </div>
+                    `;
+                });
+            });
+        }
+
+        document.getElementById('detailContainer').innerHTML = `
+            <h2 style="color:#c74c70">${escapeHtml(d.title)}</h2>
+            <div>${escapeHtml(d.username)} · ${d.createTime}</div>
+            <div style="margin:10px 0">${escapeHtml(d.content)}</div>
+            <div>${photosHtml}</div>
+            <div style="display:flex;gap:15px;margin:10px 0">
+                <button class="like-btn" data-id="${d.id}" onclick="toggleLike(this)">❤️ ${d.likeCount}</button>
+                <button class="fav-btn" data-id="${d.id}" onclick="toggleFav(this)">⭐ ${d.favoriteCount}</button>
+            </div>
+            <h3>留言</h3>
+            <div id="commentsArea">${commentsHtml}</div>
+            <textarea id="newComment" placeholder="写留言..." style="width:100%;border:1px solid #f7d3c2;border-radius:12px;padding:8px;margin-top:10px"></textarea>
+            <button onclick="submitComment()" style="background:#ffccd5;border:none;border-radius:20px;padding:6px 16px;color:#c74c70;margin-top:8px">发布留言</button>
+        `;
+    }
+
+    async function toggleLike(btn) {
+        const id = btn.dataset.id;
+        const res = await fetch('/user/diary/toggleLike', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ diaryId: id }),
+            credentials: 'include'
+        });
+        const result = await res.json();
+        let num = parseInt(btn.innerText.match(/\d+/)[0]);
+        btn.innerText = `❤️ ${result.liked ? num + 1 : num - 1}`;
+    }
+
+    async function toggleFav(btn) {
+        const id = btn.dataset.id;
+        const res = await fetch('/user/diary/toggleFavorite', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ diaryId: id }),
+            credentials: 'include'
+        });
+        const result = await res.json();
+        let num = parseInt(btn.innerText.match(/\d+/)[0]);
+        btn.innerText = `⭐ ${result.favorited ? num + 1 : num - 1}`;
+    }
+
+    async function toggleCommentLike(btn, id) {
+        const res = await fetch('/user/diary/toggleCommentLike', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ commentId: id }),
+            credentials: 'include'
+        });
+        const result = await res.json();
+        let num = parseInt(btn.innerText.match(/\d+/)[0]);
+        btn.innerText = `❤️ ${result.liked ? num + 1 : num - 1}`;
+    }
+
+    function showReplyBox(cid) {
+        const box = document.getElementById(`reply-${cid}`);
+        box.innerHTML = `<input placeholder="回复..." style="width:70%;padding:6px;border-radius:12px;border:1px solid #f7d3c2"><button onclick="submitReply(${cid})">发送</button>`;
+    }
+
+    async function submitComment() {
+        const txt = document.getElementById('newComment').value.trim();
+        if (!txt) {
+            alert('不能为空');
+            return;
+        }
+        const res = await fetch('/user/diary/addComment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ diaryId: diaryId, content: txt, parentId: 0 }),
+            credentials: 'include'
+        });
+        const result = await res.json();
+        if (result.code === 200) {
+            alert('成功');
+            loadDetail();
+        }
+    }
+
+    async function submitReply(cid) {
+        const txt = document.querySelector(`#reply-${cid} input`).value.trim();
+        if (!txt) return;
+        const res = await fetch('/user/diary/addComment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ diaryId: diaryId, content: txt, parentId: cid }),
+            credentials: 'include'
+        });
+        const result = await res.json();
+        if (result.code === 200) {
+            alert('回复成功');
+            loadDetail();
+        }
+    }
+
+    function openImg(src) {
+        document.getElementById('enlargedImg').src = src;
+        document.getElementById('imgModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('imgModal').style.display = 'none';
+    }
+
+    function escapeHtml(s) {
+        if (!s) return '';
+        return s.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+    }
+
+    function getNameInitials(n) {
+        if (!n) return '游客';
+        return n.substring(0, 1).toUpperCase();
+    }
+
+    function go(page) {
+        const links = {
+            index: "index.html",
+            role: "member.html",
+            record: "diary.html",
+            album: "about.html",
+            map: "travel.html"
+        };
+        location.href = links[page];
+    }
+
+    function toUserInfo() {
+        location.href = "user-info.html";
+    }
+
+    function goToMessage() {
+        location.href = "message.html";
+    }
+
+    function showLogoutModal() {
+        if (confirm("确定退出登录？")) {
+            localStorage.removeItem("isLogin");
+            location.href = "login.html";
+        }
+    }
+</script>
+</body>
+</html>

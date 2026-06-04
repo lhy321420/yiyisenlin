@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>壹一森林 - 地图</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/pinyin-pro@3.19.6/dist/index.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: #fff9f5; font-family: "Microsoft YaHei", sans-serif; }
+        .big {
+            display: flex;
+            align-items: center;
+            background: rgb(255, 255, 158);
+            padding: 8px 15px;
+            justify-content: space-between;
+            margin: 10px 100px;
+            border-radius: 15px;
+            height: 46px;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 800px) {
+            .big { margin: 10px 20px; }
+            .filter-bar { padding: 0 15px; }
+            .map-wrap { padding: 0 15px; }
+        }
+        .first { display: flex; align-items: center; gap: 6px; }
+        .heart{font-size:16px;cursor:pointer;transition:0.2s;}
+        .heart:hover{transform:scale(1.1);}
+        .name p { font-size: 12px; line-height: 1.2; color: rgb(146, 86, 30); }
+        .bell{font-size:18px;color:rgb(199, 199, 158);cursor:pointer;margin-left:6px;transition:0.3s;position:relative;}
+        .bell:hover{color:#f8446e;}
+        .red-dot{position:absolute;top:-5px;right:-8px;width:10px;height:10px;background:#f8446e;border-radius:50%;display:none;}
+        .nav {
+            display: flex;
+            background: rgb(252, 252, 192);
+            color: rgb(146, 86, 30);
+            padding: 2px 10px;
+            border-radius: 15px;
+            height: 28px;
+            gap: 12px;
+        }
+        .nav-item {
+            padding: 2px 10px;
+            border: 2px solid transparent;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .nav-item.active {
+            background-color: rgb(255, 239, 200);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .nav-item:hover {
+            background-color: rgb(255, 239, 200);
+            transform: translateY(-1px);
+        }
+        .user-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #ffdde0;
+            padding: 4px 12px;
+            border-radius: 20px;
+            color: #c74c70;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .switch-btn {
+            width: 28px;
+            height: 14px;
+            background: #fff;
+            border-radius: 10px;
+            position: relative;
+        }
+        .switch-btn::before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: #f8446e;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px; left: 2px;
+            transition: 0.2s;
+        }
+        .switch-btn.active::before { left: 16px; }
+
+        .filter-bar {
+            max-width: 1200px;
+            margin: 25px auto;
+            padding: 0 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            background: #fffaf5;
+            border-radius: 40px;
+        }
+        .filter-title { font-size: 24px; color: #e67a8a; font-weight: 600; margin-right: 5px; }
+        .filter-select {
+            padding: 8px 14px;
+            border: 1px solid #f0d8c0;
+            border-radius: 20px;
+            outline: none;
+            font-size: 14px;
+            background: #fff;
+        }
+        .filter-btn {
+            padding: 8px 20px;
+            background: #ffccd5;
+            color: #c74c70;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+        .filter-btn:hover { background: #ffb3c1; }
+
+        .map-wrap {
+            max-width: 1200px;
+            margin: 0 auto 20px;
+            padding: 0 20px;
+            position: relative;
+        }
+        #chinaMap {
+            width: 100%;
+            height: 650px;
+            border-radius: 20px;
+            border: 2px solid #ffccd5;
+            background: #fff9f5;
+            z-index: 1;
+        }
+        .desc-tips {
+            max-width: 1100px;
+            margin: 10px auto 40px;
+            padding: 12px 20px;
+            text-align: center;
+            color: #9c5a22;
+            font-size: 14px;
+            background: #fff2e6;
+            border-radius: 40px;
+            width: fit-content;
+        }
+        .stats-bar {
+            max-width: 1100px;
+            margin: 0 auto 20px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            background: #fff0e0;
+            padding: 8px 18px;
+            border-radius: 32px;
+            font-size: 13px;
+            color: #a55b2a;
+            flex-wrap: wrap;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        .stat-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+        }
+        .stat-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 20px;
+        }
+        .modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.3);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+        .modal-content {
+            background: #fff;
+            width: 280px;
+            padding: 25px;
+            border-radius: 16px;
+            text-align: center;
+        }
+        .modal-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .modal-btn {
+            padding: 6px 18px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+        }
+        .cancel { background: #f1f1f1; }
+        .logout { background: #f8446e; color: #fff; }
+        .toast-msg {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #f7d9c4;
+            color: #a3442e;
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 14px;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            pointer-events: none;
+        }
+        .city-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .city-card {
+            background-color: #fffaf2;
+            border-radius: 28px;
+            width: 340px;
+            padding: 24px;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.25);
+            text-align: center;
+            border: 1px solid #ffddb0;
+            animation: fadeInUp 0.25s ease;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .city-title {
+            font-size: 26px;
+            font-weight: bold;
+            color: #c74c70;
+            margin-bottom: 18px;
+            border-bottom: 2px dashed #ffccd5;
+            padding-bottom: 10px;
+        }
+        .state-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .state-btn {
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .state-btn:hover { transform: scale(0.96); opacity: 0.9; }
+        .func-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .func-btn {
+            background-color: #ffdde0;
+            border: none;
+            padding: 12px;
+            border-radius: 40px;
+            font-size: 16px;
+            cursor: pointer;
+            color: #b94e6e;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .func-btn:hover {
+            background-color: #ffccd5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(255, 179, 193, 0.4);
+        }
+        .close-card-btn {
+            margin-top: 18px;
+            padding: 10px 28px;
+            background: #ffe0d4;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            color: #b3623a;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .close-card-btn:hover {
+            background: #ffd0c0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(255, 224, 212, 0.4);
+        }
+        .province-label {
+            font-size: 12px;
+            font-weight: bold;
+            text-shadow: 1px 1px 0 white;
+            color: #c74c70;
+            white-space: nowrap;
+            background: rgba(255,255,255,0.85);
+            padding: 2px 6px;
+            border-radius: 15px;
+            border: 1px solid #ffb3c1;
+        }
+        .city-list-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 200px;
+            background: #fff;
+            border-radius: 16px;
+            padding: 14px;
+            box-shadow: 0 4px 12px rgba(255,204,213,0.2);
+            border: 1px solid #ffccd5;
+            max-height: 500px;
+            overflow-y: auto;
+            z-index: 100;
+        }
+        .city-list-title {
+            text-align: center;
+            color: #c74c70;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .city-list-item {
+            padding: 6px 10px;
+            background: #fff9f5;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: #9c5a22;
+            border-left: 3px solid #ffccd5;
+        }
+        .city-list-empty {
+            text-align: center;
+            color: #ccc;
+            font-size: 12px;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="big">
+    <div class="first">
+        <div class="heart" onclick="toUserInfo()">❤️</div>
+        <div class="name"><p>SPACE</p><p>壹一森林</p></div>
+        <div class="bell" onclick="goToMessage()">
+            <i class="fa-solid fa-bell"></i>
+            <span class="red-dot" id="redDot"></span>
+        </div>
+    </div>
+    <div class="nav">
+        <div class="nav-item" onclick="go('index')"><strong>首页</strong></div>
+        <div class="nav-item" onclick="go('role')"><strong>朋友</strong></div>
+        <div class="nav-item" onclick="go('record')"><strong>记录</strong></div>
+        <div class="nav-item" onclick="go('album')"><strong>相册</strong></div>
+        <div class="nav-item active" onclick="go('map')"><strong>地图</strong></div>
+    </div>
+    <div class="user-right" onclick="showLogoutModal()">
+        <span id="userInitial">加载中...</span>
+        <div class="switch-btn" id="switch"></div>
+    </div>
+</div>
+
+<div class="filter-bar">
+    <h2 class="filter-title">森林地图</h2>
+    <select class="filter-select" id="stateFilterSelect">
+        <option value="all">全部状态</option>
+        <option value="go">已去过</option>
+        <option value="want">想去打卡</option>
+    </select>
+    <button class="filter-btn" id="filterQueryBtn">筛选查询</button>
+</div>
+
+<div class="stats-bar">
+    <div class="stat-badge"><span class="stat-color" style="background:#7ccd7c;"></span> <span id="goCount">0</span> 已去过</div>
+    <div class="stat-badge"><span class="stat-color" style="background:#ff4a6c;"></span> <span id="wantCount">0</span> 想去</div>
+</div>
+
+<div class="map-wrap">
+    <div id="chinaMap"></div>
+    <div class="city-list-panel" id="cityListPanel">
+        <div class="city-list-title">📍 筛选城市列表</div>
+        <div id="cityListContent"></div>
+    </div>
+</div>
+
+<div class="desc-tips">
+    💡 点击城市区域 → 修改状态(绿色=已去过 / 粉色=想去) | 取消状态 | 上传相册 📸 | 写记录 ✍️ | 发攻略 📖
+</div>
+
+<div class="modal" id="logoutModal">
+    <div class="modal-content">
+        <h3>确定退出登录？</h3>
+        <div class="modal-btns">
+            <button class="modal-btn cancel" onclick="closeModal()">取消</button>
+            <button class="modal-btn logout" onclick="logout()">退出</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==================== 顶部导航功能 ====================
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;'));
+    }
+
+    function getNameInitials(username) {
+        if (!username) return '游客';
+        const { pinyin } = window.pinyinPro || window.pinyin;
+        if (!pinyin) return username.charAt(0).toUpperCase();
+        return username.split('').map(ch => {
+            if (/[a-zA-Z]/.test(ch)) return ch.toUpperCase();
+            if (/[\u4e00-\u9fa5]/.test(ch)) {
+                const py = pinyin(ch, { pattern: 'first', toneType: 'none' });
+                return py ? py.toUpperCase() : ch;
+            }
+            return ch.toUpperCase();
+        }).join(' ');
+    }
+
+    function closeModal() {
+        document.getElementById('logoutModal').style.display = 'none';
+        document.getElementById('switch').classList.remove('active');
+    }
+    function toUserInfo() { location.href = "user-info.html"; }
+    function goToMessage() { window.location.href = "message.html"; }
+    function go(page) {
+        const links = { index:"index.html", role:"member.html", record:"diary.html", album:"about.html", map:"travel.html" };
+        window.location.href = links[page];
+    }
+    function showLogoutModal() {
+        document.getElementById('logoutModal').style.display = 'flex';
+        document.getElementById('switch').classList.add('active');
+    }
+    async function logout() {
+        localStorage.removeItem('isLogin');
+        localStorage.removeItem('username');
+        try { await fetch("/user/logout", { method: "POST", credentials: "include" }); } catch(e){}
+        location.href = 'login.html';
+    }
+
+    async function updateRedDot() {
+        try {
+            const res = await fetch("/user/unreadRequestCount", { method: "GET", credentials: "include" });
+            const result = await res.json();
+            const redDot = document.getElementById('redDot');
+            if (result.code === 200 && result.data > 0) redDot.style.display = 'block';
+            else redDot.style.display = 'none';
+        } catch(e) { console.error(e); }
+    }
+
+    function toastMsg(msg) {
+        let toast = document.querySelector('.toast-msg');
+        if(toast) toast.remove();
+        let div = document.createElement('div');
+        div.className = 'toast-msg';
+        div.innerText = msg;
+        document.body.appendChild(div);
+        setTimeout(() => { if(div) div.remove(); }, 2000);
+    }
+
+    // ==================== 城市状态数据 ====================
+    let cityStatus = {};
+    let map, cityLayers = {};
+    let allCityFeatures = [];
+    let currentFilter = 'all';
+
+    function getStyleByStatus(status) {
+        switch(status) {
+            case 'go':
+                return { color: '#7ccd7c', weight: 2.5, opacity: 0.9, fillColor: '#7ccd7c', fillOpacity: 0.15 };
+            case 'want':
+                return { color: '#ff476b', weight: 2.5, opacity: 0.9, fillColor: '#ff4163', fillOpacity: 0.15 };
+            default:
+                return { color: '#ffccd5', weight: 1.5, opacity: 0.6, fillColor: '#fff9f5', fillOpacity: 0.1 };
+        }
+    }
+
+    function updateCityStyle(cityName, status) {
+        if (cityLayers[cityName]) {
+            let style = getStyleByStatus(status);
+            cityLayers[cityName].setStyle(style);
+        }
+        renderCityList();
+    }
+
+    function updateStats() {
+        let go = 0, want = 0;
+        if (cityStatus && Object.keys(cityStatus).length > 0) {
+            for (let city in cityStatus) {
+                let st = cityStatus[city];
+                if (st === 'go') go++;
+                else if (st === 'want') want++;
+            }
+        }
+        document.getElementById('goCount').innerText = go;
+        document.getElementById('wantCount').innerText = want;
+        renderCityList();
+    }
+
+    function saveStatus() {
+        localStorage.setItem('city_status_data', JSON.stringify(cityStatus));
+        updateStats();
+    }
+
+    function loadStatus() {
+        const saved = localStorage.getItem('city_status_data');
+        if(saved) {
+            try {
+                let parsed = JSON.parse(saved);
+                for(let city in parsed) {
+                    cityStatus[city] = parsed[city];
+                }
+            } catch(e) {}
+        }
+    }
+
+    // 城市列表渲染
+    function renderCityList() {
+        let list = [];
+        for(let name in cityStatus) {
+            let st = cityStatus[name];
+            if(currentFilter === 'all') list.push({name, st});
+            else if(currentFilter === 'go' && st === 'go') list.push({name, st});
+            else if(currentFilter === 'want' && st === 'want') list.push({name, st});
+        }
+
+        let html = '';
+        if(list.length === 0) {
+            html = '<div class="city-list-empty">暂无城市</div>';
+        } else {
+            list.forEach(item => {
+                let color = item.st === 'go' ? '#7ccd7c' : '#ffb3c1';
+                html += `<div class="city-list-item" style="border-left-color:${color}">${item.name}</div>`;
+            });
+        }
+        document.getElementById('cityListContent').innerHTML = html;
+    }
+
+    function openCityPanel(cityName, provinceName) {
+        let existing = document.querySelector('.city-modal');
+        if(existing) existing.remove();
+
+        let modalDiv = document.createElement('div');
+        modalDiv.className = 'city-modal';
+        let card = document.createElement('div');
+        card.className = 'city-card';
+        let title = document.createElement('div');
+        title.className = 'city-title';
+        title.innerText = `${cityName}`;
+
+        let stateGroup = document.createElement('div');
+        stateGroup.className = 'state-group';
+        let currentStatus = cityStatus[cityName] || null;
+
+        let btnGo = document.createElement('button');
+        btnGo.innerText = '✅ 已去过';
+        btnGo.style.backgroundColor = '#7ccd7c';
+        btnGo.style.color = '#fff';
+        btnGo.className = 'state-btn';
+        btnGo.onclick = () => {
+            cityStatus[cityName] = 'go';
+            saveStatus();
+            updateCityStyle(cityName, 'go');
+            closeModalDiv(modalDiv);
+            toastMsg(`✅ ${cityName} 已去过`);
+        };
+
+        let btnWant = document.createElement('button');
+        btnWant.innerText = '💗 想去';
+        btnWant.style.backgroundColor = '#ff4a6c';
+        btnWant.style.color = '#fff';
+        btnWant.className = 'state-btn';
+        btnWant.onclick = () => {
+            cityStatus[cityName] = 'want';
+            saveStatus();
+            updateCityStyle(cityName, 'want');
+            closeModalDiv(modalDiv);
+            toastMsg(`💗 ${cityName} 已加入想去`);
+        };
+
+        let btnClear = document.createElement('button');
+        btnClear.innerText = '🔄 取消状态';
+        btnClear.style.backgroundColor = '#cccccc';
+        btnClear.style.color = '#333';
+        btnClear.className = 'state-btn';
+        btnClear.onclick = () => {
+            delete cityStatus[cityName];
+            saveStatus();
+            updateCityStyle(cityName, null);
+            closeModalDiv(modalDiv);
+            toastMsg(`🔄 ${cityName} 状态已清空`);
+        };
+
+        stateGroup.appendChild(btnGo);
+        stateGroup.appendChild(btnWant);
+        stateGroup.appendChild(btnClear);
+
+        let funcGroup = document.createElement('div');
+        funcGroup.className = 'func-group';
+
+        let albumBtn = document.createElement('button');
+        albumBtn.innerHTML = '<i class="fa-solid fa-camera"></i> 上传城市相册';
+        albumBtn.className = 'func-btn';
+        albumBtn.onclick = () => {
+            window.open(`city-detail.html?province=${encodeURIComponent(provinceName || cityName)}&city=${encodeURIComponent(cityName)}&tab=album`, '_blank');
+        };
+
+        let noteBtn = document.createElement('button');
+        noteBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> 写下旅行记录';
+        noteBtn.className = 'func-btn';
+        noteBtn.onclick = () => {
+            window.open(`city-detail.html?province=${encodeURIComponent(provinceName || cityName)}&city=${encodeURIComponent(cityName)}&tab=record`, '_blank');
+        };
+
+        let strategyBtn = document.createElement('button');
+        strategyBtn.innerHTML = '<i class="fa-solid fa-book"></i> 发布游玩攻略';
+        strategyBtn.className = 'func-btn';
+        strategyBtn.onclick = () => {
+            window.open(`city-detail.html?province=${encodeURIComponent(provinceName || cityName)}&city=${encodeURIComponent(cityName)}&tab=strategy`, '_blank');
+        };
+
+        funcGroup.appendChild(albumBtn);
+        funcGroup.appendChild(noteBtn);
+        funcGroup.appendChild(strategyBtn);
+
+        let closeBtn = document.createElement('button');
+        closeBtn.innerText = '关闭';
+        closeBtn.className = 'close-card-btn';
+        closeBtn.onclick = () => closeModalDiv(modalDiv);
+
+        card.appendChild(title);
+        card.appendChild(stateGroup);
+        card.appendChild(funcGroup);
+        card.appendChild(closeBtn);
+
+        modalDiv.appendChild(card);
+        document.body.appendChild(modalDiv);
+    }
+
+    function closeModalDiv(div) { if(div && div.parentNode) div.parentNode.removeChild(div); }
+
+    function applyFilter() {
+        let select = document.getElementById('stateFilterSelect');
+        currentFilter = select.value;
+
+        for(let cityName in cityLayers) {
+            let status = cityStatus[cityName];
+            let layer = cityLayers[cityName];
+            if(currentFilter === 'all') {
+                layer.setStyle(getStyleByStatus(status));
+            } else if(currentFilter === 'go' && status === 'go') {
+                layer.setStyle(getStyleByStatus('go'));
+            } else if(currentFilter === 'want' && status === 'want') {
+                layer.setStyle(getStyleByStatus('want'));
+            } else {
+                layer.setStyle({ color: '#eee', weight: 0.5, opacity: 0.2, fillColor: '#f8f8f8', fillOpacity: 0.02 });
+            }
+        }
+        renderCityList();
+        toastMsg(`✅ 已筛选：${select.options[select.selectedIndex].text}`);
+    }
+
+    function resetAllCityStyles() {
+        currentFilter = 'all';
+        for(let cityName in cityLayers) {
+            let status = cityStatus[cityName];
+            cityLayers[cityName].setStyle(getStyleByStatus(status));
+        }
+        renderCityList();
+    }
+
+    // ==================== 加载地图数据 ====================
+    async function loadAllCityBoundaries() {
+        toastMsg('正在加载全国市级边界数据...');
+        try {
+            let provinceRes = await fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json');
+            let provinceData = await provinceRes.json();
+            let provinces = provinceData.features.filter(f => f.properties && f.properties.level === 'province');
+
+            for (let province of provinces) {
+                const adcode = province.properties.adcode;
+                if(adcode === '710000') continue;
+                const provinceName = province.properties.name;
+
+                try {
+                    const url = `https://geo.datav.aliyun.com/areas_v3/bound/${adcode}_full.json`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    const cityFeatures = data.features.filter(f => f.properties && (f.properties.level === 'city' || f.properties.level === 'district'));
+
+                    cityFeatures.forEach(feature => {
+                        const cityName = feature.properties.name;
+                        if (cityLayers[cityName]) return;
+                        let status = cityStatus[cityName] || null;
+                        let style = getStyleByStatus(status);
+
+                        const layer = L.geoJSON(feature, {
+                            style: style,
+                            onEachFeature: function(f, l) {
+                                l.bindTooltip(cityName, { permanent: false, direction: 'center', className: 'province-label' });
+                                l.on('click', () => openCityPanel(cityName, provinceName));
+                            }
+                        }).addTo(map);
+                        cityLayers[cityName] = layer;
+                    });
+                    await new Promise(r => setTimeout(r, 60));
+                } catch(e) {}
+            }
+            updateStats();
+            toastMsg('✅ 地图加载完成');
+        } catch(e) { console.error(e); }
+    }
+
+    async function loadProvinceBoundary() {
+        try {
+            let response = await fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json');
+            let data = await response.json();
+            let features = data.features.filter(f => f.properties && f.properties.level === 'province');
+
+            L.geoJSON({ type: 'FeatureCollection', features: features }, {
+                style: {
+                    fillColor: '#ffffff', fillOpacity: 0.1, color: '#ff6b8c', weight: 3, opacity: 1, interactive: false
+                },
+                onEachFeature: function(f, layer) {
+                    // 标签代码全部删除
+                }
+            }).addTo(map);
+        } catch(e) {}
+    }
+
+    async function initMap() {
+        map = L.map('chinaMap').setView([35.0, 108.0], 5);
+
+        // 高德地图底图（更清晰、加载更快）
+        L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+            subdomains: '1234',
+            maxZoom: 8,
+            minZoom: 4,
+            opacity: 0.3
+        }).addTo(map);
+
+        await loadProvinceBoundary();
+        await loadAllCityBoundaries();
+        document.getElementById('filterQueryBtn').addEventListener('click', applyFilter);
+        document.getElementById('stateFilterSelect').addEventListener('change', () => {
+            if(document.getElementById('stateFilterSelect').value === 'all') resetAllCityStyles();
+        });
+        renderCityList();
+    }
+
+    async function init() {
+        if (!localStorage.getItem('isLogin')) { location.href = 'login.html'; return; }
+        try {
+            const res = await fetch("/user/info", { credentials: "include" });
+            const result = await res.json();
+            if (result.code === 200 && result.data.username) {
+                document.getElementById('userInitial').innerText = getNameInitials(result.data.username);
+            }
+        } catch (err) { location.href = 'login.html'; return; }
+        loadStatus();
+        await initMap();
+        updateRedDot();
+    }
+
+    window.addEventListener('load', init);
+</script>
+</body>
+</html>

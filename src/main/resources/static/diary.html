@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>壹一森林</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/pinyin-pro@3.19.6/dist/index.js"></script>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background-color:#fff9f5;font-family:"Microsoft YaHei",sans-serif;}
+        .big{display:flex;align-items:center;background:rgb(255,255,158);padding:8px 15px;justify-content:space-between;margin:10px 100px;border-radius:15px;height:46px;}
+        .first{display:flex;align-items:center;gap:6px;}
+        .heart{font-size:16px;cursor:pointer;transition:0.2s;}
+        .heart:hover{transform:scale(1.1);}
+        .name p{font-size:12px;line-height:1.2;color:rgb(146,86,30);}
+        .bell{font-size:18px;color:rgb(199,199,158);cursor:pointer;margin-left:6px;transition:0.3s;position:relative;}
+        .bell:hover{color:#f8446e;}
+        .red-dot{position:absolute;top:-5px;right:-8px;width:10px;height:10px;background:#f8446e;border-radius:50%;display:none;}
+        .nav{display:flex;background:rgb(252,252,192);color:rgb(146,86,30);padding:2px 10px;border-radius:15px;height:28px;gap:12px;}
+        .nav-item{padding:2px 10px;border:2px solid transparent;border-radius:15px;transition:all 0.3s ease;font-size:14px;cursor:pointer;}
+        .nav-item.active{background-color:rgb(255,239,200);transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+        .nav-item:hover{background-color:rgb(255,239,200);transform:translateY(-1px);}
+        .user-right{display:flex;align-items:center;gap:8px;background:#ffdde0;padding:4px 12px;border-radius:20px;color:#c74c70;font-weight:bold;font-size:13px;cursor:pointer;}
+        .switch-btn{width:28px;height:14px;background:#fff;border-radius:10px;position:relative;}
+        .switch-btn::before{content:'';width:10px;height:10px;background:#f8446e;border-radius:50%;position:absolute;top:2px;left:2px;transition:0.2s;}
+        .switch-btn.active::before{left:16px;}
+        .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.3);display:none;align-items:center;justify-content:center;z-index:999;}
+        .modal-content{background:#fff;width:280px;padding:25px;border-radius:16px;text-align:center;}
+        .modal-title{font-size:16px;margin-bottom:15px;}
+        .modal-btns{display:flex;gap:10px;justify-content:center;}
+        .modal-btn{padding:6px 18px;border-radius:20px;border:none;cursor:pointer;font-size:13px;}
+        .cancel{background:#f1f1f1;color:#666;}
+        .logout{background:#f8446e;color:#fff;}
+
+        /* 固定侧边栏，永不变形 */
+        .diary-layout{max-width:1200px;margin:30px auto;padding:0 20px;display:flex;gap:20px;}
+        .diary-sidebar{
+            width:220px !important;
+            flex-shrink:0 !important;
+            background:#fff !important;
+            border-radius:16px !important;
+            padding:16px !important;
+            box-shadow:0 4px 12px rgba(245,190,150,.15) !important;
+            border:1px solid #ffe8e8 !important;
+        }
+        .side-tab{padding:10px;border-radius:12px;margin-bottom:8px;text-align:center;font-weight:bold;color:#9c5a22;cursor:pointer;}
+        .side-tab.active{background:#ffccd5;color:#c74c70;}
+        .diary-content{flex:1;}
+        .friend-diary-card{background:#fff;border-radius:20px;padding:20px;margin-bottom:20px;box-shadow:0 4px 12px rgba(245,190,150,.15);position:relative;}
+        .diary-delete-btn{
+            position:absolute;right:16px;top:16px;
+            background:#ffeaea;color:#ff4444;
+            border:none;border-radius:12px;
+            padding:4px 10px;font-size:12px;cursor:pointer;
+        }
+        .diary-header{display:flex;align-items:center;gap:15px;margin-bottom:10px;}
+        .friend-avatar{width:60px;height:60px;border-radius:50%;background:#ffe8e8;background-size:cover;cursor:pointer;}
+        .friend-info h4{color:#9c5a22;cursor:pointer;}
+        .friend-info p{font-size:12px;color:#999;}
+        .diary-title{font-size:18px;font-weight:bold;color:#c74c70;margin-bottom:8px;}
+        .diary-content-text{color:#666;line-height:1.6;margin-bottom:10px;}
+        .diary-photos{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+        .diary-photo{width:80px;height:80px;border-radius:12px;background-size:cover;cursor:pointer;}
+        .diary-actions{display:flex;gap:15px;font-size:14px;color:#c74c70;margin-bottom:15px;}
+        .diary-actions button{background:none;border:none;color:#c74c70;cursor:pointer;display:flex;align-items:center;gap:4px;}
+        .comment-section{border-top:1px solid #ffe8e8;padding-top:15px;}
+        .comment-item{background:#fff0e8;border-radius:12px;padding:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-start;}
+        .comment-content{flex:1;}
+        .comment-author{font-weight:bold;color:#9c5a22;font-size:14px;}
+        .comment-time{font-size:12px;color:#999;margin-bottom:5px;}
+        .comment-text{color:#666;}
+        .comment-delete{color:#ff6b6b;border:none;background:none;cursor:pointer;font-size:12px;}
+        .comment-input{width:100%;border:1px solid #f7d3c2;border-radius:12px;padding:10px;margin-top:10px;resize:none;}
+        .comment-submit{background:#ffccd5;border:none;border-radius:20px;padding:6px 16px;color:#c74c70;margin-top:8px;cursor:pointer;}
+        .no-data{text-align:center;padding:40px;color:#9c5a22;}
+        .img-modal{background:rgba(0,0,0,.85);}
+        .img-modal img{max-width:90%;max-height:90%;border-radius:16px;}
+    </style>
+</head>
+<body>
+<div class="big">
+    <div class="first">
+        <div class="heart" onclick="toUserInfo()">❤️</div>
+        <div class="name">
+            <p>SPACE</p>
+            <p>壹一森林</p>
+        </div>
+        <div class="bell" onclick="goToMessage()">
+            <i class="fa-solid fa-bell"></i>
+            <span class="red-dot" id="redDot"></span>
+        </div>
+    </div>
+    <div class="nav">
+        <div class="nav-item" onclick="go('index')"><strong>首页</strong></div>
+        <div class="nav-item" onclick="go('role')"><strong>朋友</strong></div>
+        <div class="nav-item active" onclick="go('record')"><strong>记录</strong></div>
+        <div class="nav-item" onclick="go('album')"><strong>相册</strong></div>
+        <div class="nav-item" onclick="go('map')"><strong>地图</strong></div>
+    </div>
+    <div class="user-right" onclick="showLogoutModal()">
+        <span id="userInitial">加载中...</span>
+        <div class="switch-btn" id="switch"></div>
+    </div>
+</div>
+
+<!-- 退出弹窗 -->
+<div class="modal" id="logoutModal">
+    <div class="modal-content">
+        <div class="modal-title">确定要退出登录吗？</div>
+        <div class="modal-btns">
+            <button class="modal-btn cancel" onclick="closeModal()">取消</button>
+            <button class="modal-btn logout" onclick="logout()">退出</button>
+        </div>
+    </div>
+</div>
+
+<!-- 图片放大弹窗 -->
+<div class="modal img-modal" id="imgModal" onclick="closeImg()">
+    <img id="enlargedImg" src="">
+</div>
+
+<input type="file" id="fileUploader" style="display:none;" multiple>
+
+<div class="diary-layout">
+    <div class="diary-sidebar">
+        <div class="side-tab active" data-type="public">🌐 森林记录</div>
+        <div class="side-tab" data-type="my">📖 私人小记</div>
+        <div class="side-tab" data-type="favorite">⭐ 收藏果果</div>
+        <div class="side-tab" data-type="write">✏️ 写下今天</div>
+    </div>
+    <div class="diary-content" id="diaryList"></div>
+</div>
+
+<script>
+    // ==================== 工具函数 ====================
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;'));
+    }
+    function getNameInitials(username) {
+        if (!username) return '游客';
+        const { pinyin } = window.pinyinPro || window.pinyin;
+        if (!pinyin) return username.charAt(0).toUpperCase();
+        return username.split('').map(ch => {
+            if (/[a-zA-Z]/.test(ch)) return ch.toUpperCase();
+            if (/[\u4e00-\u9fa5]/.test(ch)) {
+                const py = pinyin(ch, { pattern: 'first', toneType: 'none' });
+                return py ? py.toUpperCase() : ch;
+            }
+            return ch.toUpperCase();
+        }).join(' ');
+    }
+
+    function closeModal() {
+        document.getElementById('logoutModal').style.display = 'none';
+        document.getElementById('switch').classList.remove('active');
+    }
+    function closeImg() {
+        document.getElementById('imgModal').style.display = 'none';
+    }
+
+    let currentUserId = null;
+    let currentTab = 'public';
+
+    window.onload = async function () {
+        if (!localStorage.getItem('isLogin')) {
+            location.href = 'login.html';
+            return;
+        }
+        try {
+            const res = await fetch("/user/info", { credentials: 'include' });
+            const result = await res.json();
+            if (result.code === 200 && result.data) {
+                currentUserId = result.data.id;
+                document.getElementById('userInitial').innerText = getNameInitials(result.data.username);
+            }
+        } catch (e) { }
+        await loadDiaries('public');
+        await updateRedDot();
+    };
+
+    async function loadDiaries(type) {
+        currentTab = type;
+        const list = document.getElementById('diaryList');
+        list.innerHTML = '加载中...';
+        let url = '';
+        if (type === 'public') url = '/user/diary/public';
+        else if (type === 'my') url = '/user/diary/my';
+        else if (type === 'favorite') url = '/user/diary/favorites';
+        if (!url) return;
+
+        try {
+            const res = await fetch(url, { credentials: 'include' });
+            const result = await res.json();
+            if (result.code !== 200 || !result.data || result.data.length === 0) {
+                list.innerHTML = '<div class="no-data">暂无日记</div>';
+                return;
+            }
+            let html = '';
+            for (const d of result.data) {
+                let photosHtml = '';
+                if (d.photos) {
+                    try {
+                        const arr = JSON.parse(d.photos);
+                        arr.forEach(p => {
+                            photosHtml += `<div class="diary-photo" style="background-image:url('${p}')" onclick="openImg('${p}')"></div>`;
+                        });
+                    } catch (e) { }
+                }
+                let avatarStyle = d.avatar && d.avatar.startsWith('data:image')
+                    ? `background-image:url('${d.avatar}')` : `background:#ffe8e8`;
+
+                let likeCount = d.likeCount && d.likeCount >= 0 ? d.likeCount : 0;
+                let favCount = d.favoriteCount && d.favoriteCount >= 0 ? d.favoriteCount : 0;
+                let commentCount = d.commentCount && d.commentCount >= 0 ? d.commentCount : 0;
+
+                const resC = await fetch(`/user/diary/comments?diaryId=${d.id}`, { credentials: 'include' });
+                const resultC = await resC.json();
+                let commentsHtml = '';
+                if (resultC.code === 200 && resultC.data) {
+                    resultC.data.filter(c => !c.parentId).forEach(c => {
+                        let showDelete = (c.userId === currentUserId || d.userId === currentUserId);
+                        commentsHtml += `
+                        <div class="comment-item" id="comment-${c.id}">
+                            <div class="comment-content">
+                                <div class="comment-author">${escapeHtml(c.username)}</div>
+                                <div class="comment-time">${c.createTime}</div>
+                                <div class="comment-text">${escapeHtml(c.content)}</div>
+                            </div>
+                            ${showDelete ? `<button class="comment-delete" onclick="deleteComment(${c.id}, ${d.id})">删除</button>` : ''}
+                        </div>`;
+                    });
+                }
+
+                // 作者自己显示删除按钮
+                let deleteBtn = d.userId === currentUserId
+                    ? `<button class="diary-delete-btn" onclick="deleteDiary(${d.id})">删除日记</button>`
+                    : '';
+
+                html += `
+                <div class="friend-diary-card" id="diary-${d.id}">
+                    ${deleteBtn}
+                    <div class="diary-header">
+                        <div class="friend-avatar" style="${avatarStyle}" onclick="visitUser(${d.userId})"></div>
+                        <div class="friend-info">
+                            <h4 onclick="visitUser(${d.userId})">${escapeHtml(d.username)}</h4>
+                            <p>${d.createTime}</p>
+                        </div>
+                    </div>
+                    <div class="diary-title">${escapeHtml(d.title)}</div>
+                    <div class="diary-content-text">${escapeHtml(d.content)}</div>
+                    <div class="diary-photos">${photosHtml}</div>
+                    <div class="diary-actions">
+                        <button onclick="toggleLike(${d.id}, this)">❤️ ${likeCount}</button>
+                        <button onclick="toggleFav(${d.id}, this)">⭐ ${favCount}</button>
+                        <span>💬 ${commentCount}</span>
+                    </div>
+                    <div class="comment-section">
+                        <h4 style="color:#9c5a22;margin-bottom:10px;">留言</h4>
+                        ${commentsHtml}
+                        <textarea class="comment-input" id="commentInput-${d.id}" placeholder="写下你的留言..." rows="3"></textarea>
+                        <button class="comment-submit" onclick="submitComment(${d.id})">发布留言</button>
+                    </div>
+                </div>`;
+            }
+            list.innerHTML = html;
+        } catch (e) {
+            list.innerHTML = '加载失败';
+            console.error(e);
+        }
+    }
+
+    // ==================== 删除日记功能 ====================
+    async function deleteDiary(diaryId) {
+        if (!confirm('确定要删除这篇日记吗？删除后无法恢复！')) return;
+
+        try {
+            const res = await fetch('/user/diary/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ diaryId }),
+                credentials: 'include'
+            });
+            const result = await res.json();
+            if (result.code === 200) {
+                alert('删除成功！');
+                loadDiaries(currentTab);
+            } else {
+                alert('删除失败：' + (result.msg || '未知错误'));
+            }
+        } catch (e) {
+            alert('网络异常，删除失败');
+        }
+    }
+
+    async function toggleLike(diaryId, btn) {
+        const res = await fetch('/user/diary/toggleLike', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ diaryId: diaryId }),
+            credentials: 'include'
+        });
+        const result = await res.json();
+        let num = parseInt(btn.innerText.match(/\d+/)[0]);
+        btn.innerText = `❤️ ${result.liked ? num + 1 : Math.max(num - 1, 0)}`;
+    }
+
+    async function toggleFav(diaryId, btn) {
+        const res = await fetch('/user/diary/toggleFavorite', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ diaryId: diaryId }),
+            credentials: 'include'
+        });
+        const result = await res.json();
+        let num = parseInt(btn.innerText.match(/\d+/)[0]);
+        btn.innerText = `⭐ ${result.favorited ? num + 1 : Math.max(num - 1, 0)}`;
+        if (currentTab === 'favorite') loadDiaries('favorite');
+    }
+
+    async function submitComment(diaryId) {
+        const txt = document.getElementById(`commentInput-${diaryId}`).value.trim();
+        if (!txt) { alert('留言不能为空'); return; }
+        const res = await fetch('/user/diary/addComment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ diaryId: diaryId, content: txt, parentId: 0 }),
+            credentials: 'include'
+        });
+        const result = await res.json();
+        if (result.code === 200) {
+            alert('发布成功');
+            loadDiaries(currentTab);
+        } else {
+            alert('发布失败');
+        }
+    }
+
+    async function deleteComment(commentId, diaryId) {
+        if (!confirm('确定要删除这条留言吗？')) return;
+        const res = await fetch('/user/diary/deleteComment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ commentId: commentId }),
+            credentials: 'include'
+        });
+        const result = await res.json();
+        if (result.code === 200) {
+            alert('删除成功');
+            loadDiaries(currentTab);
+        } else {
+            alert('删除失败');
+        }
+    }
+
+    function openImg(src) {
+        document.getElementById('enlargedImg').src = src;
+        document.getElementById('imgModal').style.display = 'flex';
+    }
+
+    function visitUser(uid) { location.href = `user-info.html?userId=${uid}`; }
+    function toUserInfo() { location.href = "user-info.html"; }
+    function goToMessage() { location.href = "message.html"; }
+
+    document.querySelectorAll('.side-tab').forEach(t => {
+        t.onclick = () => {
+            document.querySelectorAll('.side-tab').forEach(x => x.classList.remove('active'));
+            t.classList.add('active');
+            const type = t.dataset.type;
+            if (type === 'write') location.href = 'write-diary.html';
+            else loadDiaries(type);
+        };
+    });
+
+    function go(page) {
+        const links = { index: "index.html", role: "member.html", record: "diary.html", album: "about.html", map: "travel.html" };
+        location.href = links[page];
+    }
+
+    async function updateRedDot() {
+        try {
+            const res = await fetch("/user/unreadRequestCount", { credentials: 'include' });
+            const result = await res.json();
+            document.getElementById('redDot').style.display = (result.code === 200 && result.data > 0) ? 'block' : 'none';
+        } catch (e) { }
+    }
+
+    function showLogoutModal() {
+        document.getElementById('logoutModal').style.display = 'flex';
+        document.getElementById('switch').classList.add('active');
+    }
+    function logout() {
+        localStorage.clear();
+        fetch("/user/logout", { method: 'POST', credentials: 'include' });
+        location.href = 'login.html';
+    }
+</script>
+</body>
+</html>

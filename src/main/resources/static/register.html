@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>壹一森林</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{
+            background:#fff9f5;
+            font-family:"Microsoft YaHei";
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            height:100vh;
+        }
+        .reg-box{
+            background:#fff;
+            width:380px;
+            padding:40px 30px;
+            border-radius:20px;
+            box-shadow:0 6px 20px rgba(255,180,180,0.1);
+        }
+        .title{
+            text-align:center;
+            font-size:26px;
+            color:#e67a8a;
+            margin-bottom:30px;
+        }
+        .input-item{
+            margin-bottom:18px;
+        }
+        input{
+            width:100%;
+            padding:12px 16px;
+            border:1px solid #f7d3c2;
+            border-radius:16px;
+            outline:none;
+            font-size:14px;
+        }
+        .reg-btn{
+            width:100%;
+            padding:12px;
+            background:#ffccd5;
+            color:#c74c70;
+            border:none;
+            border-radius:16px;
+            font-weight:bold;
+            cursor:pointer;
+            margin-top:10px;
+        }
+        .to-login{
+            text-align:center;
+            margin-top:20px;
+            font-size:13px;
+            color:#666;
+        }
+        .to-login a{
+            color:#e67a8a;
+            text-decoration:none;
+        }
+    </style>
+</head>
+<body>
+<div class="reg-box">
+    <div class="title">注册</div>
+    <div class="input-item">
+        <input type="text" id="name" placeholder="你的名字">
+    </div>
+    <div class="input-item">
+        <input type="tel" id="phone" placeholder="手机号码">
+    </div>
+    <div class="input-item">
+        <label style="display:block; font-size:14px; color:grey; margin-bottom:8px;">你的生日</label>
+        <div style="display:flex; gap:10px;">
+            <select id="birth-year" style="flex:1; padding:12px; border:1px solid #f7d3c2; border-radius:16px; outline:none; font-size:14px; color:#9c5a22;">
+                <option value="">年</option>
+                <script>for(let i=2026;i>=1950;i--){document.write(`<option value="${i}">${i}</option>`)}</script>
+            </select>
+            <select id="birth-month" style="flex:1; padding:12px; border:1px solid #f7d3c2; border-radius:16px; outline:none; font-size:14px; color:#9c5a22;">
+                <option value="">月</option>
+                <script>for(let i=1;i<=12;i++){document.write(`<option value="${i}">${i}</option>`)}</script>
+            </select>
+            <select id="birth-day" style="flex:1; padding:12px; border:1px solid #f7d3c2; border-radius:16px; outline:none; font-size:14px; color:#9c5a22;">
+                <option value="">日</option>
+                <script>for(let i=1;i<=31;i++){document.write(`<option value="${i}">${i}</option>`)}</script>
+            </select>
+        </div>
+    </div>
+    <div class="input-item">
+        <input type="password" id="pwd" placeholder="设置密码">
+    </div>
+    <button class="reg-btn" onclick="register()">完成注册</button>
+    <div class="to-login">已有账号？<a href="login.html">去登录</a></div>
+</div>
+
+<script>
+async function register(){
+    // 1. 获取页面数据
+    let name = document.getElementById('name').value.trim();
+    let phone = document.getElementById('phone').value.trim();
+    let pwd = document.getElementById('pwd').value.trim();
+
+    let year = document.getElementById('birth-year').value;
+    let month = document.getElementById('birth-month').value;
+    let day = document.getElementById('birth-day').value;
+
+    // 2. 校验
+    if(!name || !phone || !year || !month || !day || !pwd){
+        alert('请填写完整信息');
+        return;
+    }
+
+    let birth = year + "-" + month + "-" + day;
+
+    try {
+        // 3. 发给后端 → 存入数据库
+        const res = await fetch("/user/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                username: name,
+                phone: phone,
+                birthday: birth,
+                password: pwd
+            })
+        });
+
+        const data = await res.json();
+        if (data.code === 200) {
+            alert("注册成功！请登录");
+            location.href = "login.html";
+        } else {
+            alert("注册失败：" + data.msg);
+        }
+    } catch (e) {
+        alert("后端未启动");
+        console.log(e);
+    }
+}
+</script>
+</body>
+</html>
