@@ -505,16 +505,21 @@
 
     function updateCityStyle(cityName, status) {
         if (cityLayers[cityName]) {
-            let marker = cityLayers[cityName];
-            let markerColor = status === 'go' ? '#7ccd7c' : (status === 'want' ? '#ff4a6c' : '#ffccd5');
-            marker.setStyle({ fillColor: markerColor });
+            let layer = cityLayers[cityName];
 
-            // 更新提示文字
-            marker.bindTooltip(`<strong>${cityName}</strong><br>${status === 'go' ? '✅ 已去过' : (status === 'want' ? '💗 想去' : '📍 未标记')}`, {
-                permanent: false,
-                direction: 'top',
-                className: 'city-tooltip'
-            });
+            // 判断是 GeoJSON 图层还是 Marker
+            if (layer.setStyle) {
+                // GeoJSON 图层：修改填充样式
+                layer.setStyle({
+                    fillColor: status === 'go' ? '#7ccd7c' : (status === 'want' ? '#ff4a6c' : '#ffffff'),
+                    fillOpacity: status ? 0.6 : 0.3,
+                    color: status === 'go' ? '#5aad5a' : (status === 'want' ? '#e84060' : '#cccccc')
+                });
+            } else if (layer.setStyle) {
+                // CircleMarker：修改颜色
+                let markerColor = status === 'go' ? '#7ccd7c' : (status === 'want' ? '#ff4a6c' : '#cccccc');
+                layer.setStyle({ fillColor: markerColor });
+            }
         }
         renderCityList();
     }
@@ -707,56 +712,16 @@
 
     // ==================== 加载地图数据 ====================
     async function loadAllCityBoundaries() {
-        toastMsg('正在加载城市标记...');
+        toastMsg('正在加载城市边界数据...');
         try {
-            // 中国主要城市坐标（省会+重点城市）
-            const cities = [
-                { name: '北京', lat: 39.9042, lng: 116.4074, province: '北京' },
-                { name: '上海', lat: 31.2304, lng: 121.4737, province: '上海' },
-                { name: '广州', lat: 23.1291, lng: 113.2644, province: '广东' },
-                { name: '深圳', lat: 22.5431, lng: 114.0579, province: '广东' },
-                { name: '成都', lat: 30.5728, lng: 104.0668, province: '四川' },
-                { name: '杭州', lat: 30.2741, lng: 120.1551, province: '浙江' },
-                { name: '武汉', lat: 30.5928, lng: 114.3055, province: '湖北' },
-                { name: '西安', lat: 34.3416, lng: 108.9402, province: '陕西' },
-                { name: '重庆', lat: 29.4316, lng: 106.9123, province: '重庆' },
-                { name: '南京', lat: 32.0415, lng: 118.7674, province: '江苏' },
-                { name: '天津', lat: 39.3434, lng: 117.3616, province: '天津' },
-                { name: '长沙', lat: 28.2282, lng: 112.9388, province: '湖南' },
-                { name: '昆明', lat: 24.8801, lng: 102.8329, province: '云南' },
-                { name: '贵阳', lat: 26.6477, lng: 106.6302, province: '贵州' },
-                { name: '南宁', lat: 22.8245, lng: 108.3203, province: '广西' },
-                { name: '海口', lat: 20.0441, lng: 110.1998, province: '海南' },
-                { name: '福州', lat: 26.0745, lng: 119.2965, province: '福建' },
-                { name: '南昌', lat: 28.6820, lng: 115.8579, province: '江西' },
-                { name: '郑州', lat: 34.7569, lng: 113.6255, province: '河南' },
-                { name: '太原', lat: 37.8735, lng: 112.5624, province: '山西' },
-                { name: '济南', lat: 36.6512, lng: 117.1201, province: '山东' },
-                { name: '石家庄', lat: 38.0423, lng: 114.5149, province: '河北' },
-                { name: '沈阳', lat: 41.8045, lng: 123.4328, province: '辽宁' },
-                { name: '长春', lat: 43.8160, lng: 125.3236, province: '吉林' },
-                { name: '哈尔滨', lat: 45.8024, lng: 126.5342, province: '黑龙江' },
-                { name: '呼和浩特', lat: 40.8175, lng: 111.6708, province: '内蒙古' },
-                { name: '乌鲁木齐', lat: 43.8256, lng: 87.6168, province: '新疆' },
-                { name: '拉萨', lat: 29.6446, lng: 91.1409, province: '西藏' },
-                { name: '西宁', lat: 36.6232, lng: 101.7805, province: '青海' },
-                { name: '兰州', lat: 36.0611, lng: 103.8343, province: '甘肃' },
-                { name: '银川', lat: 38.4712, lng: 106.2591, province: '宁夏' },
-                { name: '香港', lat: 22.3193, lng: 114.1694, province: '香港' },
-                { name: '澳门', lat: 22.1987, lng: 113.5439, province: '澳门' },
-                { name: '台北', lat: 25.0330, lng: 121.5654, province: '台湾' },
-                { name: '苏州', lat: 31.2990, lng: 120.5853, province: '江苏' },
-                { name: '宁波', lat: 29.8683, lng: 121.5440, province: '浙江' },
-                { name: '厦门', lat: 24.4798, lng: 118.0894, province: '福建' },
-                { name: '青岛', lat: 36.0671, lng: 120.3826, province: '山东' },
-                { name: '大连', lat: 38.9140, lng: 121.6147, province: '辽宁' },
-                { name: '桂林', lat: 25.2736, lng: 110.2900, province: '广西' },
-                { name: '三亚', lat: 18.2528, lng: 109.5119, province: '海南' },
-                { name: '丽江', lat: 26.8721, lng: 100.2330, province: '云南' },
-                { name: '敦煌', lat: 40.1421, lng: 94.6620, province: '甘肃' }
-            ];
+            // 从本地加载详细的中国城市地图数据
+            const response = await fetch('/geo/china_cities.json');
+            if (!response.ok) {
+                throw new Error('地图文件加载失败');
+            }
+            const data = await response.json();
 
-            // 清空现有的图层（除了底图）
+            // 清空现有图层
             for (let key in cityLayers) {
                 if (cityLayers[key] && map.hasLayer(cityLayers[key])) {
                     map.removeLayer(cityLayers[key]);
@@ -764,45 +729,96 @@
             }
             cityLayers = {};
 
-            cities.forEach(city => {
-                let status = cityStatus[city.name] || null;
+            let features = data.features;
+            let addedCount = 0;
 
-                // 根据状态设置颜色
-                let markerColor = status === 'go' ? '#7ccd7c' : (status === 'want' ? '#ff4a6c' : '#ffccd5');
+            features.forEach(feature => {
+                const props = feature.properties;
+                // 获取城市名称（根据不同数据结构调整字段名）
+                let cityName = props.name || props.NAME || props.city;
+                let provinceName = props.province || props.province_name || '';
 
-                // 创建圆形标记
-                let marker = L.circleMarker([city.lat, city.lng], {
-                    radius: 12,
-                    fillColor: markerColor,
-                    color: '#ffffff',
-                    weight: 2,
-                    opacity: 1,
-                    fillOpacity: 0.85
-                }).addTo(map);
+                if (!cityName) return;
+                if (cityLayers[cityName]) return;
 
-                // 绑定提示文字
-                marker.bindTooltip(`<strong>${city.name}</strong><br>${status === 'go' ? '✅ 已去过' : (status === 'want' ? '💗 想去' : '📍 未标记')}`, {
-                    permanent: false,
-                    direction: 'top',
-                    className: 'city-tooltip'
-                });
+                let status = cityStatus[cityName] || null;
+                let style = {
+                    fillColor: status === 'go' ? '#7ccd7c' : (status === 'want' ? '#ff4a6c' : '#ffffff'),
+                    fillOpacity: status ? 0.6 : 0.3,
+                    color: status === 'go' ? '#5aad5a' : (status === 'want' ? '#e84060' : '#cccccc'),
+                    weight: 1.5,
+                    opacity: 0.8
+                };
 
-                // 点击事件
-                marker.on('click', () => openCityPanel(city.name, city.province));
+                try {
+                    const layer = L.geoJSON(feature, {
+                        style: style,
+                        onEachFeature: function(f, l) {
+                            // 绑定提示框
+                            l.bindTooltip(cityName, {
+                                permanent: false,
+                                direction: 'center',
+                                className: 'city-tooltip'
+                            });
+                            // 点击事件
+                            l.on('click', () => openCityPanel(cityName, provinceName));
+                        }
+                    }).addTo(map);
 
-                // 存储
-                cityLayers[city.name] = marker;
+                    cityLayers[cityName] = layer;
+                    addedCount++;
+
+                } catch(e) {
+                    console.warn(`添加城市失败: ${cityName}`, e);
+                }
             });
 
             updateStats();
-            toastMsg(`✅ 已加载 ${cities.length} 个城市标记`);
+            toastMsg(`✅ 已加载 ${addedCount} 个城市边界`);
 
         } catch(e) {
             console.error('地图加载失败:', e);
-            toastMsg('地图加载失败，请刷新重试');
+            toastMsg('地图数据加载失败，正在使用备用方案...');
+            // 备用方案：使用简化版城市标记
+            loadSimpleCityMarkers();
         }
-    }updateCityStyle
+    }
 
+    // 备用方案：使用圆形标记
+    function loadSimpleCityMarkers() {
+        const cities = [
+            { name: '北京', lat: 39.9042, lng: 116.4074, province: '北京' },
+            { name: '上海', lat: 31.2304, lng: 121.4737, province: '上海' },
+            { name: '广州', lat: 23.1291, lng: 113.2644, province: '广东' },
+            { name: '深圳', lat: 22.5431, lng: 114.0579, province: '广东' },
+            { name: '成都', lat: 30.5728, lng: 104.0668, province: '四川' },
+            { name: '杭州', lat: 30.2741, lng: 120.1551, province: '浙江' },
+            { name: '武汉', lat: 30.5928, lng: 114.3055, province: '湖北' },
+            { name: '西安', lat: 34.3416, lng: 108.9402, province: '陕西' },
+            { name: '重庆', lat: 29.4316, lng: 106.9123, province: '重庆' },
+            { name: '南京', lat: 32.0415, lng: 118.7674, province: '江苏' }
+        ];
+
+        cities.forEach(city => {
+            let status = cityStatus[city.name] || null;
+            let markerColor = status === 'go' ? '#7ccd7c' : (status === 'want' ? '#ff4a6c' : '#cccccc');
+
+            let marker = L.circleMarker([city.lat, city.lng], {
+                radius: 10,
+                fillColor: markerColor,
+                color: '#ffffff',
+                weight: 2,
+                fillOpacity: 0.8
+            }).addTo(map);
+
+            marker.bindTooltip(city.name);
+            marker.on('click', () => openCityPanel(city.name, city.province));
+            cityLayers[city.name] = marker;
+        });
+
+        updateStats();
+        toastMsg('使用简化版城市标记');
+    }
     async function loadProvinceBoundary() {
         try {
             let response = await fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json');
