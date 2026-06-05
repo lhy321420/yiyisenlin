@@ -361,6 +361,15 @@
             font-size: 12px;
             padding: 10px 0;
         }
+        .city-tooltip {
+            font-size: 12px;
+            font-weight: bold;
+            background: rgba(255,255,255,0.9);
+            border: 1px solid #ffccd5;
+            color: #c74c70;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
     </style>
 </head>
 <body>
@@ -489,36 +498,59 @@
     // ==================== 城市状态数据 ====================
     let cityStatus = {};
     let map, cityLayers = {};
-    let allCityFeatures = [];
     let currentFilter = 'all';
 
+    // 核心：根据状态返回完整城市填充样式
     function getStyleByStatus(status) {
         switch(status) {
             case 'go':
-                return { color: '#7ccd7c', weight: 2.5, opacity: 0.9, fillColor: '#7ccd7c', fillOpacity: 0.15 };
+                return {
+                    color: '#5aad5a',
+                    weight: 2,
+                    fillColor: '#7ccd7c',
+                    fillOpacity: 0.6
+                };
             case 'want':
-                return { color: '#ff476b', weight: 2.5, opacity: 0.9, fillColor: '#ff4163', fillOpacity: 0.15 };
+                return {
+                    color: '#e84060',
+                    weight: 2,
+                    fillColor: '#ff4a6c',
+                    fillOpacity: 0.6
+                };
             default:
-                return { color: '#ffccd5', weight: 1.5, opacity: 0.6, fillColor: '#fff9f5', fillOpacity: 0.1 };
+                return {
+                    color: '#cccccc',
+                    weight: 1.5,
+                    fillColor: '#ffffff',
+                    fillOpacity: 0.3
+                };
         }
     }
 
+    // 更新城市样式（整个区域变色）
     function updateCityStyle(cityName, status) {
         if (cityLayers[cityName]) {
+            let layer = cityLayers[cityName];
             let style = getStyleByStatus(status);
-            cityLayers[cityName].setStyle(style);
+            layer.setStyle(style);
+
+            // 更新悬浮提示
+            let tooltipText = `${cityName}\n${status === 'go' ? '✅ 已去过' : (status === 'want' ? '💗 想去' : '📍 未标记')}`;
+            layer.bindTooltip(tooltipText, {
+                permanent: false,
+                direction: 'center',
+                className: 'city-tooltip'
+            });
         }
         renderCityList();
     }
 
     function updateStats() {
         let go = 0, want = 0;
-        if (cityStatus && Object.keys(cityStatus).length > 0) {
-            for (let city in cityStatus) {
-                let st = cityStatus[city];
-                if (st === 'go') go++;
-                else if (st === 'want') want++;
-            }
+        for (let city in cityStatus) {
+            let st = cityStatus[city];
+            if (st === 'go') go++;
+            else if (st === 'want') want++;
         }
         document.getElementById('goCount').innerText = go;
         document.getElementById('wantCount').innerText = want;
@@ -542,7 +574,6 @@
         }
     }
 
-    // 城市列表渲染
     function renderCityList() {
         let list = [];
         for(let name in cityStatus) {
@@ -558,7 +589,7 @@
         } else {
             list.forEach(item => {
                 let color = item.st === 'go' ? '#7ccd7c' : '#ffb3c1';
-                html += `<div class="city-list-item" style="border-left-color:${color}">${item.name}</div>`;
+                html += `<div class="city-list-item" style="border-left-color:${color}">${escapeHtml(item.name)}</div>`;
             });
         }
         document.getElementById('cityListContent').innerHTML = html;
@@ -681,7 +712,7 @@
             } else if(currentFilter === 'want' && status === 'want') {
                 layer.setStyle(getStyleByStatus('want'));
             } else {
-                layer.setStyle({ color: '#eee', weight: 0.5, opacity: 0.2, fillColor: '#f8f8f8', fillOpacity: 0.02 });
+                layer.setStyle({ color: '#eee', weight: 0.5, fillColor: '#f8f8f8', fillOpacity: 0.02 });
             }
         }
         renderCityList();
@@ -697,48 +728,114 @@
         renderCityList();
     }
 
-    // ==================== 加载地图数据 ====================
-    async function loadAllCityBoundaries() {
-        toastMsg('正在加载全国市级边界数据...');
-        try {
-            let provinceRes = await fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json');
-            let provinceData = await provinceRes.json();
-            let provinces = provinceData.features.filter(f => f.properties && f.properties.level === 'province');
+    // ==================== 加载城市边界数据 ====================
+    async function loadCityBoundaries() {
+        toastMsg('正在加载城市边界数据...');
 
-            for (let province of provinces) {
-                const adcode = province.properties.adcode;
-                if(adcode === '710000') continue;
-                const provinceName = province.properties.name;
+        // 城市列表及行政区划代码
+        const cities = [
+            { name: '北京', code: '110000', province: '北京' },
+            { name: '上海', code: '310000', province: '上海' },
+            { name: '广州', code: '440100', province: '广东' },
+            { name: '深圳', code: '440300', province: '广东' },
+            { name: '成都', code: '510100', province: '四川' },
+            { name: '杭州', code: '330100', province: '浙江' },
+            { name: '武汉', code: '420100', province: '湖北' },
+            { name: '西安', code: '610100', province: '陕西' },
+            { name: '重庆', code: '500000', province: '重庆' },
+            { name: '南京', code: '320100', province: '江苏' },
+            { name: '天津', code: '120000', province: '天津' },
+            { name: '长沙', code: '430100', province: '湖南' },
+            { name: '昆明', code: '530100', province: '云南' },
+            { name: '贵阳', code: '520100', province: '贵州' },
+            { name: '南宁', code: '450100', province: '广西' },
+            { name: '海口', code: '460100', province: '海南' },
+            { name: '福州', code: '350100', province: '福建' },
+            { name: '南昌', code: '360100', province: '江西' },
+            { name: '郑州', code: '410100', province: '河南' },
+            { name: '太原', code: '140100', province: '山西' },
+            { name: '济南', code: '370100', province: '山东' },
+            { name: '石家庄', code: '130100', province: '河北' },
+            { name: '沈阳', code: '210100', province: '辽宁' },
+            { name: '长春', code: '220100', province: '吉林' },
+            { name: '哈尔滨', code: '230100', province: '黑龙江' },
+            { name: '呼和浩特', code: '150100', province: '内蒙古' },
+            { name: '乌鲁木齐', code: '650100', province: '新疆' },
+            { name: '拉萨', code: '540100', province: '西藏' },
+            { name: '西宁', code: '630100', province: '青海' },
+            { name: '兰州', code: '620100', province: '甘肃' },
+            { name: '银川', code: '640100', province: '宁夏' },
+            { name: '香港', code: '810000', province: '香港' },
+            { name: '澳门', code: '820000', province: '澳门' },
+            { name: '台北', code: '710100', province: '台湾' },
+            { name: '苏州', code: '320500', province: '江苏' },
+            { name: '宁波', code: '330200', province: '浙江' },
+            { name: '厦门', code: '350200', province: '福建' },
+            { name: '青岛', code: '370200', province: '山东' },
+            { name: '大连', code: '210200', province: '辽宁' },
+            { name: '桂林', code: '450300', province: '广西' },
+            { name: '三亚', code: '460200', province: '海南' },
+            { name: '丽江', code: '530700', province: '云南' }
+        ];
 
-                try {
-                    const url = `https://geo.datav.aliyun.com/areas_v3/bound/${adcode}_full.json`;
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    const cityFeatures = data.features.filter(f => f.properties && (f.properties.level === 'city' || f.properties.level === 'district'));
-
-                    cityFeatures.forEach(feature => {
-                        const cityName = feature.properties.name;
-                        if (cityLayers[cityName]) return;
-                        let status = cityStatus[cityName] || null;
-                        let style = getStyleByStatus(status);
-
-                        const layer = L.geoJSON(feature, {
-                            style: style,
-                            onEachFeature: function(f, l) {
-                                l.bindTooltip(cityName, { permanent: false, direction: 'center', className: 'province-label' });
-                                l.on('click', () => openCityPanel(cityName, provinceName));
-                            }
-                        }).addTo(map);
-                        cityLayers[cityName] = layer;
-                    });
-                    await new Promise(r => setTimeout(r, 60));
-                } catch(e) {}
+        // 清空现有图层
+        for (let key in cityLayers) {
+            if (cityLayers[key] && map.hasLayer(cityLayers[key])) {
+                map.removeLayer(cityLayers[key]);
             }
-            updateStats();
-            toastMsg('✅ 地图加载完成');
-        } catch(e) { console.error(e); }
+        }
+        cityLayers = {};
+
+        let loadedCount = 0;
+
+        for (const city of cities) {
+            try {
+                // 使用 geojson.cn 免费接口获取城市边界
+                const url = `https://geojson.cn/api/china/1.0/${city.code}.json`;
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    console.warn(`加载 ${city.name} 数据失败: ${response.status}`);
+                    continue;
+                }
+
+                const data = await response.json();
+                let status = cityStatus[city.name] || null;
+
+                // 样式配置
+                const style = getStyleByStatus(status);
+
+                const layer = L.geoJSON(data, {
+                    style: style,
+                    onEachFeature: function(feature, layer) {
+                        // 绑定提示文字
+                        let tooltipText = `${city.name}\n${status === 'go' ? '✅ 已去过' : (status === 'want' ? '💗 想去' : '📍 未标记')}`;
+                        layer.bindTooltip(tooltipText, {
+                            permanent: false,
+                            direction: 'center',
+                            className: 'city-tooltip'
+                        });
+                        // 点击事件
+                        layer.on('click', () => openCityPanel(city.name, city.province));
+                    }
+                }).addTo(map);
+
+                cityLayers[city.name] = layer;
+                loadedCount++;
+
+                // 添加延迟，避免请求过快
+                await new Promise(r => setTimeout(r, 100));
+
+            } catch(e) {
+                console.error(`加载 ${city.name} 失败:`, e);
+            }
+        }
+
+        updateStats();
+        toastMsg(`✅ 已加载 ${loadedCount} 个城市边界`);
     }
 
+    // ==================== 加载省份轮廓（装饰用）====================
     async function loadProvinceBoundary() {
         try {
             let response = await fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json');
@@ -747,28 +844,37 @@
 
             L.geoJSON({ type: 'FeatureCollection', features: features }, {
                 style: {
-                    fillColor: '#ffffff', fillOpacity: 0.1, color: '#ff6b8c', weight: 3, opacity: 1, interactive: false
-                },
-                onEachFeature: function(f, layer) {
-                    // 标签代码全部删除
+                    fillColor: '#ffffff',
+                    fillOpacity: 0.05,
+                    color: '#ff6b8c',
+                    weight: 1.5,
+                    opacity: 0.5,
+                    interactive: false
                 }
             }).addTo(map);
-        } catch(e) {}
+        } catch(e) {
+            console.log('省份轮廓加载失败', e);
+        }
     }
 
+    // ==================== 初始化地图 ====================
     async function initMap() {
         map = L.map('chinaMap').setView([35.0, 108.0], 5);
 
-        // 高德地图底图（更清晰、加载更快）
+        // 使用高德底图
         L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
             subdomains: '1234',
-            maxZoom: 8,
+            maxZoom: 18,
             minZoom: 4,
-            opacity: 0.3
+            attribution: '高德地图'
         }).addTo(map);
 
+        // 加载省份轮廓（背景装饰）
         await loadProvinceBoundary();
-        await loadAllCityBoundaries();
+
+        // 加载城市边界
+        await loadCityBoundaries();
+
         document.getElementById('filterQueryBtn').addEventListener('click', applyFilter);
         document.getElementById('stateFilterSelect').addEventListener('change', () => {
             if(document.getElementById('stateFilterSelect').value === 'all') resetAllCityStyles();
@@ -776,6 +882,7 @@
         renderCityList();
     }
 
+    // ==================== 页面初始化 ====================
     async function init() {
         if (!localStorage.getItem('isLogin')) { location.href = 'login.html'; return; }
         try {
@@ -785,6 +892,7 @@
                 document.getElementById('userInitial').innerText = getNameInitials(result.data.username);
             }
         } catch (err) { location.href = 'login.html'; return; }
+
         loadStatus();
         await initMap();
         updateRedDot();
