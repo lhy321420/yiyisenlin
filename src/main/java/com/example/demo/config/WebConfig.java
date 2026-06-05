@@ -12,7 +12,6 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                // 固定只放行你的github pages域名，本地localhost调试也加上
                 .allowedOriginPatterns("https://lhy321420.github.io", "http://localhost:*")
                 .allowedMethods("*")
                 .allowedHeaders("*")
@@ -20,7 +19,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .maxAge(3600);
     }
 
-    // 【不动】原有图片上传、静态资源配置
+    // 原有静态资源不动
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/upload/**")
@@ -30,7 +29,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .addResourceLocations("classpath:/static/");
     }
 
-    // 【不动】登录拦截器全部原有配置
+    // 拦截器配置原样保留，放行登录接口已经配好了不用修改
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new LoginInterceptor())
