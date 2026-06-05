@@ -726,21 +726,25 @@
     }
 
     // ==================== 加载城市边界数据 ====================
+    // ==================== 加载【全国所有城市】纯本地文件（你的路径专用） ====================
     async function loadCityBoundaries() {
         toastMsg('正在加载全国所有城市...');
 
         try {
-            // 一次性获取全国所有城市边界（真正全量，无遗漏）
-            const res = await fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json');
+            // 🔥 路径严格对应你的本地文件：C:\...\static\geo\china.json
+            const res = await fetch('/geo/china.json');
             const data = await res.json();
 
-            // 提取所有城市（city + district）
-            const cityFeatures = data.features.filter(f =>
-                f.properties &&
-                (f.properties.level === 'city' || f.properties.level === 'district')
-            );
+            // 清空旧图层
+            for (let key in cityLayers) {
+                if (cityLayers[key] && map.hasLayer(cityLayers[key])) {
+                    map.removeLayer(cityLayers[key]);
+                }
+            }
+            cityLayers = {};
 
-            cityFeatures.forEach(feature => {
+            // 加载所有城市面 + 点击事件
+            data.features.forEach(feature => {
                 const cityName = feature.properties.name;
                 const provinceName = feature.properties.province || '';
                 const status = cityStatus[cityName] || null;
@@ -748,10 +752,11 @@
                 const layer = L.geoJSON(feature, {
                     style: getStyleByStatus(status),
                     onEachFeature: (f, l) => {
-                        // 鼠标悬浮提示
-                        l.bindTooltip(cityName, { className: 'province-label' });
+                        // 悬浮提示
+                        let tipText = `${cityName}\n${status === 'go' ? '✅ 已去过' : status === 'want' ? '💗 想去' : '📍 未标记'}`;
+                        l.bindTooltip(tipText, { className: 'city-tooltip' });
 
-                        // 点击任何城市都弹出！！
+                        // 🔥 点击任何城市都弹窗（核心修复）
                         l.on('click', () => {
                             openCityPanel(cityName, provinceName);
                         });
@@ -763,10 +768,10 @@
 
             updateStats();
             toastMsg('✅ 全国所有城市加载完成！点击任意城市即可操作');
-        }
-        catch (err) {
-            console.error('加载失败', err);
-            toastMsg('❌ 城市加载失败，请刷新重试');
+
+        } catch (err) {
+            console.error('城市加载失败：', err);
+            toastMsg('❌ 城市加载失败，请检查 geo/china.json 文件');
         }
     }
 
