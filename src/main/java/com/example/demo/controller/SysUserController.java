@@ -912,4 +912,12 @@ public class SysUserController {
         }
         return map;
     }
+    @PostMapping("/logout")
+    public Map<String, Object> logout(HttpSession session) {
+        Map<String, Object> map = new HashMap<>();
+        session.invalidate();  // 清除 session
+        map.put("code", 200);
+        map.put("msg", "登出成功");
+        return map;
+    }
 }
