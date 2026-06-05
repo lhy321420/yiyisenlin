@@ -14,18 +14,21 @@ import java.util.Arrays;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsSource()))
+                // 开启跨域
+                .cors(c -> c.configurationSource(corsSource()))
+                // 彻底关闭CSRF
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(new AntPathRequestMatcher("/")).permitAll() //放行首页
+                        .requestMatchers(new AntPathRequestMatcher("/")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/user/login")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/user/register")).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/*.html"),
-                                new AntPathRequestMatcher("/static/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/*.html"))
+                        .permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/static/**"))
+                        .permitAll()
                         .anyRequest().authenticated()
                 );
         return http.build();
@@ -34,11 +37,11 @@ public class SecurityConfig {
     private CorsConfigurationSource corsSource() {
         CorsConfiguration cfg = new CorsConfiguration();
         cfg.setAllowedOriginPatterns(Arrays.asList("https://lhy321420.github.io", "http://localhost:*"));
-        cfg.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS", "PUT", "DELETE"));
+        cfg.setAllowedMethods(Arrays.asList("GET","POST","OPTIONS","PUT","DELETE"));
         cfg.setAllowedHeaders(Arrays.asList("*"));
         cfg.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", cfg);
+        source.registerCorsConfiguration("/**",cfg);
         return source;
     }
 }
