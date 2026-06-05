@@ -699,44 +699,76 @@
 
     // ==================== 加载地图数据 ====================
     async function loadAllCityBoundaries() {
-        toastMsg('正在加载全国市级边界数据...');
+        toastMsg('正在加载地图数据...');
         try {
-            let provinceRes = await fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json');
-            let provinceData = await provinceRes.json();
-            let provinces = provinceData.features.filter(f => f.properties && f.properties.level === 'province');
+            // 1. 从本地文件加载完整数据
+            const response = await fetch('/geo/china.json');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status} - 地图文件加载失败`);
+            }
+            const data = await response.json();
 
-            for (let province of provinces) {
-                const adcode = province.properties.adcode;
-                if(adcode === '710000') continue;
-                const provinceName = province.properties.name;
+            // 2. 获取所有要素 (features)
+            let features = data.features;
+            if (!features) {
+                toastMsg('地图数据格式错误');
+                return;
+            }
+
+            // 3. 用于存储，避免重复添加同名城市
+            let addedCities = new Set();
+
+            // 4. 遍历所有要素，提取城市级别的数据
+            features.forEach(feature => {
+                const props = feature.properties;
+                if (!props) return;
+
+                // 获取名称和级别 (阿里云数据中 level 可能是 'province', 'city', 'district' 等)
+                let cityName = props.name;
+                let level = props.level;
+
+                // 如果数据中没有 level，可以根据 adcode 长度大致判断，但这里我们尽量用 name 去重
+                // 为了避免将“省份”也当作城市添加，我们可以只添加特定级别，或者只添加直辖市、地级市。
+                // 简单处理：如果名称已经存在则跳过，并且跳过明显的省级名称（非必要）
+                if (addedCities.has(cityName)) return;
+
+                // 可选：只添加 'city' 或 'district' 级别的要素，忽略省份
+                // 如果你的数据中城市级别的 level 是 'city' 或 'district'，可以加上这个判断：
+                // if (level !== 'city' && level !== 'district') return;
+
+                // 记录城市状态
+                let status = cityStatus[cityName] || null;
+                let style = getStyleByStatus(status);
 
                 try {
-                    const url = `https://geo.datav.aliyun.com/areas_v3/bound/${adcode}_full.json`;
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    const cityFeatures = data.features.filter(f => f.properties && (f.properties.level === 'city' || f.properties.level === 'district'));
+                    const layer = L.geoJSON(feature, {
+                        style: style,
+                        onEachFeature: function(f, l) {
+                            // 绑定城市名称作为提示
+                            l.bindTooltip(cityName, {
+                                permanent: false,
+                                direction: 'center',
+                                className: 'province-label'
+                            });
+                            // 点击时打开城市面板，provinceName 可以传城市名自身或从上级获取，这里简单传城市名
+                            l.on('click', () => openCityPanel(cityName, cityName));
+                        }
+                    }).addTo(map);
 
-                    cityFeatures.forEach(feature => {
-                        const cityName = feature.properties.name;
-                        if (cityLayers[cityName]) return;
-                        let status = cityStatus[cityName] || null;
-                        let style = getStyleByStatus(status);
+                    cityLayers[cityName] = layer;
+                    addedCities.add(cityName);
+                } catch(e) {
+                    console.warn(`添加图层失败: ${cityName}`, e);
+                }
+            });
 
-                        const layer = L.geoJSON(feature, {
-                            style: style,
-                            onEachFeature: function(f, l) {
-                                l.bindTooltip(cityName, { permanent: false, direction: 'center', className: 'province-label' });
-                                l.on('click', () => openCityPanel(cityName, provinceName));
-                            }
-                        }).addTo(map);
-                        cityLayers[cityName] = layer;
-                    });
-                    await new Promise(r => setTimeout(r, 60));
-                } catch(e) {}
-            }
             updateStats();
             toastMsg('✅ 地图加载完成');
-        } catch(e) { console.error(e); }
+
+        } catch(e) {
+            console.error('地图加载失败:', e);
+            toastMsg('地图数据加载失败，请检查网络或稍后重试');
+        }
     }
 
     async function loadProvinceBoundary() {
