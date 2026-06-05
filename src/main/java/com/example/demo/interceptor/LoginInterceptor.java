@@ -8,8 +8,13 @@ import javax.servlet.http.HttpSession;
 public class LoginInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
+        // 添加日志：打印所有请求
+        System.out.println("=== 拦截器拦截请求: " + request.getRequestURI() + " ===");
+
         // 1. 放行所有 OPTIONS 预检（解决跨域 403）
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            System.out.println("放行 OPTIONS 请求");
             return true;
         }
 
@@ -27,6 +32,7 @@ public class LoginInterceptor implements HandlerInterceptor {
                 || uri.startsWith("/city/");
 
         if (isWhiteList) {
+            System.out.println("白名单放行: " + uri);
             return true;
         }
 
@@ -35,11 +41,13 @@ public class LoginInterceptor implements HandlerInterceptor {
         Object loginUser = session.getAttribute("loginUser");
 
         if (loginUser == null) {
+            System.out.println("未登录，拒绝访问: " + uri);
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write("{\"code\":401,\"msg\":\"未登录\"}");
             return false;
         }
 
+        System.out.println("已登录，放行: " + uri);
         return true;
     }
 }
