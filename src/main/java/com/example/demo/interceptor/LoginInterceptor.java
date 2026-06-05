@@ -7,30 +7,39 @@ import javax.servlet.http.HttpSession;
 
 public class LoginInterceptor implements HandlerInterceptor {
     @Override
-
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        // 放行OPTIONS请求（CORS预检）
-        System.out.println("=== 拦截器捕获请求: " + request.getRequestURI() + " ===");
+        // 1. 放行所有 OPTIONS 预检（解决跨域 403）
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             return true;
         }
 
         String uri = request.getRequestURI();
-        System.out.println("【拦截器】拦截请求: " + uri);
 
-        // 检查登录状态
+        // 2. 白名单路径直接放行（双保险）
+        boolean isWhiteList = uri.equals("/user/login")
+                || uri.equals("/user/register")
+                || uri.startsWith("/user/login/")
+                || uri.startsWith("/user/register/")
+                || uri.equals("/")
+                || uri.endsWith(".html")
+                || uri.startsWith("/static/")
+                || uri.startsWith("/upload/")
+                || uri.startsWith("/city/");
+
+        if (isWhiteList) {
+            return true;
+        }
+
+        // 3. 校验登录状态
         HttpSession session = request.getSession();
         Object loginUser = session.getAttribute("loginUser");
 
         if (loginUser == null) {
-            System.out.println("【拦截器】未登录，拒绝访问: " + uri);
             response.setContentType("application/json;charset=UTF-8");
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.getWriter().write("{\"code\":403,\"msg\":\"未登录，请先登录\"}");
+            response.getWriter().write("{\"code\":401,\"msg\":\"未登录\"}");
             return false;
         }
 
-        System.out.println("【拦截器】已登录，放行: " + uri);
         return true;
     }
 }

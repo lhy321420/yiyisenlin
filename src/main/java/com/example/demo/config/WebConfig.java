@@ -13,7 +13,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOriginPatterns("*")  // 临时允许所有来源，测试通过后再收紧
+                .allowedOriginPatterns("https://lhy321420.github.io", "http://localhost:*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true)
@@ -24,7 +24,6 @@ public class WebConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/upload/**")
                 .addResourceLocations("file:" + System.getProperty("user.dir") + "/upload/");
-
         registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/");
     }
@@ -32,21 +31,23 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new LoginInterceptor())
-                .addPathPatterns("/**")  // 拦截所有请求
+                .addPathPatterns("/**")
                 .excludePathPatterns(
-                        "/",                           // 根路径
-                        "/index.html",                 // 首页
-                        "/login.html",                 // 登录页
-                        "/register.html",              // 注册页
-                        "/user/login",                 // 登录接口 ⭐ 关键
-                        "/user/register",              // 注册接口
-                        "/static/**",                  // 静态资源
-                        "/upload/**",                  // 上传文件
-                        "/city/**",                    // 城市相关接口
-                        "/**/*.html",                  // 所有 HTML
-                        "/**/*.css",                   // 所有 CSS
-                        "/**/*.js",                    // 所有 JS
-                        "/**/*.png",                   // 所有图片
+                        "/",
+                        "/index.html",
+                        "/login.html",
+                        "/register.html",
+                        "/user/login",
+                        "/user/login/**",
+                        "/user/register",
+                        "/user/register/**",
+                        "/static/**",
+                        "/upload/**",
+                        "/city/**",
+                        "/**/*.html",
+                        "/**/*.css",
+                        "/**/*.js",
+                        "/**/*.png",
                         "/**/*.jpg",
                         "/**/*.jpeg",
                         "/**/*.gif"
