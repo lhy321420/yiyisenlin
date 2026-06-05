@@ -9,11 +9,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOriginPatterns("https://lhy321420.github.io", "http://localhost:*")
-                .allowedMethods("GET","POST","PUT","DELETE","OPTIONS")
+                .allowedOriginPatterns("*")  // 临时允许所有来源，测试通过后再收紧
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true)
                 .maxAge(3600);
@@ -31,20 +32,24 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new LoginInterceptor())
-                .addPathPatterns("/**")
+                .addPathPatterns("/**")  // 拦截所有请求
                 .excludePathPatterns(
-                        "/login.html",
-                        "/register.html",
-                        "/user/login",
-                        "/user/register",
-                        "/",
-                        "/index.html",
-                        "/user-info.html",
-                        "/user/update-info",
-                        "/**/*.html",
-                        "/static/**",
-                        "/city/**",
-                        "/upload/**"
+                        "/",                           // 根路径
+                        "/index.html",                 // 首页
+                        "/login.html",                 // 登录页
+                        "/register.html",              // 注册页
+                        "/user/login",                 // 登录接口 ⭐ 关键
+                        "/user/register",              // 注册接口
+                        "/static/**",                  // 静态资源
+                        "/upload/**",                  // 上传文件
+                        "/city/**",                    // 城市相关接口
+                        "/**/*.html",                  // 所有 HTML
+                        "/**/*.css",                   // 所有 CSS
+                        "/**/*.js",                    // 所有 JS
+                        "/**/*.png",                   // 所有图片
+                        "/**/*.jpg",
+                        "/**/*.jpeg",
+                        "/**/*.gif"
                 );
     }
 }
