@@ -235,7 +235,6 @@ public class SysUserController {
             }
 
             // 设置默认值
-            user.setCreateTime(new Date());
             user.setDescription("温暖的伙伴");
 
             // 保存用户
