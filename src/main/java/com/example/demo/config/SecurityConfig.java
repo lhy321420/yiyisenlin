@@ -21,9 +21,9 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(new AntPathRequestMatcher("/")).permitAll() //放行首页
                         .requestMatchers(new AntPathRequestMatcher("/user/login")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/user/register")).permitAll()
-                        // 放行所有页面、静态资源（你的static下html全部放行，否则页面401）
                         .requestMatchers(new AntPathRequestMatcher("/*.html"),
                                 new AntPathRequestMatcher("/static/**")).permitAll()
                         .anyRequest().authenticated()
