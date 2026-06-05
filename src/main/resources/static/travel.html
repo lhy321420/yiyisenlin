@@ -505,21 +505,8 @@
 
     function updateCityStyle(cityName, status) {
         if (cityLayers[cityName]) {
-            let layer = cityLayers[cityName];
-
-            // 判断是 GeoJSON 图层还是 Marker
-            if (layer.setStyle) {
-                // GeoJSON 图层：修改填充样式
-                layer.setStyle({
-                    fillColor: status === 'go' ? '#7ccd7c' : (status === 'want' ? '#ff4a6c' : '#ffffff'),
-                    fillOpacity: status ? 0.6 : 0.3,
-                    color: status === 'go' ? '#5aad5a' : (status === 'want' ? '#e84060' : '#cccccc')
-                });
-            } else if (layer.setStyle) {
-                // CircleMarker：修改颜色
-                let markerColor = status === 'go' ? '#7ccd7c' : (status === 'want' ? '#ff4a6c' : '#cccccc');
-                layer.setStyle({ fillColor: markerColor });
-            }
+            let style = getStyleByStatus(status);
+            cityLayers[cityName].setStyle(style);
         }
         renderCityList();
     }
@@ -712,113 +699,46 @@
 
     // ==================== 加载地图数据 ====================
     async function loadAllCityBoundaries() {
-        toastMsg('正在加载城市边界数据...');
+        toastMsg('正在加载全国市级边界数据...');
         try {
-            // 从本地加载详细的中国城市地图数据
-            const response = await fetch('/geo/china_cities.json');
-            if (!response.ok) {
-                throw new Error('地图文件加载失败');
-            }
-            const data = await response.json();
+            let provinceRes = await fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json');
+            let provinceData = await provinceRes.json();
+            let provinces = provinceData.features.filter(f => f.properties && f.properties.level === 'province');
 
-            // 清空现有图层
-            for (let key in cityLayers) {
-                if (cityLayers[key] && map.hasLayer(cityLayers[key])) {
-                    map.removeLayer(cityLayers[key]);
-                }
-            }
-            cityLayers = {};
-
-            let features = data.features;
-            let addedCount = 0;
-
-            features.forEach(feature => {
-                const props = feature.properties;
-                // 获取城市名称（根据不同数据结构调整字段名）
-                let cityName = props.name || props.NAME || props.city;
-                let provinceName = props.province || props.province_name || '';
-
-                if (!cityName) return;
-                if (cityLayers[cityName]) return;
-
-                let status = cityStatus[cityName] || null;
-                let style = {
-                    fillColor: status === 'go' ? '#7ccd7c' : (status === 'want' ? '#ff4a6c' : '#ffffff'),
-                    fillOpacity: status ? 0.6 : 0.3,
-                    color: status === 'go' ? '#5aad5a' : (status === 'want' ? '#e84060' : '#cccccc'),
-                    weight: 1.5,
-                    opacity: 0.8
-                };
+            for (let province of provinces) {
+                const adcode = province.properties.adcode;
+                if(adcode === '710000') continue;
+                const provinceName = province.properties.name;
 
                 try {
-                    const layer = L.geoJSON(feature, {
-                        style: style,
-                        onEachFeature: function(f, l) {
-                            // 绑定提示框
-                            l.bindTooltip(cityName, {
-                                permanent: false,
-                                direction: 'center',
-                                className: 'city-tooltip'
-                            });
-                            // 点击事件
-                            l.on('click', () => openCityPanel(cityName, provinceName));
-                        }
-                    }).addTo(map);
+                    const url = `https://geo.datav.aliyun.com/areas_v3/bound/${adcode}_full.json`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    const cityFeatures = data.features.filter(f => f.properties && (f.properties.level === 'city' || f.properties.level === 'district'));
 
-                    cityLayers[cityName] = layer;
-                    addedCount++;
+                    cityFeatures.forEach(feature => {
+                        const cityName = feature.properties.name;
+                        if (cityLayers[cityName]) return;
+                        let status = cityStatus[cityName] || null;
+                        let style = getStyleByStatus(status);
 
-                } catch(e) {
-                    console.warn(`添加城市失败: ${cityName}`, e);
-                }
-            });
-
+                        const layer = L.geoJSON(feature, {
+                            style: style,
+                            onEachFeature: function(f, l) {
+                                l.bindTooltip(cityName, { permanent: false, direction: 'center', className: 'province-label' });
+                                l.on('click', () => openCityPanel(cityName, provinceName));
+                            }
+                        }).addTo(map);
+                        cityLayers[cityName] = layer;
+                    });
+                    await new Promise(r => setTimeout(r, 60));
+                } catch(e) {}
+            }
             updateStats();
-            toastMsg(`✅ 已加载 ${addedCount} 个城市边界`);
-
-        } catch(e) {
-            console.error('地图加载失败:', e);
-            toastMsg('地图数据加载失败，正在使用备用方案...');
-            // 备用方案：使用简化版城市标记
-            loadSimpleCityMarkers();
-        }
+            toastMsg('✅ 地图加载完成');
+        } catch(e) { console.error(e); }
     }
 
-    // 备用方案：使用圆形标记
-    function loadSimpleCityMarkers() {
-        const cities = [
-            { name: '北京', lat: 39.9042, lng: 116.4074, province: '北京' },
-            { name: '上海', lat: 31.2304, lng: 121.4737, province: '上海' },
-            { name: '广州', lat: 23.1291, lng: 113.2644, province: '广东' },
-            { name: '深圳', lat: 22.5431, lng: 114.0579, province: '广东' },
-            { name: '成都', lat: 30.5728, lng: 104.0668, province: '四川' },
-            { name: '杭州', lat: 30.2741, lng: 120.1551, province: '浙江' },
-            { name: '武汉', lat: 30.5928, lng: 114.3055, province: '湖北' },
-            { name: '西安', lat: 34.3416, lng: 108.9402, province: '陕西' },
-            { name: '重庆', lat: 29.4316, lng: 106.9123, province: '重庆' },
-            { name: '南京', lat: 32.0415, lng: 118.7674, province: '江苏' }
-        ];
-
-        cities.forEach(city => {
-            let status = cityStatus[city.name] || null;
-            let markerColor = status === 'go' ? '#7ccd7c' : (status === 'want' ? '#ff4a6c' : '#cccccc');
-
-            let marker = L.circleMarker([city.lat, city.lng], {
-                radius: 10,
-                fillColor: markerColor,
-                color: '#ffffff',
-                weight: 2,
-                fillOpacity: 0.8
-            }).addTo(map);
-
-            marker.bindTooltip(city.name);
-            marker.on('click', () => openCityPanel(city.name, city.province));
-            cityLayers[city.name] = marker;
-        });
-
-        updateStats();
-        toastMsg('使用简化版城市标记');
-    }
     async function loadProvinceBoundary() {
         try {
             let response = await fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json');
@@ -839,17 +759,16 @@
     async function initMap() {
         map = L.map('chinaMap').setView([35.0, 108.0], 5);
 
-        // 使用高德底图
+        // 高德地图底图（更清晰、加载更快）
         L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
             subdomains: '1234',
-            maxZoom: 18,
+            maxZoom: 8,
             minZoom: 4,
-            attribution: '高德地图'
+            opacity: 0.3
         }).addTo(map);
 
-        // 直接加载城市标记（不加载省界）
+        await loadProvinceBoundary();
         await loadAllCityBoundaries();
-
         document.getElementById('filterQueryBtn').addEventListener('click', applyFilter);
         document.getElementById('stateFilterSelect').addEventListener('change', () => {
             if(document.getElementById('stateFilterSelect').value === 'all') resetAllCityStyles();
