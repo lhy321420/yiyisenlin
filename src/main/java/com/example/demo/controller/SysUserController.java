@@ -219,6 +219,41 @@ public class SysUserController {
         map.put("data", requests);
         return map;
     }
+    // 注册
+    @PostMapping("/register")
+    public Map<String, Object> register(@RequestBody SysUser user) {
+        Map<String, Object> result = new HashMap<>();
+        System.out.println("【注册请求】用户名: " + user.getUsername());
+
+        try {
+            // 检查用户名是否已存在
+            SysUser existingUser = sysUserService.getByUsername(user.getUsername());
+            if (existingUser != null) {
+                result.put("code", 400);
+                result.put("msg", "用户名已存在");
+                return result;
+            }
+
+            // 设置默认值
+            user.setCreateTime(new Date());
+            user.setDescription("温暖的伙伴");
+
+            // 保存用户
+            int rows = sysUserService.register(user);
+            if (rows > 0) {
+                result.put("code", 200);
+                result.put("msg", "注册成功");
+            } else {
+                result.put("code", 500);
+                result.put("msg", "注册失败");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("code", 500);
+            result.put("msg", "服务器错误: " + e.getMessage());
+        }
+        return result;
+    }
 
     // 接受好友申请
     @PostMapping("/acceptRequest")
