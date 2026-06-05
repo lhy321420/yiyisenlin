@@ -789,18 +789,21 @@
     }
 
     async function initMap() {
-        map = L.map('chinaMap').setView([35.0, 108.0], 5);
+        // 设置地图中心为中国中部，缩放级别改为 6（更近）
+        map = L.map('chinaMap').setView([35.0, 108.0], 6);  // 缩放级别从 5 改为 6
 
-        // 高德地图底图（更清晰、加载更快）
+        // 使用更清晰的底图（高德卫星图或街道图）
         L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
             subdomains: '1234',
-            maxZoom: 8,
+            maxZoom: 10,
             minZoom: 4,
-            opacity: 0.3
+            attribution: '高德地图'
         }).addTo(map);
 
+        // 加载省市边界
         await loadProvinceBoundary();
         await loadAllCityBoundaries();
+
         document.getElementById('filterQueryBtn').addEventListener('click', applyFilter);
         document.getElementById('stateFilterSelect').addEventListener('change', () => {
             if(document.getElementById('stateFilterSelect').value === 'all') resetAllCityStyles();
