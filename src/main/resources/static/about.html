@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>壹一森林</title>
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/pinyin-pro@3.19.6/dist/index.js"></script>
@@ -33,15 +33,20 @@
             background-color: #fff9f5;
             font-family: "Microsoft YaHei", sans-serif;
         }
+
+        /* ========== 顶部导航 移动端适配 ========== */
         .big {
             display: flex;
             align-items: center;
             background: rgb(255, 255, 158);
-            padding: 8px 15px;
+            padding: 8px 12px;
             justify-content: space-between;
-            margin: 10px 100px;
+            margin: 10px auto;
+            max-width: 900px;
             border-radius: 15px;
-            height: 46px;
+            min-height: 46px;
+            flex-wrap: wrap;
+            gap: 8px;
         }
         .first { display: flex; align-items: center; gap: 6px; }
         .heart { font-size: 16px; cursor: pointer; transition: 0.2s; }
@@ -67,21 +72,24 @@
             display: none;
         }
         .nav {
-            display: flex;
+            display:flex;
             background: rgb(252, 252, 192);
             color: rgb(146, 86, 30);
-            padding: 2px 10px;
-            border-radius: 15px;
-            height: 28px;
-            gap: 12px;
+            padding:2px 6px;
+            border-radius:15px;
+            min-height:28px;
+            gap:4px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         .nav-item {
-            padding: 2px 10px;
+            padding:2px 6px;
             border: 2px solid transparent;
-            border-radius: 15px;
+            border-radius:15px;
             transition: all 0.3s ease;
-            font-size: 14px;
-            cursor: pointer;
+            font-size:13px;
+            cursor:pointer;
+            white-space: nowrap;
         }
         .nav-item.active {
             background-color: rgb(255, 239, 200);
@@ -93,23 +101,23 @@
             transform: translateY(-1px);
         }
         .user-right {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            display:flex;
+            align-items:center;
+            gap:8px;
             background: #ffdde0;
-            padding: 4px 12px;
-            border-radius: 20px;
+            padding:4px 10px;
+            border-radius:20px;
             color: #c74c70;
-            font-weight: bold;
-            font-size: 13px;
-            cursor: pointer;
+            font-weight:bold;
+            font-size:13px;
+            cursor:pointer;
         }
         .switch-btn {
-            width: 28px;
-            height: 14px;
+            width:28px;
+            height:14px;
             background: #fff;
-            border-radius: 10px;
-            position: relative;
+            border-radius:10px;
+            position:relative;
         }
         .switch-btn::before {
             content: '';
@@ -121,54 +129,61 @@
             top: 2px; left: 2px;
             transition: 0.2s;
         }
+        .switch-btn.active::before { left: 16px; }
+
+        /* ========== 相册头部 ========== */
         .album-top {
-            max-width: 1100px;
-            margin: 30px auto 20px;
-            padding: 0 20px;
+            max-width: 900px;
+            margin: 20px auto 15px;
+            padding: 0 15px;
             text-align: center;
         }
         .album-title {
-            font-size: 32px;
+            font-size: clamp(24px, 7vw, 32px);
             color: #e67a8a;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .search-box {
             display: flex;
             justify-content: center;
-            gap: 12px;
+            gap: 8px;
             flex-wrap: wrap;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
         }
         .search-input {
-            padding: 8px 14px;
+            padding: 8px 12px;
             border: 1px solid #f0d8c0;
             border-radius: 20px;
             outline: none;
-            width: 200px;
+            width: 100%;
+            max-width: 160px;
             font-size: 14px;
         }
         .search-btn {
-            padding: 8px 20px;
+            padding: 8px 16px;
             background: #ffccd5;
             color: #c74c70;
             border: none;
             border-radius: 20px;
             cursor: pointer;
             transition: 0.3s;
+            font-size: 14px;
         }
         .search-btn:hover { background: #ffb3c1; }
+
+        /* ========== 相册网格 自适应 ========== */
         .album-container {
-            max-width: 1100px;
-            margin: 0 auto 60px;
-            padding: 0 20px;
+            max-width: 900px;
+            margin: 0 auto 40px;
+            padding: 0 15px;
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px;
         }
         .photo-card {
             background: #fff;
             border-radius: 16px;
-            padding: 15px;
+            padding: 12px;
             box-shadow: 0 4px 12px rgba(245,190,150,0.15);
             transition: 0.3s;
             cursor: pointer;
@@ -179,56 +194,62 @@
         }
         .photo-img {
             width: 100%;
-            height: 200px;
+            aspect-ratio: 1/1;
             background: #ffe8ee;
             border-radius: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             background-size: cover;
             background-position: center;
         }
         .photo-info {
-            font-size: 13px;
+            font-size: 12px;
             color: #9c5a22;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 4px;
         }
         .user-info {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
         .user-avatar-small {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
             background-size: cover;
             background-position: center;
+            flex-shrink: 0;
         }
         .photo-description {
-            font-size: 13px;
+            font-size: 12px;
             color: #666;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             line-height: 1.4;
+            word-break: break-all;
         }
         .photo-stats {
             display: flex;
-            gap: 15px;
-            font-size: 12px;
+            gap: 12px;
+            font-size: 11px;
             color: #c74c70;
             border-top: 1px solid #fae5d5;
-            padding-top: 8px;
-            margin-top: 8px;
+            padding-top: 6px;
+            margin-top: 4px;
         }
+
+        /* 上传按钮 */
         .upload-area {
-            max-width: 1100px;
-            margin: 0 auto 40px;
-            padding: 0 20px;
+            max-width: 900px;
+            margin: 0 auto 30px;
+            padding: 0 15px;
             text-align: center;
         }
         .upload-btn {
-            padding: 10px 26px;
+            padding: 10px 22px;
             background: #f9ce85;
             color: #9c5a22;
             border: none;
@@ -239,7 +260,7 @@
         }
         .upload-btn:hover { background: #f8c068; }
 
-        /* 上传弹窗样式 */
+        /* 上传弹窗 */
         .upload-modal {
             position: fixed;
             top: 0; left: 0;
@@ -252,10 +273,10 @@
         }
         .upload-modal .modal-content {
             background: #fff9f5;
-            width: 500px;
-            max-width: 90%;
-            border-radius: 24px;
-            padding: 25px;
+            width: 92%;
+            max-width: 400px;
+            border-radius: 20px;
+            padding: 20px;
             position: relative;
         }
         .upload-modal textarea {
@@ -263,12 +284,13 @@
             padding: 10px;
             border: 1px solid #f7d3c2;
             border-radius: 16px;
-            margin: 15px 0;
+            margin: 12px 0;
             resize: vertical;
+            min-height: 80px;
         }
         .preview-img {
             max-width: 100%;
-            max-height: 200px;
+            max-height: 180px;
             border-radius: 12px;
             margin: 10px 0;
         }
@@ -284,34 +306,35 @@
             justify-content: center;
             z-index: 1001;
             overflow-y: auto;
+            padding: 15px;
         }
         .detail-content {
             background: #fff9f5;
-            width: 600px;
-            max-width: 90%;
-            border-radius: 24px;
-            padding: 25px;
+            width: 100%;
+            max-width: 450px;
+            border-radius: 20px;
+            padding: 20px;
             max-height: 90vh;
             overflow-y: auto;
         }
         .detail-img {
             width: 100%;
-            max-height: 400px;
+            max-height: 350px;
             object-fit: contain;
             border-radius: 16px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         .comment-item {
-            margin-top: 15px;
-            padding: 12px;
+            margin-top: 12px;
+            padding: 10px;
             background: #fff0e8;
-            border-radius: 16px;
+            border-radius: 14px;
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
         .comment-avatar {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             background-size: cover;
             background-position: center;
@@ -319,6 +342,7 @@
         }
         .comment-content {
             flex: 1;
+            min-width: 0;
         }
         .comment-name {
             font-weight: bold;
@@ -328,14 +352,16 @@
         .comment-time {
             font-size: 11px;
             color: #999;
-            margin-left: 8px;
+            margin-left: 6px;
         }
         .comment-text {
             margin-top: 4px;
             font-size: 13px;
             color: #666;
+            word-break: break-all;
         }
 
+        /* 退出弹窗 */
         .modal {
             position: fixed;
             top: 0; left: 0;
@@ -348,8 +374,9 @@
         }
         .modal-content {
             background: #fff;
-            width: 280px;
-            padding: 25px;
+            width: 90%;
+            max-width: 280px;
+            padding: 22px;
             border-radius: 16px;
             text-align: center;
         }
@@ -367,9 +394,17 @@
         }
         .cancel { background: #f1f1f1; }
         .logout { background: #f8446e; color: #fff; }
+
+        /* 小屏手机优化 */
+        @media (max-width: 400px) {
+            .album-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
     </style>
 </head>
 <body>
+
 <div class="big">
     <div class="first">
         <div class="heart" onclick="toUserInfo()">❤️</div>
@@ -377,9 +412,9 @@
             <p>SPACE</p>
             <p>壹一森林</p>
         </div>
-        <div class="bell" onclick="goToMessage()" style="position: relative;">
+        <div class="bell" onclick="goToMessage()">
             <i class="fa-solid fa-bell"></i>
-            <span class="red-dot" id="redDot" style="display: none; position: absolute; top: -5px; right: -8px; width: 10px; height: 10px; background: #f8446e; border-radius: 50%;"></span>
+            <span class="red-dot" id="redDot"></span>
         </div>
     </div>
     <div class="nav">
@@ -399,14 +434,14 @@
     <h1 class="album-title">伙伴相册</h1>
     <div class="search-box">
         <input class="search-input" id="searchName" placeholder="搜索人名">
-        <input class="search-input" id="searchTime" placeholder="搜索上传时间 (YYYY-MM-DD)">
-        <button class="search-btn" onclick="searchPhoto()">开始查找</button>
+        <input class="search-input" id="searchTime" placeholder="搜索上传时间">
+        <button class="search-btn" onclick="searchPhoto()">查找</button>
         <button class="search-btn" onclick="resetSearch()" style="background:#f9ce85;">重置</button>
     </div>
 </div>
 
 <div class="album-container" id="photoList">
-    <div style="grid-column:1/-1; text-align:center; padding:40px; color:#9c5a22;">加载中...</div>
+    <div style="grid-column:1/-1; text-align:center; padding:30px 15px; color:#9c5a22;">加载中...</div>
 </div>
 
 <div class="upload-area">
@@ -418,12 +453,12 @@
 <!-- 上传弹窗 -->
 <div id="uploadModal" class="upload-modal">
     <div class="modal-content">
-        <span style="position:absolute; top:15px; right:20px; font-size:24px; cursor:pointer; color:#c74c70;" onclick="closeUploadModal()">&times;</span>
-        <h3 style="color:#c74c70; margin-bottom:15px;">✨ 上传照片 ✨</h3>
+        <span style="position:absolute; top:15px; right:20px; font-size:22px; cursor:pointer; color:#c74c70;" onclick="closeUploadModal()">&times;</span>
+        <h3 style="color:#c74c70; margin-bottom:15px; text-align:center;">✨ 上传照片 ✨</h3>
         <input type="file" id="photoFile" accept="image/*" onchange="previewPhoto()">
         <div id="previewContainer" style="text-align:center;"></div>
         <textarea id="photoDesc" rows="3" placeholder="写下此刻心情..."></textarea>
-        <button onclick="uploadPhoto()" style="width:100%; padding:10px; background:#ffccd5; border:none; border-radius:30px; color:#c74c70; font-weight:bold; cursor:pointer;">发布照片</button>
+        <button onclick="uploadPhoto()" style="width:100%; padding:10px; background:#ffccd5; border:none; border-radius:30px; color:#c74c70; font-weight:bold; cursor:pointer; margin-top:8px;">发布照片</button>
     </div>
 </div>
 
@@ -456,7 +491,7 @@
             const result = await res.json();
             if (result.code === 200) {
                 alert('删除成功');
-                showPhotoDetail(photoId); // 刷新详情页
+                showPhotoDetail(photoId);
             } else {
                 alert('删除失败：' + (result.msg || '未知错误'));
             }
@@ -480,7 +515,7 @@
             if (result.code === 200) {
                 alert('删除成功');
                 closeDetailModal();
-                loadPhotos(); // 刷新照片列表
+                loadPhotos();
             } else {
                 alert('删除失败：' + (result.msg || '未知错误'));
             }
@@ -516,7 +551,6 @@
     let selectedFile = null;
 
     // 加载照片列表
-    // 加载照片列表
     async function loadPhotos() {
         try {
             const res = await fetch("/user/photo/list", { credentials: "include" });
@@ -524,7 +558,7 @@
             const container = document.getElementById('photoList');
             if (result.code === 200 && result.data) {
                 if (result.data.length === 0) {
-                    container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px; color:#9c5a22;">暂无照片，快来上传第一张吧~</div>';
+                    container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:30px 15px; color:#9c5a22;">暂无照片，快来上传第一张吧~</div>';
                     return;
                 }
                 let html = '';
@@ -535,7 +569,6 @@
                     const isOwner = currentUserId === photo.userId;
                     const deleteBtn = isOwner ? `<button class="delete-photo-btn" data-id="${photo.id}" onclick="event.stopPropagation(); deletePhoto(${photo.id})"><i class="fa-regular fa-trash-can"></i></button>` : '';
 
-                    // 关键：把 onclick 放到最外层 div，整卡可点击
                     html += `
                 <div class="photo-card" data-id="${photo.id}" onclick="showPhotoDetail(${photo.id})">
                     <div class="photo-img" style="background-image: url('${photo.imageUrl}'); background-size: cover;"></div>
@@ -559,11 +592,11 @@
                 });
                 container.innerHTML = html;
             } else {
-                container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px; color:#9c5a22;">加载失败</div>';
+                container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:30px 15px; color:#9c5a22;">加载失败</div>';
             }
         } catch(e) {
             console.error(e);
-            document.getElementById('photoList').innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px; color:#9c5a22;">网络错误</div>';
+            document.getElementById('photoList').innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:30px 15px; color:#9c5a22;">网络错误</div>';
         }
     }
 
@@ -574,9 +607,7 @@
             const result = await res.json();
             if (result.code === 200) {
                 const photo = result.data;
-                // 判断是否是当前用户的照片，显示删除按钮
                 const isPhotoOwner = currentUserId === photo.userId;
-                // 加载评论
                 const commentsRes = await fetch(`/user/photo/comments?photoId=${photoId}`, { credentials: "include" });
                 const commentsResult = await commentsRes.json();
                 let commentsHtml = '';
@@ -585,7 +616,6 @@
                         let avatarStyle = c.avatar && c.avatar.startsWith('data:image')
                             ? `style="background-image: url('${c.avatar}'); background-size: cover;"`
                             : 'style="background: #ffe8e8;"';
-                        // 判断是否是当前用户的评论，显示删除按钮
                         const isCommentOwner = currentUserId === c.userId;
                         const deleteCommentBtn = isCommentOwner ? `<button class="delete-comment-btn" onclick="event.stopPropagation(); deleteComment(${c.id}, ${photoId})"><i class="fa-regular fa-trash-can"></i></button>` : '';
                         commentsHtml += `
@@ -604,22 +634,22 @@
                     });
                 }
                 const isOwner = currentUserId === photo.userId;
-                const deletePhotoBtn = isOwner ? `<button onclick="deletePhoto(${photo.id})" style="background:#f8446e; color:#fff; border:none; border-radius:30px; padding:5px 15px; margin-bottom:10px; cursor:pointer;"><i class="fa-regular fa-trash-can"></i> 删除照片</button>` : '';
+                const deletePhotoBtn = isOwner ? `<button onclick="deletePhoto(${photo.id})" style="background:#f8446e; color:#fff; border:none; border-radius:30px; padding:6px 16px; margin:10px 0; cursor:pointer; font-size:14px;"><i class="fa-regular fa-trash-can"></i> 删除照片</button>` : '';
                 const detailHtml = `
                 <div style="position:relative;">
                     <span class="modal-close" style="position:absolute; top:0; right:0; font-size:24px; cursor:pointer;" onclick="closeDetailModal()">&times;</span>
                     <img src="${photo.imageUrl}" class="detail-img">
-                    <div style="color:#999; margin:5px 0;">${escapeHtml(photo.username)} · ${photo.uploadTime}</div>
-                    <div>${escapeHtml(photo.description || '')}</div>
+                    <div style="color:#999; margin:5px 0; font-size:14px;">${escapeHtml(photo.username)} · ${photo.uploadTime}</div>
+                    <div style="font-size:14px; line-height:1.5; margin:8px 0;">${escapeHtml(photo.description || '')}</div>
                     ${deletePhotoBtn}
                     <div style="margin:10px 0;">
-                        <button id="likePhotoBtn" class="like-btn" data-liked="${photo.likedByCurrentUser}" data-id="${photo.id}" style="background:none; border:none; color:#c74c70; cursor:pointer;">❤️ ${photo.likeCount}</button>
+                        <button id="likePhotoBtn" class="like-btn" data-liked="${photo.likedByCurrentUser}" data-id="${photo.id}" style="background:none; border:none; color:#c74c70; cursor:pointer; font-size:15px;">❤️ ${photo.likeCount}</button>
                     </div>
-                    <h3>留言板</h3>
+                    <h3 style="margin:15px 0 8px; font-size:16px; color:#9c5a22;">留言板</h3>
                     <div id="commentsArea">${commentsHtml}</div>
                     <div style="margin-top:15px;">
-                        <textarea id="newComment" rows="2" placeholder="写一条留言..." style="width:100%; border:1px solid #f7d3c2; border-radius:12px; padding:8px;"></textarea>
-                        <button onclick="submitPhotoComment(${photo.id})" style="background:#ffccd5; border:none; border-radius:30px; padding:5px 15px; margin-top:8px; color:#c74c70;">发布留言</button>
+                        <textarea id="newComment" rows="2" placeholder="写一条留言..." style="width:100%; border:1px solid #f7d3c2; border-radius:12px; padding:10px; font-size:14px;"></textarea>
+                        <button onclick="submitPhotoComment(${photo.id})" style="background:#ffccd5; border:none; border-radius:30px; padding:8px 18px; margin-top:8px; color:#c74c70; font-size:14px; cursor:pointer;">发布留言</button>
                     </div>
                 </div>
             `;
@@ -698,7 +728,7 @@
             const container = document.getElementById('photoList');
             if (result.code === 200 && result.data) {
                 if (result.data.length === 0) {
-                    container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px; color:#9c5a22;">未找到相关照片</div>';
+                    container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:30px 15px; color:#9c5a22;">未找到相关照片</div>';
                     return;
                 }
                 let html = '';
@@ -789,7 +819,6 @@
         if (!selectedFile) { alert('请选择照片'); return; }
         const description = document.getElementById('photoDesc').value.trim();
 
-        // 压缩图片
         const compressedBase64 = await compressImage(selectedFile, 800, 0.7);
 
         try {

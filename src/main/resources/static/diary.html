@@ -2,14 +2,28 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>壹一森林</title>
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/pinyin-pro@3.19.6/dist/index.js"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
         body{background-color:#fff9f5;font-family:"Microsoft YaHei",sans-serif;}
-        .big{display:flex;align-items:center;background:rgb(255,255,158);padding:8px 15px;justify-content:space-between;margin:10px 100px;border-radius:15px;height:46px;}
+
+        /* ========== 顶部导航 移动端适配 ========== */
+        .big{
+            display:flex;
+            align-items:center;
+            background:rgb(255,255,158);
+            padding:8px 12px;
+            justify-content:space-between;
+            margin:10px auto;
+            max-width:95%;
+            border-radius:15px;
+            min-height:46px;
+            flex-wrap:wrap;
+            gap:8px;
+        }
         .first{display:flex;align-items:center;gap:6px;}
         .heart{font-size:16px;cursor:pointer;transition:0.2s;}
         .heart:hover{transform:scale(1.1);}
@@ -17,68 +31,128 @@
         .bell{font-size:18px;color:rgb(199,199,158);cursor:pointer;margin-left:6px;transition:0.3s;position:relative;}
         .bell:hover{color:#f8446e;}
         .red-dot{position:absolute;top:-5px;right:-8px;width:10px;height:10px;background:#f8446e;border-radius:50%;display:none;}
-        .nav{display:flex;background:rgb(252,252,192);color:rgb(146,86,30);padding:2px 10px;border-radius:15px;height:28px;gap:12px;}
-        .nav-item{padding:2px 10px;border:2px solid transparent;border-radius:15px;transition:all 0.3s ease;font-size:14px;cursor:pointer;}
+        .nav{
+            display:flex;
+            background:rgb(252,252,192);
+            color:rgb(146,86,30);
+            padding:2px 6px;
+            border-radius:15px;
+            min-height:28px;
+            gap:4px;
+            flex-wrap:wrap;
+            justify-content:center;
+        }
+        .nav-item{padding:2px 6px;border:2px solid transparent;border-radius:15px;transition:all 0.3s ease;font-size:13px;cursor:pointer;white-space:nowrap;}
         .nav-item.active{background-color:rgb(255,239,200);transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,0.1);}
         .nav-item:hover{background-color:rgb(255,239,200);transform:translateY(-1px);}
-        .user-right{display:flex;align-items:center;gap:8px;background:#ffdde0;padding:4px 12px;border-radius:20px;color:#c74c70;font-weight:bold;font-size:13px;cursor:pointer;}
+        .user-right{display:flex;align-items:center;gap:8px;background:#ffdde0;padding:4px 10px;border-radius:20px;color:#c74c70;font-weight:bold;font-size:13px;cursor:pointer;}
         .switch-btn{width:28px;height:14px;background:#fff;border-radius:10px;position:relative;}
         .switch-btn::before{content:'';width:10px;height:10px;background:#f8446e;border-radius:50%;position:absolute;top:2px;left:2px;transition:0.2s;}
         .switch-btn.active::before{left:16px;}
+
+        /* ========== 弹窗 ========== */
         .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.3);display:none;align-items:center;justify-content:center;z-index:999;}
-        .modal-content{background:#fff;width:280px;padding:25px;border-radius:16px;text-align:center;}
+        .modal-content{background:#fff;width:90%;max-width:280px;padding:22px;border-radius:16px;text-align:center;}
         .modal-title{font-size:16px;margin-bottom:15px;}
         .modal-btns{display:flex;gap:10px;justify-content:center;}
         .modal-btn{padding:6px 18px;border-radius:20px;border:none;cursor:pointer;font-size:13px;}
         .cancel{background:#f1f1f1;color:#666;}
         .logout{background:#f8446e;color:#fff;}
+        .img-modal{background:rgba(0,0,0,.85);}
+        .img-modal img{max-width:90%;max-height:90%;border-radius:16px;}
 
-        /* 固定侧边栏，永不变形 */
-        .diary-layout{max-width:1200px;margin:30px auto;padding:0 20px;display:flex;gap:20px;}
+        /* ========== 布局：电脑左右 / 手机上下 ========== */
+        .diary-layout{
+            max-width:1200px;
+            margin:20px auto;
+            padding:0 15px;
+            display:flex;
+            gap:20px;
+        }
+        /* 电脑端：侧边栏固定 */
         .diary-sidebar{
-            width:220px !important;
-            flex-shrink:0 !important;
-            background:#fff !important;
-            border-radius:16px !important;
-            padding:16px !important;
-            box-shadow:0 4px 12px rgba(245,190,150,.15) !important;
-            border:1px solid #ffe8e8 !important;
+            width:220px;
+            flex-shrink:0;
+            background:#fff;
+            border-radius:16px;
+            padding:16px;
+            box-shadow:0 4px 12px rgba(245,190,150,.15);
+            border:1px solid #ffe8e8;
         }
         .side-tab{padding:10px;border-radius:12px;margin-bottom:8px;text-align:center;font-weight:bold;color:#9c5a22;cursor:pointer;}
         .side-tab.active{background:#ffccd5;color:#c74c70;}
         .diary-content{flex:1;}
-        .friend-diary-card{background:#fff;border-radius:20px;padding:20px;margin-bottom:20px;box-shadow:0 4px 12px rgba(245,190,150,.15);position:relative;}
+
+        /* 手机端：侧边栏变顶部横向 */
+        @media (max-width:768px){
+            .diary-layout{
+                flex-direction:column;
+            }
+            .diary-sidebar{
+                width:100% !important;
+                display:flex;
+                overflow-x:auto;
+                gap:8px;
+                padding:10px;
+            }
+            .side-tab{
+                margin:0;
+                white-space:nowrap;
+                flex-shrink:0;
+                padding:8px 12px;
+                font-size:14px;
+            }
+        }
+
+        /* ========== 日记卡片 ========== */
+        .friend-diary-card{
+            background:#fff;
+            border-radius:20px;
+            padding:16px;
+            margin-bottom:16px;
+            box-shadow:0 4px 12px rgba(245,190,150,.15);
+            position:relative;
+        }
         .diary-delete-btn{
-            position:absolute;right:16px;top:16px;
+            position:absolute;right:12px;top:12px;
             background:#ffeaea;color:#ff4444;
             border:none;border-radius:12px;
             padding:4px 10px;font-size:12px;cursor:pointer;
         }
-        .diary-header{display:flex;align-items:center;gap:15px;margin-bottom:10px;}
-        .friend-avatar{width:60px;height:60px;border-radius:50%;background:#ffe8e8;background-size:cover;cursor:pointer;}
+        .diary-header{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+        .friend-avatar{width:50px;height:50px;border-radius:50%;background:#ffe8e8;background-size:cover;cursor:pointer;flex-shrink:0;}
         .friend-info h4{color:#9c5a22;cursor:pointer;}
         .friend-info p{font-size:12px;color:#999;}
-        .diary-title{font-size:18px;font-weight:bold;color:#c74c70;margin-bottom:8px;}
-        .diary-content-text{color:#666;line-height:1.6;margin-bottom:10px;}
+        .diary-title{font-size:17px;font-weight:bold;color:#c74c70;margin-bottom:8px;}
+        .diary-content-text{color:#666;line-height:1.6;margin-bottom:10px;word-break:break-all;}
         .diary-photos{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
-        .diary-photo{width:80px;height:80px;border-radius:12px;background-size:cover;cursor:pointer;}
+        .diary-photo{width:70px;height:70px;border-radius:12px;background-size:cover;cursor:pointer;}
         .diary-actions{display:flex;gap:15px;font-size:14px;color:#c74c70;margin-bottom:15px;}
         .diary-actions button{background:none;border:none;color:#c74c70;cursor:pointer;display:flex;align-items:center;gap:4px;}
         .comment-section{border-top:1px solid #ffe8e8;padding-top:15px;}
-        .comment-item{background:#fff0e8;border-radius:12px;padding:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-start;}
-        .comment-content{flex:1;}
+        .comment-item{background:#fff0e8;border-radius:12px;padding:10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-start;}
+        .comment-content{flex:1;min-width:0;}
         .comment-author{font-weight:bold;color:#9c5a22;font-size:14px;}
         .comment-time{font-size:12px;color:#999;margin-bottom:5px;}
-        .comment-text{color:#666;}
+        .comment-text{color:#666;word-break:break-all;}
         .comment-delete{color:#ff6b6b;border:none;background:none;cursor:pointer;font-size:12px;}
-        .comment-input{width:100%;border:1px solid #f7d3c2;border-radius:12px;padding:10px;margin-top:10px;resize:none;}
+        .comment-input{
+            width:100%;
+            border:1px solid #f7d3c2;
+            border-radius:12px;
+            padding:10px;
+            margin-top:10px;
+            resize:none;
+            font-size:14px;
+        }
         .comment-submit{background:#ffccd5;border:none;border-radius:20px;padding:6px 16px;color:#c74c70;margin-top:8px;cursor:pointer;}
-        .no-data{text-align:center;padding:40px;color:#9c5a22;}
-        .img-modal{background:rgba(0,0,0,.85);}
-        .img-modal img{max-width:90%;max-height:90%;border-radius:16px;}
+        .no-data{text-align:center;padding:30px;color:#9c5a22;}
+
+        input[type="file"]{display:none;}
     </style>
 </head>
 <body>
+
 <div class="big">
     <div class="first">
         <div class="heart" onclick="toUserInfo()">❤️</div>
@@ -120,7 +194,7 @@
     <img id="enlargedImg" src="">
 </div>
 
-<input type="file" id="fileUploader" style="display:none;" multiple>
+<input type="file" id="fileUploader" multiple>
 
 <div class="diary-layout">
     <div class="diary-sidebar">
@@ -233,7 +307,6 @@
                     });
                 }
 
-                // 作者自己显示删除按钮
                 let deleteBtn = d.userId === currentUserId
                     ? `<button class="diary-delete-btn" onclick="deleteDiary(${d.id})">删除日记</button>`
                     : '';
@@ -271,7 +344,6 @@
         }
     }
 
-    // ==================== 删除日记功能 ====================
     async function deleteDiary(diaryId) {
         if (!confirm('确定要删除这篇日记吗？删除后无法恢复！')) return;
 
@@ -392,7 +464,7 @@
     }
     function logout() {
         localStorage.clear();
-        fetch("/user/logout", { method: 'POST', credentials: 'include' });
+        fetch("/user/logout", { method: "POST", credentials: "include" });
         location.href = 'login.html';
     }
 </script>

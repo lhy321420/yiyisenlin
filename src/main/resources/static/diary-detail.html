@@ -2,33 +2,164 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>壹一森林</title>
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         body{background:#fff9f5;font-family:"Microsoft YaHei"}
-        .big{display:flex;align-items:center;background:rgb(255,255,158);padding:8px 15px;margin:10px 100px;border-radius:15px;height:46px;justify-content:space-between}
+
+        /* ========== 顶部导航 手机自适应 ========== */
+        .big{
+            display:flex;
+            align-items:center;
+            background:rgb(255,255,158);
+            padding:8px 12px;
+            margin:10px auto;
+            max-width:95%;
+            border-radius:15px;
+            min-height:46px;
+            justify-content:space-between;
+            flex-wrap:wrap;
+            gap:8px;
+        }
         .first{display:flex;align-items:center;gap:6px}
         .heart{font-size:16px;cursor:pointer}
         .name p{font-size:12px;color:rgb(146,86,30)}
         .bell{font-size:18px;color:rgb(199,199,158);cursor:pointer;position:relative}
         .red-dot{position:absolute;top:-5px;right:-8px;width:10px;height:10px;background:#f8446e;border-radius:50%;display:none}
-        .nav{display:flex;background:rgb(252,252,192);color:rgb(146,86,30);padding:2px 10px;border-radius:15px;height:28px;gap:12px}
-        .nav-item{padding:2px 10px;border-radius:15px;font-size:14px;cursor:pointer}
-        .nav-item.active{background:rgb(255,239,200);transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.1)}
-        .user-right{display:flex;align-items:center;background:#ffdde0;padding:4px 12px;border-radius:20px;color:#c74c70;font-size:13px;font-weight:bold;cursor:pointer}
+
+        .nav{
+            display:flex;
+            background:rgb(252,252,192);
+            color:rgb(146,86,30);
+            padding:2px 6px;
+            border-radius:15px;
+            min-height:28px;
+            gap:4px;
+            flex-wrap:wrap;
+            justify-content:center;
+        }
+        .nav-item{
+            padding:2px 6px;
+            border-radius:15px;
+            font-size:13px;
+            cursor:pointer;
+            white-space:nowrap;
+        }
+        .nav-item.active{
+            background:rgb(255,239,200);
+            transform:translateY(-1px);
+            box-shadow:0 2px 8px rgba(0,0,0,.1);
+        }
+        .user-right{
+            display:flex;
+            align-items:center;
+            background:#ffdde0;
+            padding:4px 10px;
+            border-radius:20px;
+            color:#c74c70;
+            font-size:13px;
+            font-weight:bold;
+            cursor:pointer;
+        }
         .switch-btn{width:28px;height:14px;background:#fff;border-radius:10px;position:relative}
         .switch-btn::before{content:'';width:10px;height:10px;background:#f8446e;border-radius:50%;position:absolute;top:2px;left:2px}
-        .container{max-width:700px;margin:30px auto;padding:20px;background:#fff;border-radius:24px;box-shadow:0 4px 12px rgba(245,190,150,.15)}
-        .img-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:1000}
-        .img-modal img{max-width:90%;max-height:90%;border-radius:16px}
-        .comment-item{background:#fff0e8;border-radius:16px;padding:12px;margin-top:12px}
-        .comment-reply{background:#ffe8e0;border-radius:12px;padding:10px;margin:8px 0 8px 30px}
-        .like-btn,.comment-btn,.fav-btn{background:none;border:none;color:#c74c70;cursor:pointer;font-size:14px}
+
+        /* ========== 内容容器 手机全屏 ========== */
+        .container{
+            max-width:700px;
+            margin:20px auto;
+            padding:16px;
+            width:95%;
+            background:#fff;
+            border-radius:20px;
+            box-shadow:0 4px 12px rgba(245,190,150,.15);
+        }
+
+        /* ========== 图片弹窗 ========== */
+        .img-modal{
+            position:fixed;
+            top:0;left:0;
+            width:100%;height:100%;
+            background:rgba(0,0,0,.85);
+            display:none;
+            align-items:center;
+            justify-content:center;
+            z-index:1000;
+            padding:15px;
+        }
+        .img-modal img{
+            max-width:100%;
+            max-height:90%;
+            border-radius:16px;
+            object-fit:contain;
+        }
+
+        /* ========== 评论样式 ========== */
+        .comment-item{
+            background:#fff0e8;
+            border-radius:16px;
+            padding:12px;
+            margin-top:12px;
+            word-break:break-all;
+        }
+        .comment-reply{
+            background:#ffe8e0;
+            border-radius:12px;
+            padding:10px;
+            margin:8px 0 8px 20px;
+            word-break:break-all;
+        }
+        .like-btn,.comment-btn,.fav-btn{
+            background:none;
+            border:none;
+            color:#c74c70;
+            cursor:pointer;
+            font-size:14px;
+            margin-right:8px;
+        }
+
+        /* 输入框手机适配 */
+        textarea, input{
+            width:100% !important;
+            max-width:100%;
+            border:1px solid #f7d3c2;
+            border-radius:12px;
+            padding:10px;
+            margin-top:10px;
+            font-size:14px;
+        }
+        button{
+            cursor:pointer;
+        }
+
+        /* 照片列表自动换行 */
+        .photo-wrap{
+            display:flex;
+            flex-wrap:wrap;
+            gap:6px;
+            margin:10px 0;
+        }
+        .photo-wrap img{
+            width:100px;
+            height:100px;
+            object-fit:cover;
+            border-radius:12px;
+            cursor:pointer;
+        }
+
+        /* 小屏手机优化 */
+        @media (max-width:400px){
+            .photo-wrap img{
+                width:70px;
+                height:70px;
+            }
+        }
     </style>
 </head>
 <body>
+
 <div class="big">
     <div class="first">
         <div class="heart" onclick="toUserInfo()">❤️</div>
@@ -94,7 +225,7 @@
             try {
                 const arr = JSON.parse(d.photos);
                 arr.forEach(p => {
-                    photosHtml += `<img src="${p}" style="width:100px;height:100px;border-radius:12px;margin:4px;cursor:pointer" onclick="openImg('${p}')">`;
+                    photosHtml += `<img src="${p}" onclick="openImg('${p}')">`;
                 });
             } catch (e) {}
         }
@@ -126,18 +257,18 @@
         }
 
         document.getElementById('detailContainer').innerHTML = `
-            <h2 style="color:#c74c70">${escapeHtml(d.title)}</h2>
-            <div>${escapeHtml(d.username)} · ${d.createTime}</div>
-            <div style="margin:10px 0">${escapeHtml(d.content)}</div>
-            <div>${photosHtml}</div>
+            <h2 style="color:#c74c70; margin-bottom:10px;">${escapeHtml(d.title)}</h2>
+            <div style="color:#999; margin-bottom:10px;">${escapeHtml(d.username)} · ${d.createTime}</div>
+            <div style="line-height:1.6; margin:10px 0; word-break:break-all;">${escapeHtml(d.content)}</div>
+            <div class="photo-wrap">${photosHtml}</div>
             <div style="display:flex;gap:15px;margin:10px 0">
                 <button class="like-btn" data-id="${d.id}" onclick="toggleLike(this)">❤️ ${d.likeCount}</button>
                 <button class="fav-btn" data-id="${d.id}" onclick="toggleFav(this)">⭐ ${d.favoriteCount}</button>
             </div>
-            <h3>留言</h3>
+            <h3 style="margin:15px 0 8px; color:#9c5a22;">留言</h3>
             <div id="commentsArea">${commentsHtml}</div>
-            <textarea id="newComment" placeholder="写留言..." style="width:100%;border:1px solid #f7d3c2;border-radius:12px;padding:8px;margin-top:10px"></textarea>
-            <button onclick="submitComment()" style="background:#ffccd5;border:none;border-radius:20px;padding:6px 16px;color:#c74c70;margin-top:8px">发布留言</button>
+            <textarea id="newComment" placeholder="写留言..." rows="3"></textarea>
+            <button onclick="submitComment()" style="background:#ffccd5;border:none;border-radius:20px;padding:8px 20px;color:#c74c70;margin-top:8px;width:100%;">发布留言</button>
         `;
     }
 
@@ -181,7 +312,7 @@
 
     function showReplyBox(cid) {
         const box = document.getElementById(`reply-${cid}`);
-        box.innerHTML = `<input placeholder="回复..." style="width:70%;padding:6px;border-radius:12px;border:1px solid #f7d3c2"><button onclick="submitReply(${cid})">发送</button>`;
+        box.innerHTML = `<input placeholder="回复..." style="margin-top:8px;"><button onclick="submitReply(${cid})" style="margin-top:6px; background:#ffccd5; border:none; border-radius:20px; padding:4px 12px; color:#c74c70;">发送</button>`;
     }
 
     async function submitComment() {

@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>壹一森林</title>
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/pinyin-pro@3.19.6/dist/index.js"></script>
@@ -16,16 +16,20 @@
             background-color: #fff9f5;
             font-family: "Microsoft YaHei", sans-serif;
         }
-        /* 导航栏 */
+
+        /* ========== 导航栏 手机自适应 ========== */
         .big {
             display: flex;
             align-items: center;
             background: rgb(255, 255, 158);
-            padding: 8px 15px;
+            padding: 8px 12px;
             justify-content: space-between;
-            margin: 10px 100px;
+            margin: 10px auto;
+            max-width: 95%;
             border-radius: 15px;
-            height: 46px;
+            min-height: 46px;
+            flex-wrap: wrap;
+            gap: 8px;
         }
         .first { display: flex; align-items: center; gap: 6px; }
         .heart { font-size: 16px; cursor: pointer; transition: 0.2s; }
@@ -54,18 +58,21 @@
             display: flex;
             background: rgb(252, 252, 192);
             color: rgb(146, 86, 30);
-            padding: 2px 10px;
+            padding: 2px 6px;
             border-radius: 15px;
-            height: 28px;
-            gap: 12px;
+            min-height: 28px;
+            gap: 4px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         .nav-item {
-            padding: 2px 10px;
+            padding: 2px 6px;
             border: 2px solid transparent;
             border-radius: 15px;
             transition: all 0.3s ease;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
+            white-space: nowrap;
         }
         .nav-item.active {
             background-color: rgb(255, 239, 200);
@@ -81,7 +88,7 @@
             align-items: center;
             gap: 8px;
             background: #ffdde0;
-            padding: 4px 12px;
+            padding: 4px 10px;
             border-radius: 20px;
             color: #c74c70;
             font-weight: bold;
@@ -110,20 +117,20 @@
         /* 朋友页面特有 */
         .friend-title {
             text-align: center;
-            font-size: 32px;
+            font-size: 24px;
             color: #e67a8a;
-            margin: 40px 0 20px;
+            margin: 20px 0;
         }
         .search-box {
             max-width: 600px;
-            margin: 0 auto 30px;
+            margin: 0 auto 20px;
             display: flex;
-            gap: 10px;
-            padding: 0 20px;
+            gap: 8px;
+            padding: 0 15px;
         }
         .search-input {
             flex: 1;
-            padding: 10px 16px;
+            padding: 10px 14px;
             border: 1px solid #f7d3c2;
             border-radius: 20px;
             outline: none;
@@ -131,24 +138,25 @@
             background: #fff;
         }
         .search-btn {
-            padding: 0 20px;
+            padding: 0 16px;
             background: #ffccd5;
             color: #c74c70;
             border: none;
             border-radius: 20px;
             cursor: pointer;
+            white-space: nowrap;
         }
         .search-result {
             max-width: 600px;
-            margin: 0 auto 30px;
-            padding: 0 20px;
+            margin: 0 auto 20px;
+            padding: 0 15px;
             display: none;
         }
         .result-item {
             background: #fff;
-            padding: 14px 18px;
+            padding: 12px;
             border-radius: 14px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -157,7 +165,7 @@
         .result-left {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             cursor: pointer;
         }
         .result-avatar {
@@ -171,7 +179,7 @@
         .result-info .result-name { font-size: 15px; color: #333; font-weight: bold; }
         .result-info .result-id { font-size: 12px; color: #999; }
         .add-friend-btn {
-            padding: 6px 14px;
+            padding: 6px 12px;
             background: #f8446e;
             color: #fff;
             border: none;
@@ -180,19 +188,24 @@
             cursor: pointer;
         }
 
-        /* 好友列表容器 */
+        /* ========== 好友列表 手机单列 ========== */
         .friend-container {
             max-width: 1000px;
-            margin: 0 auto 60px;
-            padding: 0 20px;
+            margin: 0 auto 40px;
+            padding: 0 15px;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
+            gap: 16px;
+        }
+        @media (max-width:768px){
+            .friend-container{
+                grid-template-columns: repeat(1, 1fr);
+            }
         }
         .friend-card {
             background: #fff;
             border-radius: 18px;
-            padding: 30px 20px;
+            padding: 20px;
             text-align: center;
             box-shadow: 0 6px 15px rgba(255, 180, 200, 0.1);
             transition: 0.3s;
@@ -203,18 +216,18 @@
             box-shadow: 0 10px 20px rgba(255, 160, 180, 0.15);
         }
         .friend-avatar {
-            width: 150px;
-            height: 150px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
-            margin: 0 auto 18px;
+            margin: 0 auto 14px;
             background-size: cover;
             background-position: center;
         }
         .friend-name {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
             color: #9c5a22;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         .friend-desc {
             font-size: 13px;
@@ -225,10 +238,10 @@
             color: #9c5a22;
             font-size: 16px;
             grid-column: 1 / -1;
-            padding: 40px;
+            padding: 30px 10px;
         }
 
-        /* 好友详情弹窗 */
+        /* 弹窗 手机全屏适配 */
         .modal {
             position: fixed;
             top: 0; left: 0;
@@ -238,20 +251,21 @@
             align-items: center;
             justify-content: center;
             z-index: 1000;
+            padding: 15px;
         }
         .modal-content {
             background: #fff9f5;
             width: 400px;
-            max-width: 90%;
-            border-radius: 24px;
+            max-width: 100%;
+            border-radius: 20px;
             padding: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             position: relative;
         }
         .modal-close {
             position: absolute;
-            top: 12px;
-            right: 16px;
+            top: 10px;
+            right: 14px;
             font-size: 24px;
             cursor: pointer;
             color: #c74c70;
@@ -266,7 +280,7 @@
         }
         .detail-name {
             text-align: center;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: bold;
             color: #9c5a22;
             margin: 10px 0 5px;
@@ -276,7 +290,7 @@
             color: #e67a8a;
             font-size: 14px;
             margin-bottom: 15px;
-            display: none; /* 隐藏状态描述 */
+            display: none;
         }
         .detail-activity {
             background: #fff0e8;
@@ -302,6 +316,7 @@
         /* 好友申请列表弹窗 */
         .request-modal .modal-content {
             width: 320px;
+            max-width: 100%;
         }
         .request-item {
             display: flex;
@@ -323,11 +338,12 @@
             background-size: cover;
         }
         .request-btns button {
-            padding: 4px 12px;
+            padding: 4px 10px;
             border-radius: 20px;
             border: none;
             margin-left: 6px;
             cursor: pointer;
+            font-size: 12px;
         }
         .accept { background: #7ccd7c; color: #fff; }
         .reject { background: #ccc; color: #333; }
@@ -350,9 +366,9 @@
             <p>SPACE</p>
             <p>壹一森林</p>
         </div>
-        <div class="bell" onclick="goToMessage()" style="position: relative;">
+        <div class="bell" onclick="goToMessage()">
             <i class="fa-solid fa-bell"></i>
-            <span class="red-dot" id="redDot" style="display: none; position: absolute; top: -5px; right: -8px; width: 10px; height: 10px; background: #f8446e; border-radius: 50%;"></span>
+            <span class="red-dot" id="redDot"></span>
         </div>
     </div>
     <div class="nav">
@@ -393,7 +409,7 @@
 <!-- 好友列表 -->
 <div class="friend-container" id="friendList"></div>
 
-<!-- 好友详情弹窗（已删除照片墙） -->
+<!-- 好友详情弹窗 -->
 <div class="modal" id="friendDetailModal">
     <div class="modal-content">
         <span class="modal-close" onclick="closeModal('friendDetailModal')">&times;</span>
@@ -503,7 +519,7 @@
         container.innerHTML = html;
     }
 
-    // 显示好友详情弹窗（已删除照片墙）
+    // 显示好友详情弹窗
     window.showFriendDetail = async function(friendId) {
         try {
             const res = await fetch(`/user/friendDetail?friendId=${friendId}`, { method: "GET", credentials: "include" });
@@ -511,7 +527,7 @@
             if (result.code === 200) {
                 const friend = result.data;
                 document.getElementById('detailName').innerText = friend.username;
-                document.getElementById('detailStatus').innerText = ""; // 清空描述
+                document.getElementById('detailStatus').innerText = "";
                 const avatarDiv = document.getElementById('detailAvatar');
                 if (friend.avatar && friend.avatar.startsWith('data:image')) {
                     avatarDiv.style.backgroundImage = `url('${friend.avatar}')`;
@@ -547,7 +563,7 @@
             if (result.code === 200) {
                 showMessage("删除好友成功");
                 closeModal('friendDetailModal');
-                await loadFriends(); // 刷新列表
+                await loadFriends();
             } else {
                 showMessage("删除失败：" + (result.msg || "未知错误"));
             }
@@ -719,20 +735,18 @@
 
     // 导航跳转函数
     function toUserInfo() { location.href = "user-info.html"; }
-    function jump() { window.location.href = "消息页面.html"; }
     function go(page) {
         const links = { index:"index.html", role:"member.html", record:"diary.html", album:"about.html", map:"travel.html" };
         window.location.href = links[page];
     }
     function showLogoutModal() { document.getElementById('logoutModal').style.display = 'flex'; }
     function logout() {
-        localStorage.removeItem('isLogin');
-        localStorage.removeItem('username');
-        fetch("/user/logout", { method: "POST", credentials: "include" }).catch(e=>console.log);
+        localStorage.clear();
+        fetch("/user/logout", { method: "POST", credentials: "include" });
         location.href = 'login.html';
     }
     function goToMessage() {
-        window.location.href = "message.html";
+        showRequestModal();
     }
 
     // 更新红点状态

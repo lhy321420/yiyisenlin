@@ -11,53 +11,56 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: #fff9f5; font-family: "Microsoft YaHei", sans-serif; }
+
+        /* ========== 顶部导航 手机自适应 ========== */
         .big {
             display: flex;
             align-items: center;
             background: rgb(255, 255, 158);
-            padding: 8px 15px;
+            padding: 8px 12px;
             justify-content: space-between;
-            margin: 10px 100px;
+            margin: 10px auto;
+            max-width: 95%;
             border-radius: 15px;
-            height: 46px;
+            min-height: 46px;
             flex-wrap: wrap;
-        }
-        @media (max-width: 800px) {
-            .big { margin: 10px 20px; }
-            .filter-bar { padding: 0 15px; }
-            .map-wrap { padding: 0 15px; }
+            gap: 8px;
         }
         .first { display: flex; align-items: center; gap: 6px; }
         .heart{font-size:16px;cursor:pointer;transition:0.2s;}
         .heart:hover{transform:scale(1.1);}
         .name p { font-size: 12px; line-height: 1.2; color: rgb(146, 86, 30); }
-        .bell{font-size:18px;color:rgb(199, 199, 158);cursor:pointer;margin-left:6px;transition:0.3s;position:relative;}
+        .bell{font-size:18px;color:rgb(199,199,158);cursor:pointer;margin-left:6px;transition:0.3s;position:relative;}
         .bell:hover{color:#f8446e;}
         .red-dot{position:absolute;top:-5px;right:-8px;width:10px;height:10px;background:#f8446e;border-radius:50%;display:none;}
+
         .nav {
             display: flex;
-            background: rgb(252, 252, 192);
-            color: rgb(146, 86, 30);
-            padding: 2px 10px;
+            background: rgb(252,252,192);
+            color: rgb(146,86,30);
+            padding: 2px 6px;
             border-radius: 15px;
-            height: 28px;
-            gap: 12px;
+            min-height: 28px;
+            gap: 4px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         .nav-item {
-            padding: 2px 10px;
+            padding: 2px 6px;
             border: 2px solid transparent;
             border-radius: 15px;
             transition: all 0.3s ease;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
+            white-space: nowrap;
         }
         .nav-item.active {
-            background-color: rgb(255, 239, 200);
+            background-color: rgb(255,239,200);
             transform: translateY(-1px);
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         .nav-item:hover {
-            background-color: rgb(255, 239, 200);
+            background-color: rgb(255,239,200);
             transform: translateY(-1px);
         }
         .user-right {
@@ -65,7 +68,7 @@
             align-items: center;
             gap: 8px;
             background: #ffdde0;
-            padding: 4px 12px;
+            padding: 4px 10px;
             border-radius: 20px;
             color: #c74c70;
             font-weight: bold;
@@ -91,75 +94,53 @@
         }
         .switch-btn.active::before { left: 16px; }
 
+        /* ========== 筛选栏 手机适配 ========== */
         .filter-bar {
             max-width: 1200px;
-            margin: 25px auto;
-            padding: 0 20px;
+            margin: 20px auto;
+            padding: 0 15px;
             display: flex;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 10px;
             align-items: center;
             justify-content: center;
             background: #fffaf5;
-            border-radius: 40px;
-        }
-        .filter-title { font-size: 24px; color: #e67a8a; font-weight: 600; margin-right: 5px; }
-        .filter-select {
-            padding: 8px 14px;
-            border: 1px solid #f0d8c0;
             border-radius: 20px;
+        }
+        .filter-title { font-size: 20px; color: #e67a8a; font-weight: 600; }
+        .filter-select {
+            padding: 6px 12px;
+            border: 1px solid #f0d8c0;
+            border-radius: 16px;
             outline: none;
-            font-size: 14px;
+            font-size: 13px;
             background: #fff;
         }
         .filter-btn {
-            padding: 8px 20px;
+            padding: 6px 16px;
             background: #ffccd5;
             color: #c74c70;
             border: none;
-            border-radius: 20px;
+            border-radius: 16px;
             cursor: pointer;
             transition: 0.3s;
             font-weight: bold;
+            font-size: 13px;
         }
         .filter-btn:hover { background: #ffb3c1; }
 
-        .map-wrap {
-            max-width: 1200px;
-            margin: 0 auto 20px;
-            padding: 0 20px;
-            position: relative;
-        }
-        #chinaMap {
-            width: 100%;
-            height: 650px;
-            border-radius: 20px;
-            border: 2px solid #ffccd5;
-            background: #fff9f5;
-            z-index: 1;
-        }
-        .desc-tips {
-            max-width: 1100px;
-            margin: 10px auto 40px;
-            padding: 12px 20px;
-            text-align: center;
-            color: #9c5a22;
-            font-size: 14px;
-            background: #fff2e6;
-            border-radius: 40px;
-            width: fit-content;
-        }
+        /* ========== 统计栏 手机适配 ========== */
         .stats-bar {
             max-width: 1100px;
-            margin: 0 auto 20px;
+            margin: 0 auto 15px;
             display: flex;
-            gap: 20px;
+            gap: 15px;
             justify-content: center;
             align-items: center;
             background: #fff0e0;
-            padding: 8px 18px;
-            border-radius: 32px;
-            font-size: 13px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
             color: #a55b2a;
             flex-wrap: wrap;
             box-shadow: 0 2px 6px rgba(0,0,0,0.05);
@@ -167,14 +148,95 @@
         .stat-badge {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             font-weight: bold;
         }
         .stat-color {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             border-radius: 20px;
         }
+
+        /* ========== 地图容器 手机全屏 ========== */
+        .map-wrap {
+            max-width: 1200px;
+            margin: 0 auto 15px;
+            padding: 0 15px;
+            position: relative;
+        }
+        #chinaMap {
+            width: 100%;
+            height: 500px;
+            border-radius: 16px;
+            border: 2px solid #ffccd5;
+            background: #fff9f5;
+            z-index: 1;
+        }
+        /* 手机端地图高度缩小 */
+        @media (max-width:768px){
+            #chinaMap{
+                height: 420px;
+            }
+        }
+
+        /* ========== 右侧城市面板 手机自动隐藏/适配 ========== */
+        .city-list-panel {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 160px;
+            background: #fff;
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0 4px 12px rgba(255,204,213,0.2);
+            border: 1px solid #ffccd5;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 100;
+        }
+        /* 小屏手机自动隐藏右侧面板，避免遮挡 */
+        @media (max-width:500px){
+            .city-list-panel{
+                display: none;
+            }
+        }
+        .city-list-title {
+            text-align: center;
+            color: #c74c70;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        .city-list-item {
+            padding: 4px 8px;
+            background: #fff9f5;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            font-size: 12px;
+            color: #9c5a22;
+            border-left: 3px solid #ffccd5;
+        }
+        .city-list-empty {
+            text-align: center;
+            color: #ccc;
+            font-size: 12px;
+            padding: 8px 0;
+        }
+
+        /* 提示文字 */
+        .desc-tips {
+            max-width: 90%;
+            margin: 10px auto 30px;
+            padding: 10px 15px;
+            text-align: center;
+            color: #9c5a22;
+            font-size: 12px;
+            background: #fff2e6;
+            border-radius: 20px;
+            line-height: 1.4;
+        }
+
+        /* 弹窗 */
         .modal {
             position: fixed;
             top: 0; left: 0;
@@ -184,10 +246,12 @@
             align-items: center;
             justify-content: center;
             z-index: 999;
+            padding: 15px;
         }
         .modal-content {
             background: #fff;
             width: 280px;
+            max-width: 100%;
             padding: 25px;
             border-radius: 16px;
             text-align: center;
@@ -206,6 +270,8 @@
         }
         .cancel { background: #f1f1f1; }
         .logout { background: #f8446e; color: #fff; }
+
+        /* 轻提示 */
         .toast-msg {
             position: fixed;
             bottom: 30px;
@@ -220,6 +286,8 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             pointer-events: none;
         }
+
+        /* 城市弹窗 手机全屏适配 */
         .city-modal {
             position: fixed;
             top: 0;
@@ -231,12 +299,14 @@
             align-items: center;
             justify-content: center;
             z-index: 1000;
+            padding: 15px;
         }
         .city-card {
             background-color: #fffaf2;
-            border-radius: 28px;
-            width: 340px;
-            padding: 24px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 340px;
+            padding: 20px;
             box-shadow: 0 20px 35px rgba(0,0,0,0.25);
             text-align: center;
             border: 1px solid #ffddb0;
@@ -247,24 +317,24 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .city-title {
-            font-size: 26px;
+            font-size: 22px;
             font-weight: bold;
             color: #c74c70;
-            margin-bottom: 18px;
+            margin-bottom: 15px;
             border-bottom: 2px dashed #ffccd5;
-            padding-bottom: 10px;
+            padding-bottom: 8px;
         }
         .state-group {
             display: flex;
-            gap: 15px;
+            gap: 10px;
             justify-content: center;
-            margin: 20px 0;
+            margin: 15px 0;
             flex-wrap: wrap;
         }
         .state-btn {
-            padding: 8px 18px;
-            border-radius: 40px;
-            font-size: 14px;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 13px;
             font-weight: bold;
             cursor: pointer;
             transition: 0.2s;
@@ -275,15 +345,15 @@
         .func-group {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-top: 20px;
+            gap: 10px;
+            margin-top: 15px;
         }
         .func-btn {
             background-color: #ffdde0;
             border: none;
-            padding: 12px;
-            border-radius: 40px;
-            font-size: 16px;
+            padding: 10px;
+            border-radius: 30px;
+            font-size: 14px;
             cursor: pointer;
             color: #b94e6e;
             font-weight: 500;
@@ -299,14 +369,14 @@
             box-shadow: 0 4px 10px rgba(255, 179, 193, 0.4);
         }
         .close-card-btn {
-            margin-top: 18px;
-            padding: 10px 28px;
+            margin-top: 15px;
+            padding: 8px 24px;
             background: #ffe0d4;
             border: none;
-            border-radius: 40px;
+            border-radius: 30px;
             cursor: pointer;
             color: #b3623a;
-            font-size: 16px;
+            font-size: 14px;
             transition: all 0.3s ease;
         }
         .close-card-btn:hover {
@@ -324,42 +394,6 @@
             padding: 2px 6px;
             border-radius: 15px;
             border: 1px solid #ffb3c1;
-        }
-        .city-list-panel {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 200px;
-            background: #fff;
-            border-radius: 16px;
-            padding: 14px;
-            box-shadow: 0 4px 12px rgba(255,204,213,0.2);
-            border: 1px solid #ffccd5;
-            max-height: 500px;
-            overflow-y: auto;
-            z-index: 100;
-        }
-        .city-list-title {
-            text-align: center;
-            color: #c74c70;
-            font-weight: bold;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-        .city-list-item {
-            padding: 6px 10px;
-            background: #fff9f5;
-            border-radius: 8px;
-            margin-bottom: 6px;
-            font-size: 13px;
-            color: #9c5a22;
-            border-left: 3px solid #ffccd5;
-        }
-        .city-list-empty {
-            text-align: center;
-            color: #ccc;
-            font-size: 12px;
-            padding: 10px 0;
         }
         .city-tooltip {
             font-size: 12px;
@@ -500,7 +534,6 @@
     let map, cityLayers = {};
     let currentFilter = 'all';
 
-    // 核心：根据状态返回完整城市填充样式
     function getStyleByStatus(status) {
         switch(status) {
             case 'go':
@@ -512,14 +545,12 @@
         }
     }
 
-    // 更新城市样式（整个区域变色）
     function updateCityStyle(cityName, status) {
         if (cityLayers[cityName]) {
             let layer = cityLayers[cityName];
             let style = getStyleByStatus(status);
             layer.setStyle(style);
 
-            // 更新悬浮提示
             let tooltipText = `${cityName}\n${status === 'go' ? '✅ 已去过' : (status === 'want' ? '💗 想去' : '📍 未标记')}`;
             layer.bindTooltip(tooltipText, {
                 permanent: false,
@@ -701,20 +732,18 @@
                 layer.setStyle(getStyleByStatus('want'));
             }
             else {
-                // 永远保持可点击，不会透明到点不动
                 layer.setStyle({
                     color: '#eee',
                     weight: 1,
                     opacity: 0.5,
                     fillColor: '#f9f9f9',
-                    fillOpacity: 0.1 // 关键：必须 >0，才能点击
+                    fillOpacity: 0.1
                 });
             }
         }
         renderCityList();
         toastMsg(`✅ 已筛选：${select.options[select.selectedIndex].text}`);
     }
-
 
     function resetAllCityStyles() {
         currentFilter = 'all';
@@ -725,17 +754,13 @@
         renderCityList();
     }
 
-    // ==================== 加载城市边界数据 ====================
-    // ==================== 加载【全国所有城市】纯本地文件（你的路径专用） ====================
     async function loadCityBoundaries() {
         toastMsg('正在加载全国所有城市...');
 
         try {
-            // 🔥 路径严格对应你的本地文件：C:\...\static\geo\china.json
             const res = await fetch('/geo/china.json');
             const data = await res.json();
 
-            // 清空旧图层
             for (let key in cityLayers) {
                 if (cityLayers[key] && map.hasLayer(cityLayers[key])) {
                     map.removeLayer(cityLayers[key]);
@@ -743,7 +768,6 @@
             }
             cityLayers = {};
 
-            // 加载所有城市面 + 点击事件
             data.features.forEach(feature => {
                 const cityName = feature.properties.name;
                 const provinceName = feature.properties.province || '';
@@ -752,11 +776,9 @@
                 const layer = L.geoJSON(feature, {
                     style: getStyleByStatus(status),
                     onEachFeature: (f, l) => {
-                        // 悬浮提示
                         let tipText = `${cityName}\n${status === 'go' ? '✅ 已去过' : status === 'want' ? '💗 想去' : '📍 未标记'}`;
                         l.bindTooltip(tipText, { className: 'city-tooltip' });
 
-                        // 🔥 点击任何城市都弹窗（核心修复）
                         l.on('click', () => {
                             openCityPanel(cityName, provinceName);
                         });
@@ -775,7 +797,6 @@
         }
     }
 
-    // ==================== 加载省份轮廓（装饰用）====================
     async function loadProvinceBoundary() {
         try {
             let response = await fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json');
@@ -797,11 +818,9 @@
         }
     }
 
-    // ==================== 初始化地图 ====================
     async function initMap() {
         map = L.map('chinaMap').setView([35.0, 108.0], 5);
 
-        // 使用高德底图
         L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
             subdomains: '1234',
             maxZoom: 18,
@@ -809,10 +828,7 @@
             attribution: '高德地图'
         }).addTo(map);
 
-        // 加载省份轮廓（背景装饰）
         await loadProvinceBoundary();
-
-        // 加载城市边界
         await loadCityBoundaries();
 
         document.getElementById('filterQueryBtn').addEventListener('click', applyFilter);
@@ -822,7 +838,6 @@
         renderCityList();
     }
 
-    // ==================== 页面初始化 ====================
     async function init() {
         if (!localStorage.getItem('isLogin')) { location.href = 'login.html'; return; }
         try {

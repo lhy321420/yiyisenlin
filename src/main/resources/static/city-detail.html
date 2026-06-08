@@ -11,64 +11,214 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #fff9f5; font-family: "Microsoft YaHei", sans-serif; }
-        .big { display: flex; align-items: center; background: #ffff9e; padding: 8px 15px; justify-content: space-between; margin: 10px 100px; border-radius: 15px; height: 46px; flex-wrap: wrap; }
-        @media (max-width:800px) { .big { margin:10px 20px; } }
+
+        /* ========== 顶部导航 移动端适配 ========== */
+        .big {
+            display: flex;
+            align-items: center;
+            background: #ffff9e;
+            padding: 8px 12px;
+            justify-content: space-between;
+            margin: 10px auto;
+            max-width: 900px;
+            border-radius: 15px;
+            min-height: 46px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
         .first { display: flex; align-items: center; gap:6px; }
         .heart{font-size:16px;cursor:pointer;transition:0.2s;}
         .heart:hover{transform:scale(1.1);}
-        .name p { font-size:12px; color:#92561e; }
+        .name p { font-size:12px; color:#92561e; line-height: 1.2; }
         .bell{font-size:18px;color:#c7c79e;cursor:pointer;position:relative;}
         .bell:hover{color:#f8446e;}
         .red-dot{position:absolute;top:-5px;right:-8px;width:10px;height:10px;background:#f8446e;border-radius:50%;display:none;}
-        .nav { display:flex; background:#fffccf; padding:2px 10px; border-radius:15px; height:28px; gap:12px; }
-        .nav-item { padding:2px 10px; border-radius:15px; font-size:14px; cursor:pointer; transition:0.3s; }
+
+        .nav {
+            display:flex;
+            background:#fffccf;
+            padding:2px 6px;
+            border-radius:15px;
+            min-height:28px;
+            gap:4px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .nav-item {
+            padding:2px 6px;
+            border-radius:15px;
+            font-size:13px;
+            cursor:pointer;
+            transition:0.3s;
+            white-space: nowrap;
+        }
         .nav-item:hover { background:#ffefd0; transform:translateY(-1px); }
-        .user-right { display:flex; align-items:center; gap:8px; background:#ffdde0; padding:4px 12px; border-radius:20px; color:#c74c70; font-weight:bold; font-size:13px; cursor:pointer; }
+
+        .user-right {
+            display:flex;
+            align-items:center;
+            gap:8px;
+            background:#ffdde0;
+            padding:4px 10px;
+            border-radius:20px;
+            color:#c74c70;
+            font-weight:bold;
+            font-size:13px;
+            cursor:pointer;
+        }
         .switch-btn { width:28px; height:14px; background:#fff; border-radius:10px; position:relative; }
         .switch-btn::before { content:''; width:10px; height:10px; background:#f8446e; border-radius:50%; position:absolute; top:2px; left:2px; transition:0.2s; }
         .switch-btn.active::before { left:16px; }
 
-        .container { max-width:1100px; margin:20px auto; padding:20px; }
-        .page-title { font-size:28px; color:#c74c70; text-align:center; margin-bottom:20px; }
-        .tab-bar { display:flex; justify-content:center; gap:15px; margin-bottom:25px; }
-        .tab-btn { padding:10px 24px; background:#ffdde0; color:#b94e6e; border:none; border-radius:40px; font-size:15px; font-weight:bold; cursor:pointer; transition:0.3s; }
+        /* ========== 主容器 移动端适配 ========== */
+        .container {
+            max-width:900px;
+            margin:10px auto;
+            padding:15px;
+        }
+        .page-title {
+            font-size: clamp(22px,6vw,28px);
+            color:#c74c70;
+            text-align:center;
+            margin-bottom:15px;
+        }
+
+        /* 标签栏自动换行 */
+        .tab-bar {
+            display:flex;
+            justify-content:center;
+            flex-wrap: wrap;
+            gap:10px;
+            margin-bottom:15px;
+        }
+        .tab-btn {
+            padding:8px 16px;
+            background:#ffdde0;
+            color:#b94e6e;
+            border:none;
+            border-radius:40px;
+            font-size:14px;
+            font-weight:bold;
+            cursor:pointer;
+            transition:0.3s;
+        }
         .tab-btn:hover { background:#ffccd5; transform:translateY(-2px); }
         .tab-btn.active { background:#f8446e; color:#fff; }
-        .content-card { background:#fffaf2; border-radius:28px; padding:25px; box-shadow:0 4px 12px rgba(0,0,0,0.08); border:1px solid #ffddb0; }
+
+        .content-card {
+            background:#fffaf2;
+            border-radius:20px;
+            padding:20px 15px;
+            box-shadow:0 4px 12px rgba(0,0,0,0.08);
+            border:1px solid #ffddb0;
+        }
         .tab-content { display:none; }
         .tab-content.active { display:block; }
 
-        .upload-area { width:100%; height:120px; border-radius:12px; background:#fff0e0; display:flex; align-items:center; justify-content:center; font-size:22px; color:#c74c70; cursor:pointer; transition:0.3s; margin-bottom:12px; }
+        /* 上传区域 */
+        .upload-area {
+            width:100%;
+            height:100px;
+            border-radius:12px;
+            background:#fff0e0;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:18px;
+            color:#c74c70;
+            cursor:pointer;
+            transition:0.3s;
+            margin-bottom:12px;
+        }
         .upload-area:hover { background:#ffe0d4; transform:scale(1.02); }
-        .photo-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; }
+
+        /* 相册网格 */
+        .photo-grid {
+            display:grid;
+            grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
+            gap:10px;
+        }
         .photo-item-wrap {
             display:flex;
             flex-direction:column;
             gap:6px;
         }
-        .photo-item { position:relative; width:100%; height:120px; border-radius:12px; background-size:cover; background-position:center; transition:0.3s; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+        .photo-item {
+            position:relative;
+            width:100%;
+            aspect-ratio: 1/1;
+            border-radius:12px;
+            background-size:cover;
+            background-position:center;
+            transition:0.3s;
+            box-shadow:0 2px 5px rgba(0,0,0,0.1);
+        }
         .photo-item:hover { transform:scale(1.05); }
-        .del-btn { position:absolute; top:4px; right:4px; width:24px; height:24px; background:#f8446e; color:#fff; border:none; border-radius:50%; font-size:12px; cursor:pointer; display:none; }
+        .del-btn {
+            position:absolute;
+            top:4px;
+            right:4px;
+            width:24px;
+            height:24px;
+            background:#f8446e;
+            color:#fff;
+            border:none;
+            border-radius:50%;
+            font-size:12px;
+            cursor:pointer;
+            display:none;
+        }
         .photo-item:hover .del-btn { display:block; }
         .author-info{
             display:flex;
             align-items:center;
             gap:6px;
-            font-size:13px;
+            font-size:12px;
             color:#92561e;
         }
         .author-avatar{
-            width:26px;
-            height:26px;
+            width:24px;
+            height:24px;
             border-radius:50%;
             object-fit:cover;
             border:1px solid #ffccd5;
         }
 
-        .text-area { width:100%; min-height:180px; border-radius:16px; border:1px solid #f0d8c0; padding:15px; font-size:15px; background:#fff; resize:none; outline:none; }
-        .submit-btn { margin-top:15px; padding:10px 28px; background:#ffccd5; color:#c74c70; border:none; border-radius:40px; font-size:15px; font-weight:bold; cursor:pointer; transition:0.3s; }
+        /* 输入框 */
+        .text-area {
+            width:100%;
+            min-height:150px;
+            border-radius:16px;
+            border:1px solid #f0d8c0;
+            padding:15px;
+            font-size:15px;
+            background:#fff;
+            resize:none;
+            outline:none;
+        }
+        .submit-btn {
+            margin-top:15px;
+            padding:10px 24px;
+            background:#ffccd5;
+            color:#c74c70;
+            border:none;
+            border-radius:40px;
+            font-size:15px;
+            font-weight:bold;
+            cursor:pointer;
+            transition:0.3s;
+        }
         .submit-btn:hover { background:#ffb3c1; transform:translateY(-2px); }
-        .item-card { position:relative; background:#fff; border-radius:12px; padding:15px; margin-bottom:10px; box-shadow:0 2px 4px rgba(0,0,0,0.05); }
+
+        /* 列表卡片 */
+        .item-card {
+            position:relative;
+            background:#fff;
+            border-radius:12px;
+            padding:15px;
+            margin-bottom:10px;
+            box-shadow:0 2px 4px rgba(0,0,0,0.05);
+        }
         .item-author{
             display:flex;
             align-items:center;
@@ -78,21 +228,81 @@
             border-bottom:1px solid #f7e8dd;
         }
         .item-avatar{
-            width:32px;
-            height:32px;
+            width:30px;
+            height:30px;
             border-radius:50%;
             object-fit:cover;
         }
-        .del-text-btn { position:absolute; top:10px; right:10px; background:#f8446e; color:#fff; border:none; border-radius:8px; padding:4px 8px; font-size:12px; cursor:pointer; display:none; }
+        .del-text-btn {
+            position:absolute;
+            top:10px;
+            right:10px;
+            background:#f8446e;
+            color:#fff;
+            border:none;
+            border-radius:8px;
+            padding:4px 8px;
+            font-size:12px;
+            cursor:pointer;
+            display:none;
+        }
         .item-card:hover .del-text-btn { display:block; }
 
-        .mini-map { width:100%; height:650px; border-radius:20px; border:2px solid #f0d8c0; background:#e8f4f8; margin-top:20px; z-index:1; }
-        .toast-msg { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#f7d9c4; color:#a3442e; padding:8px 18px; border-radius:30px; font-size:14px; z-index:1000; pointer-events:none; }
-        .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.3); display:none; align-items:center; justify-content:center; z-index:999; }
-        .modal-content { background:#fff; width:280px; padding:25px; border-radius:16px; text-align:center; }
+        /* 地图高度自适应 */
+        .mini-map {
+            width:100%;
+            height: 500px;
+            max-height: 60vh;
+            border-radius:20px;
+            border:2px solid #f0d8c0;
+            background:#e8f4f8;
+            margin-top:20px;
+            z-index:1;
+        }
+
+        /* 弹窗 */
+        .toast-msg {
+            position:fixed;
+            bottom:30px;
+            left:50%;
+            transform:translateX(-50%);
+            background:#f7d9c4;
+            color:#a3442e;
+            padding:8px 18px;
+            border-radius:30px;
+            font-size:14px;
+            z-index:1000;
+            pointer-events:none;
+        }
+        .modal {
+            position:fixed;
+            top:0;
+            left:0;
+            width:100%;
+            height:100%;
+            background:rgba(0,0,0,0.3);
+            display:none;
+            align-items:center;
+            justify-content:center;
+            z-index:999;
+        }
+        .modal-content {
+            background:#fff;
+            width:90%;
+            max-width:280px;
+            padding:25px;
+            border-radius:16px;
+            text-align:center;
+        }
         .modal-btn { padding:6px 18px; border-radius:20px; border:none; cursor:pointer; }
         .cancel { background:#f1f1f1; }
         .logout { background:#f8446e; color:#fff; }
+
+        /* 手机小屏优化 */
+        @media (max-width: 480px) {
+            .mini-map { height: 400px; }
+            .photo-grid { grid-template-columns: repeat(2, 1fr); }
+        }
     </style>
 </head>
 <body>
@@ -152,7 +362,7 @@
 <div class="modal" id="logoutModal">
     <div class="modal-content">
         <h3>确定退出登录？</h3>
-        <div class="modal-btns">
+        <div class="modal-btns" style="display:flex;gap:10px;justify-content:center;margin-top:15px;">
             <button class="modal-btn cancel" onclick="closeModal()">取消</button>
             <button class="modal-btn logout" onclick="logout()">退出</button>
         </div>

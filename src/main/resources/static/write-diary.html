@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>写下今天 - 壹一森林</title>
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/pinyin-pro@3.19.6/dist/index.js"></script>
@@ -16,16 +16,20 @@
             background-color: #fff9f5;
             font-family: "Microsoft YaHei", sans-serif;
         }
-        /* 导航栏样式（与首页一致） */
+
+        /* ========== 顶部导航 手机完美适配 ========== */
         .big {
             display: flex;
             align-items: center;
             background: rgb(255, 255, 158);
-            padding: 8px 15px;
+            padding: 8px 12px;
             justify-content: space-between;
-            margin: 10px 100px;
+            margin: 10px auto;
+            max-width: 95%;
             border-radius: 15px;
-            height: 46px;
+            min-height: 46px;
+            flex-wrap: wrap;
+            gap: 8px;
         }
         .first { display: flex; align-items: center; gap: 6px; }
         .heart { font-size: 16px; cursor: pointer; transition: 0.2s; }
@@ -54,18 +58,21 @@
             display: flex;
             background: rgb(252, 252, 192);
             color: rgb(146, 86, 30);
-            padding: 2px 10px;
+            padding: 2px 6px;
             border-radius: 15px;
-            height: 28px;
-            gap: 12px;
+            min-height: 28px;
+            gap: 4px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         .nav-item {
-            padding: 2px 10px;
+            padding: 2px 6px;
             border: 2px solid transparent;
             border-radius: 15px;
             transition: all 0.3s ease;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
+            white-space: nowrap;
         }
         .nav-item.active {
             background-color: rgb(255, 239, 200);
@@ -81,7 +88,7 @@
             align-items: center;
             gap: 8px;
             background: #ffdde0;
-            padding: 4px 12px;
+            padding: 4px 10px;
             border-radius: 20px;
             color: #c74c70;
             font-weight: bold;
@@ -105,59 +112,58 @@
             top: 2px; left: 2px;
             transition: 0.2s;
         }
-        /* 写日记表单样式 */
+
+        /* ========== 写日记表单 手机全屏适配 ========== */
         .write-container {
             max-width: 800px;
-            margin: 40px auto;
-            padding: 0 20px;
+            margin: 20px auto;
+            padding: 0 15px;
+            width: 100%;
         }
         .write-card {
             background: #fff;
-            border-radius: 28px;
-            padding: 35px;
+            border-radius: 20px;
+            padding: 20px;
             box-shadow: 0 8px 25px rgba(245,190,150,0.15);
         }
         .write-title {
-            font-size: 28px;
+            font-size: 22px;
             color: #c74c70;
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
         .form-group label {
             display: block;
-            font-size: 14px;
+            font-size: 13px;
             color: #9c5a22;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             font-weight: 500;
         }
-        /* 输入框、文本域、下拉框统一风格 */
         .form-group input,
         .form-group textarea,
         .form-group select {
             width: 100%;
-            padding: 12px 16px;
+            padding: 10px 14px;
             border: 1px solid #f7d3c2;
-            border-radius: 24px;
+            border-radius: 16px;
             font-size: 14px;
             background: #fff;
             outline: none;
             transition: 0.2s;
         }
-        /* 下拉框额外悬停效果 */
         .form-group select {
             cursor: pointer;
             appearance: none;
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23c74c70" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
             background-repeat: no-repeat;
-            background-position: right 16px center;
+            background-position: right 12px center;
         }
         .form-group select:hover {
             border-color: #ffb3c1;
             background-color: #fff9f5;
-            box-shadow: 0 2px 6px rgba(255,179,193,0.2);
         }
         .form-group input:focus,
         .form-group textarea:focus,
@@ -166,16 +172,9 @@
             box-shadow: 0 0 0 3px rgba(255,179,193,0.2);
         }
         .form-group textarea {
-            height: 180px;
+            height: 150px;
             resize: vertical;
         }
-        /* 下拉选项样式（支持部分浏览器） */
-        .form-group select option {
-            background-color: #fff9f5;
-            color: #9c5a22;
-            padding: 10px;
-        }
-        /* 自定义文件上传按钮 */
         .custom-file-upload {
             position: relative;
             display: inline-block;
@@ -193,10 +192,10 @@
         .file-label {
             display: block;
             width: 100%;
-            padding: 12px 16px;
+            padding: 10px 14px;
             background: #ffdde0;
             color: #c74c70;
-            border-radius: 24px;
+            border-radius: 16px;
             text-align: center;
             font-size: 14px;
             font-weight: bold;
@@ -206,29 +205,28 @@
         }
         .file-label:hover {
             background: #ffccd5;
-            transform: translateY(-1px);
         }
         .photo-preview {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
-            margin-top: 12px;
+            margin-top: 10px;
         }
         .photo-preview img {
-            width: 80px;
-            height: 80px;
+            width: 70px;
+            height: 70px;
             object-fit: cover;
-            border-radius: 16px;
+            border-radius: 12px;
             border: 1px solid #ffe0cc;
         }
         .submit-btn {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             background: #ffccd5;
             color: #c74c70;
             border: none;
-            border-radius: 40px;
-            font-size: 16px;
+            border-radius: 20px;
+            font-size: 15px;
             font-weight: bold;
             cursor: pointer;
             transition: 0.3s;
@@ -236,18 +234,13 @@
         }
         .submit-btn:hover {
             background: #ffb3c1;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(255,179,193,0.3);
         }
         .back-link {
             display: inline-block;
-            margin-top: 20px;
+            margin-top: 15px;
             color: #c74c70;
             text-decoration: none;
             font-size: 14px;
-        }
-        .back-link:hover {
-            text-decoration: underline;
         }
     </style>
 </head>
@@ -355,7 +348,6 @@
             showMessage('请填写标题和内容');
             return;
         }
-        // 将照片转为base64数组
         const photosBase64 = [];
         for (let file of photoFiles) {
             const base64 = await new Promise((resolve) => {
