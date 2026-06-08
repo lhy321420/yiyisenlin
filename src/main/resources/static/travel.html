@@ -12,7 +12,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background-color: #fff9f5; font-family: system-ui, "Microsoft YaHei", sans-serif; overflow-x: hidden; }
 
-        /* ========== 顶部导航 手机自适应 ========== */
         .big {
             display: flex;
             flex-wrap: wrap;
@@ -121,7 +120,6 @@
             .first .heart, .first .bell { width: 32px; height: 32px; }
         }
 
-        /* ========== 筛选与统计 ========== */
         .filter-bar {
             max-width: 1000px;
             margin: 20px auto 12px;
@@ -173,7 +171,6 @@
         .stat-badge { display: flex; align-items: center; gap: 8px; font-weight: 700; }
         .stat-color { width: 14px; height: 14px; border-radius: 20px; }
 
-        /* ========== 地图容器 ========== */
         .map-wrap {
             max-width: 1000px;
             margin: 0 auto 15px;
@@ -398,12 +395,21 @@
 <script>
     // ==================== 工具函数 ====================
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;')); }
-    function getNameInitials(username) { /* ... 你的原有函数 ... */ }
-    function closeModal() { /* ... */ }
-    function showLogoutModal() { /* ... */ }
-    async function logout() { /* ... */ }
-    async function updateRedDot() { /* ... */ }
-    function toastMsg(msg) { /* ... */ }
+    function getNameInitials(username) {
+        if (!username) return '游客';
+        const { pinyin } = window.pinyinPro || window.pinyin;
+        if (!pinyin) return username.charAt(0).toUpperCase();
+        return username.split('').map(ch => {
+            if (/[a-zA-Z]/.test(ch)) return ch.toUpperCase();
+            if (/[\u4e00-\u9fa5]/.test(ch)) { const py = pinyin(ch, { pattern: 'first', toneType: 'none' }); return py ? py.toUpperCase() : ch; }
+            return ch.toUpperCase();
+        }).join('');
+    }
+    function closeModal() { document.getElementById('logoutModal').style.display = 'none'; document.getElementById('switch')?.classList.remove('active'); }
+    function showLogoutModal() { document.getElementById('logoutModal').style.display = 'flex'; document.getElementById('switch')?.classList.add('active'); }
+    async function logout() { localStorage.clear(); await fetch("/user/logout", { method: "POST", credentials: "include" }).catch(e=>{}); location.href = 'login.html'; }
+    async function updateRedDot() { try { const res = await fetch("/user/unreadRequestCount", { credentials: "include" }); const result = await res.json(); const rd = document.getElementById('redDot'); if(rd) rd.style.display = (result.code === 200 && result.data > 0) ? 'block' : 'none'; } catch(e){} }
+    function toastMsg(msg) { let t = document.querySelector('.toast-msg'); if(t) t.remove(); let d = document.createElement('div'); d.className = 'toast-msg'; d.innerText = msg; document.body.appendChild(d); setTimeout(() => d.remove(), 2000); }
     function toUserInfo() { location.href = "user-info.html"; }
     function goToMessage() { location.href = "message.html"; }
     function go(page) { const links = { index:"index.html", role:"member.html", record:"diary.html", album:"about.html", map:"travel.html" }; location.href = links[page]; }
@@ -411,42 +417,24 @@
     // ==================== 地图状态核心 ====================
     let regionStatus = {}, map, regionLayers = {}, currentFilter = 'all';
 
-    // 🌟 根据状态获取省份的填充样式（区域填色）
     function getRegionStyle(status) {
         switch(status) {
             case 'go':
-                return {
-                    color: '#2E8B57',      // 边界颜色: 墨绿
-                    weight: 1.5,            // 边界粗细
-                    fillColor: '#7ccd7c',   // 填充颜色: 清新绿
-                    fillOpacity: 0.65       // 填充透明度
-                };
+                return { color: '#2E8B57', weight: 1.5, fillColor: '#7ccd7c', fillOpacity: 0.65 };
             case 'want':
-                return {
-                    color: '#ff476b',
-                    weight: 1.5,
-                    fillColor: '#ff6b8c',
-                    fillOpacity: 0.55
-                };
+                return { color: '#ff476b', weight: 1.5, fillColor: '#ff6b8c', fillOpacity: 0.55 };
             default:
-                return {
-                    color: '#c4b5a6',
-                    weight: 1,
-                    fillColor: '#e8e0d8',
-                    fillOpacity: 0.35
-                };
+                return { color: '#c4b5a6', weight: 1, fillColor: '#e8e0d8', fillOpacity: 0.35 };
         }
     }
 
-    // 更新单个省份的样式
     function updateRegionStyle(regionName, status) {
         if(!regionLayers[regionName]) return;
         const style = getRegionStyle(status);
         regionLayers[regionName].setStyle(style);
-        saveStatus(); // 保存状态到本地存储
+        saveStatus();
     }
 
-    // 更新统计数字和右侧列表
     function updateStats() {
         let go=0, want=0;
         for(let r in regionStatus) {
@@ -468,9 +456,23 @@
         if(saved) regionStatus = JSON.parse(saved);
     }
 
-    function renderRegionList() { /* ... 保持你原有的列表渲染逻辑 ... */ }
+    function renderRegionList() {
+        let list = [];
+        for(let name in regionStatus) {
+            let st = regionStatus[name];
+            if(currentFilter === 'all') list.push({name, st});
+            else if(currentFilter === 'go' && st === 'go') list.push({name, st});
+            else if(currentFilter === 'want' && st === 'want') list.push({name, st});
+        }
+        let html = list.length === 0 ? '<div style="text-align:center;color:#b7855b;padding:10px;">暂无足迹</div>' :
+            list.map(item => `<div class="city-list-item" style="border-left-color:${item.st === 'go' ? '#7ccd7c' : '#ffb3c1'}" onclick="openRegionPanelFromList('${escapeHtml(item.name)}')">${escapeHtml(item.name)}</div>`).join('');
+        document.getElementById('cityListContent').innerHTML = html;
+    }
 
-    // 跳转到城市详情页
+    window.openRegionPanelFromList = function(regionName) {
+        openRegionPanel(regionName, regionName);
+    };
+
     window.openRegionAction = function(regionName, provinceName, actionType) {
         let targetUrl = `city-detail.html?city=${encodeURIComponent(regionName)}&province=${encodeURIComponent(provinceName)}`;
         if(actionType === 'album') targetUrl += `&tab=album`;
@@ -479,7 +481,6 @@
         window.location.href = targetUrl;
     };
 
-    // 设置状态
     window.setRegionStatus = function(regionName, statusType, provinceName) {
         if(statusType === 'go') {
             regionStatus[regionName] = 'go';
@@ -499,65 +500,111 @@
         document.querySelector('.city-modal')?.remove();
     };
 
-    // 省份点击弹窗
     function openRegionPanel(regionName, provinceName) {
-        // ... 保持你原有的弹窗HTML和逻辑 ...
-        // 注意：弹窗内的按钮调用上面的 window.setRegionStatus 和 window.openRegionAction
+        document.querySelectorAll('.city-modal').forEach(e => e.remove());
+        const modal = document.createElement('div'); modal.className = 'city-modal';
+        modal.innerHTML = `
+            <div class="city-card">
+                <div class="city-title">🏞️ ${escapeHtml(regionName)}</div>
+                <div class="state-group">
+                    <button class="state-btn" style="background:#7ccd7c;color:#fff" onclick="window.setRegionStatus('${regionName}','go','${provinceName}')">✅ 已去过</button>
+                    <button class="state-btn" style="background:#ff4a6c;color:#fff" onclick="window.setRegionStatus('${regionName}','want','${provinceName}')">💗 想去</button>
+                    <button class="state-btn" style="background:#d4c5b8;color:#5e3a22" onclick="window.setRegionStatus('${regionName}','clear','${provinceName}')">🔄 取消</button>
+                </div>
+                <div class="func-group">
+                    <button class="func-btn" onclick="window.openRegionAction('${regionName}','${provinceName}','album')">📸 上传相册</button>
+                    <button class="func-btn" onclick="window.openRegionAction('${regionName}','${provinceName}','diary')">✍️ 写记录</button>
+                    <button class="func-btn" onclick="window.openRegionAction('${regionName}','${provinceName}','strategy')">📖 发攻略</button>
+                </div>
+                <button class="close-card-btn" onclick="this.closest('.city-modal').remove()">关闭</button>
+            </div>`;
+        document.body.appendChild(modal);
+        modal.onclick = e => e.target === modal && modal.remove();
     }
 
-    // 筛选功能
     function applyFilter() {
         currentFilter = document.getElementById('stateFilterSelect').value;
         for(let name in regionLayers) {
             const st = regionStatus[name];
             const shouldShow = currentFilter === 'all' || currentFilter === st;
-            // 通过设置透明度来隐藏或显示
-            regionLayers[name].setStyle({ opacity: shouldShow ? 1 : 0.15 });
+            if(shouldShow) {
+                regionLayers[name].setStyle({ opacity: 1 });
+            } else {
+                regionLayers[name].setStyle({ opacity: 0.15 });
+            }
         }
         renderRegionList();
         toastMsg('✅ 筛选完成');
     }
 
-    // 🌟 核心函数：加载并使用本地的GeoJSON数据绘制地图区域
+    // ========== 使用本地GeoJSON文件（解决网络问题）==========
     async function loadRegionBoundaries() {
         toastMsg('🌏 加载中国地图数据...');
 
-        // 关键：指向你下载并放置好的本地GeoJSON文件
-        const geoJsonUrl = '/geo/中国_省.geojson';
+        // 方案1：使用本地GeoJSON文件（推荐）
+        // 将你提供的china.json文件放在 src/main/resources/static/geo/china.json
+        const localGeoJsonUrl = '/geo/china.json';
+
+        // 方案2：如果本地文件不存在，使用备用CDN（阿里云DataV，国内可用）
+        const fallbackUrl = 'https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json';
 
         try {
-            const response = await fetch(geoJsonUrl);
-            // 检查响应是否成功
+            let response = await fetch(localGeoJsonUrl);
+
+            // 如果本地文件不存在（404），则使用备用CDN
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                console.warn('本地GeoJSON文件不存在，尝试备用CDN...');
+                response = await fetch(fallbackUrl);
             }
+
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
 
             // 清除旧图层
             for(let k in regionLayers) if(regionLayers[k]) map.removeLayer(regionLayers[k]);
             regionLayers = {};
 
-            // 遍历GeoJSON中的所有省份要素
-            data.features.forEach(province => {
-                // 从属性中获取省份名称（天地图数据中的字段名是 'name'）
-                const name = province.properties.name;
-                // 获取该省份的存储状态，用于初始化颜色
-                const status = regionStatus[name];
+            // 过滤出省级行政区
+            let features = data.features;
+
+            // 如果是阿里云数据，需要按level过滤；如果是自定义GeoJSON，直接使用全部features
+            if (data.features && data.features[0]?.properties?.level) {
+                features = data.features.filter(f => f.properties.level === 'province');
+            }
+
+            // 处理省份名称映射（统一名称）
+            const nameMapping = {
+                '广西壮族自治区': '广西',
+                '新疆维吾尔自治区': '新疆',
+                '宁夏回族自治区': '宁夏',
+                '西藏自治区': '西藏',
+                '内蒙古自治区': '内蒙古',
+                '广西': '广西',
+                '新疆': '新疆',
+                '宁夏': '宁夏',
+                '西藏': '西藏',
+                '内蒙古': '内蒙古'
+            };
+
+            features.forEach(feature => {
+                let name = feature.properties.name;
+                // 应用名称映射
+                const mappedName = nameMapping[name] || name;
+
+                const status = regionStatus[mappedName] || regionStatus[name];
                 const style = getRegionStyle(status);
 
-                // 将GeoJSON要素添加到地图
-                const layer = L.geoJSON(province, {
+                const layer = L.geoJSON(feature, {
                     style: style,
-                    interactive: true // 允许点击交互
+                    interactive: true
                 }).addTo(map);
 
-                // 绑定鼠标悬停提示
-                layer.bindTooltip(name, { permanent: false, direction: 'center' });
-                // 绑定点击事件，弹出操作面板
-                layer.on('click', () => openRegionPanel(name, name));
+                layer.bindTooltip(name, { permanent: false, direction: 'center', className: 'province-tooltip' });
+                layer.on('click', () => openRegionPanel(mappedName, name));
 
-                // 存储图层，以便后续更新状态
+                // 同时用原始名称和映射名称存储，确保状态匹配
                 regionLayers[name] = layer;
+                if (mappedName !== name) regionLayers[mappedName] = layer;
             });
 
             updateStats();
@@ -565,33 +612,47 @@
 
         } catch(error) {
             console.error('加载地图数据失败:', error);
-            toastMsg('地图加载失败，请检查网络或GeoJSON文件路径是否正确');
-            // 可选：在控制台输出更详细的错误，便于调试
-            console.error('请确认文件是否放置在 src/main/resources/static/geo/中国_省.geojson');
+            toastMsg('地图加载失败，请检查网络后刷新');
+
+            // 显示错误提示，建议用户检查文件路径
+            console.log('提示：请确保GeoJSON文件放在 src/main/resources/static/geo/china.json');
+            console.log('或使用阿里云CDN作为备用数据源');
         }
     }
 
-    // 初始化地图和图层
+    // ========== 使用高德地图瓦片（国内可用） ==========
     async function initMap() {
-        // 使用高德地图作为底图（注意：高德瓦片在国内访问稳定）
+        // 使用高德地图官方瓦片（国内正常访问）
+        // 注意：高德瓦片需要申请key，这里使用无需key的瓦片服务
         map = L.map('chinaMap').setView([35.0, 108.0], 5);
-        L.tileLayer('https://webrd0.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
-            minZoom: 4, maxZoom: 10, attribution: '高德地图', subdomains: '1234'
+
+        // 方案1：使用OpenStreetMap（全球可用，国内速度一般）
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB',
+            subdomains: 'abcd',
+            maxZoom: 19,
+            minZoom: 4
         }).addTo(map);
 
-        // 添加比例尺控件
+        // 方案2：如果上述慢，可以使用天地图（需要token，国内快）
+        // 天地图需要申请key，这里注释作为备选
+        /*
+        L.tileLayer('https://t{s}.tianditu.gov.cn/DataServer?T=vec_w&x={x}&y={y}&l={z}&tk=你的天地图token', {
+            attribution: '天地图',
+            subdomains: ['0', '1', '2', '3', '4', '5', '6', '7'],
+            maxZoom: 18,
+            minZoom: 4
+        }).addTo(map);
+        */
+
         L.control.scale({ metric: true, imperial: false, position: 'bottomright' }).addTo(map);
 
-        // 加载我们的GeoJSON数据
         await loadRegionBoundaries();
-
-        // 绑定筛选按钮事件
         document.getElementById('filterQueryBtn').onclick = applyFilter;
     }
 
     // 页面启动
     window.onload = async function() {
-        // 登录检查和用户信息加载逻辑保持不变
         if (!localStorage.getItem('isLogin')) { location.href = 'login.html'; return; }
         try {
             const res = await fetch("/user/info", { credentials: "include" });
@@ -600,9 +661,8 @@
                 document.getElementById('userInitial').innerText = getNameInitials(result.data.username);
             } else { localStorage.removeItem('isLogin'); location.href = 'login.html'; return; }
         } catch(e) { localStorage.removeItem('isLogin'); location.href = 'login.html'; return; }
-
-        loadStatus();      // 加载本地存储的足迹状态
-        await initMap();   // 初始化地图和GeoJSON图层
+        loadStatus();
+        await initMap();
         await updateRedDot();
     };
 </script>
