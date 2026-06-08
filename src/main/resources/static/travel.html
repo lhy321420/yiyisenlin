@@ -3,25 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>森林地图 - 壹一森林</title>
+    <title>壹一森林 - 足迹地图</title>
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/pinyin-pro@3.19.6/dist/index.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        body {
-            background-color: #fff9f5;
-            font-family: system-ui, "Microsoft YaHei", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            overflow-x: hidden;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #fff9f5; font-family: system-ui, "Microsoft YaHei", sans-serif; overflow-x: hidden; }
 
-        /* ========== 顶部导航 手机完美适配 ========== */
+        /* ========== 顶部导航 手机自适应 ========== */
         .big {
             display: flex;
             flex-wrap: wrap;
@@ -36,53 +27,37 @@
             gap: 12px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
         }
-        .first {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-shrink: 0;
-        }
+        .first { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
         .heart {
             font-size: 20px;
             cursor: pointer;
-            transition: 0.2s;
             background: rgba(255, 220, 180, 0.4);
-            width: 34px;
-            height: 34px;
+            width: 34px; height: 34px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
         }
         .heart:active { transform: scale(0.94); background: #ffe0b5; }
-        .name p {
-            font-size: 11px;
-            line-height: 1.25;
-            color: rgb(146, 86, 30);
-            font-weight: 500;
-        }
+        .name p { font-size: 11px; line-height: 1.25; color: rgb(146, 86, 30); font-weight: 500; }
         .name p:first-child { font-size: 10px; letter-spacing: 0.5px; opacity: 0.8; }
         .bell {
             font-size: 20px;
             color: rgb(199, 199, 158);
             cursor: pointer;
-            transition: 0.2s;
-            position: relative;
             background: rgba(255, 240, 200, 0.5);
-            width: 34px;
-            height: 34px;
+            width: 34px; height: 34px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
+            position: relative;
         }
         .bell:active { transform: scale(0.94); color: #f8446e; }
         .red-dot {
             position: absolute;
-            top: 2px;
-            right: 4px;
-            width: 10px;
-            height: 10px;
+            top: 2px; right: 4px;
+            width: 10px; height: 10px;
             background: #f8446e;
             border-radius: 50%;
             display: none;
@@ -106,21 +81,10 @@
             font-weight: 600;
             color: rgb(146, 86, 30);
             cursor: pointer;
-            transition: all 0.2s ease;
             white-space: nowrap;
-            background: transparent;
-            text-align: center;
         }
-        .nav-item.active {
-            background-color: rgb(255, 239, 200);
-            color: #bc6f2c;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-            transform: translateY(-1px);
-        }
-        .nav-item:active {
-            background-color: rgb(255, 230, 180);
-            transform: scale(0.96);
-        }
+        .nav-item.active { background-color: rgb(255, 239, 200); color: #bc6f2c; transform: translateY(-1px); }
+        .nav-item:active { background-color: rgb(255, 230, 180); transform: scale(0.96); }
         .user-right {
             display: flex;
             align-items: center;
@@ -134,26 +98,15 @@
             cursor: pointer;
             flex-shrink: 0;
         }
-        .user-right:active {
-            background: #ffcbd1;
-            transform: scale(0.97);
-        }
-        .switch-btn {
-            width: 28px;
-            height: 14px;
-            background: #fff;
-            border-radius: 10px;
-            position: relative;
-        }
+        .user-right:active { background: #ffcbd1; transform: scale(0.97); }
+        .switch-btn { width: 28px; height: 14px; background: #fff; border-radius: 10px; position: relative; }
         .switch-btn::before {
             content: '';
-            width: 10px;
-            height: 10px;
+            width: 10px; height: 10px;
             background: #f8446e;
             border-radius: 50%;
             position: absolute;
-            top: 2px;
-            left: 2px;
+            top: 2px; left: 2px;
             transition: 0.2s;
         }
         @media (max-width: 620px) {
@@ -182,7 +135,7 @@
             border-radius: 32px;
             width: calc(100% - 30px);
         }
-        .filter-title { font-size: 20px; color: #e67a8a; font-weight: 700; letter-spacing: -0.3px; }
+        .filter-title { font-size: 20px; color: #e67a8a; font-weight: 700; }
         .filter-select {
             padding: 8px 14px;
             border: 1px solid #f0d8c0;
@@ -198,7 +151,6 @@
             border: none;
             border-radius: 40px;
             cursor: pointer;
-            transition: 0.2s;
             font-weight: 600;
             font-size: 14px;
         }
@@ -264,9 +216,8 @@
             color: #9c5a22;
             border-left: 3px solid #ffccd5;
             cursor: pointer;
-            transition: all 0.1s;
         }
-        .city-list-item:active { background: #ffede5; transform: scale(0.98); }
+        .city-list-item:active { background: #ffede5; }
         .desc-tips {
             max-width: 1000px;
             margin: 10px auto 30px;
@@ -276,15 +227,12 @@
             font-size: 12px;
             background: #fff2e6;
             border-radius: 40px;
-            line-height: 1.4;
             width: calc(100% - 30px);
         }
         .modal {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.4);
             display: none;
             align-items: center;
@@ -299,10 +247,9 @@
             padding: 22px;
             border-radius: 32px;
             text-align: center;
-            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.2);
         }
         .modal-content h3 { color: #9c5a22; margin-bottom: 15px; }
-        .modal-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .modal-btns { display: flex; gap: 10px; justify-content: center; }
         .modal-btn {
             padding: 6px 18px;
             border-radius: 40px;
@@ -325,17 +272,13 @@
             border-radius: 40px;
             font-size: 14px;
             z-index: 1100;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             pointer-events: none;
-            white-space: nowrap;
         }
         .city-modal {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -343,12 +286,11 @@
             padding: 15px;
         }
         .city-card {
-            background-color: #fffaf2;
+            background: #fffaf2;
             border-radius: 32px;
             width: 100%;
             max-width: 360px;
             padding: 24px 20px;
-            box-shadow: 0 20px 35px rgba(0,0,0,0.25);
             text-align: center;
             border: 1px solid #ffddb0;
             animation: fadeInUp 0.2s ease;
@@ -365,14 +307,13 @@
             font-size: 13px;
             font-weight: 700;
             cursor: pointer;
-            transition: 0.1s;
             border: none;
             box-shadow: 0 2px 6px rgba(0,0,0,0.08);
         }
         .state-btn:active { transform: scale(0.95); }
         .func-group { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
         .func-btn {
-            background-color: #ffdde0;
+            background: #ffdde0;
             border: none;
             padding: 10px;
             border-radius: 40px;
@@ -380,13 +321,12 @@
             cursor: pointer;
             color: #b94e6e;
             font-weight: 600;
-            transition: 0.1s;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
         }
-        .func-btn:active { background-color: #ffccd5; transform: scale(0.97); }
+        .func-btn:active { background: #ffccd5; transform: scale(0.97); }
         .close-card-btn {
             margin-top: 18px;
             padding: 10px 24px;
@@ -397,7 +337,6 @@
             color: #b3623a;
             font-size: 14px;
             font-weight: 600;
-            transition: 0.1s;
         }
         .close-card-btn:active { background: #ffd0c0; transform: scale(0.96); }
     </style>
@@ -427,7 +366,7 @@
 </div>
 
 <div class="filter-bar">
-    <span class="filter-title">🗺️ 森林地图</span>
+    <span class="filter-title">🗺️ 足迹地图</span>
     <select class="filter-select" id="stateFilterSelect">
         <option value="all">全部状态</option>
         <option value="go">✅ 已去过</option>
@@ -444,11 +383,11 @@
 <div class="map-wrap">
     <div id="chinaMap"></div>
     <div class="city-list-panel">
-        <div class="city-list-title">📍 状态城市</div>
+        <div class="city-list-title">📍 我的足迹</div>
         <div id="cityListContent"></div>
     </div>
 </div>
-<div class="desc-tips">💡 点击城市标记 → 修改状态(绿色=已去过 / 粉色=想去) | 取消状态 | 上传相册 📸 | 写记录 ✍️ | 发攻略 📖</div>
+<div class="desc-tips">💡 点击地图上的圆点 → 标记去过/想去 | 上传相册 📸 | 写记录 ✍️ | 发攻略 📖</div>
 
 <div class="modal" id="logoutModal">
     <div class="modal-content"><h3>确定退出登录？</h3>
@@ -478,24 +417,62 @@
     function goToMessage() { location.href = "message.html"; }
     function go(page) { const links = { index:"index.html", role:"member.html", record:"diary.html", album:"about.html", map:"travel.html" }; location.href = links[page]; }
 
-    // ==================== 地图状态核心 ====================
-    let cityStatus = {}, map, cityMarkers = {}, currentFilter = 'all';
+    // ==================== 全国省级行政区数据（覆盖34个地区） ====================
+    const regionsData = [
+        // 直辖市
+        { name: "北京市", province: "北京", lng: 116.4074, lat: 39.9042 },
+        { name: "天津市", province: "天津", lng: 117.1902, lat: 39.1256 },
+        { name: "上海市", province: "上海", lng: 121.4737, lat: 31.2304 },
+        { name: "重庆市", province: "重庆", lng: 106.5044, lat: 29.5582 },
+        // 省
+        { name: "河北省", province: "河北", lng: 114.4995, lat: 38.1006 },
+        { name: "山西省", province: "山西", lng: 112.5624, lat: 37.8703 },
+        { name: "辽宁省", province: "辽宁", lng: 123.4315, lat: 41.8057 },
+        { name: "吉林省", province: "吉林", lng: 125.3245, lat: 43.8868 },
+        { name: "黑龙江省", province: "黑龙江", lng: 126.6424, lat: 45.7567 },
+        { name: "江苏省", province: "江苏", lng: 118.7674, lat: 32.0415 },
+        { name: "浙江省", province: "浙江", lng: 120.1551, lat: 30.2741 },
+        { name: "安徽省", province: "安徽", lng: 117.2272, lat: 31.8206 },
+        { name: "福建省", province: "福建", lng: 119.2965, lat: 26.0745 },
+        { name: "江西省", province: "江西", lng: 115.858, lat: 28.682 },
+        { name: "山东省", province: "山东", lng: 117.1205, lat: 36.651 },
+        { name: "河南省", province: "河南", lng: 113.6254, lat: 34.7466 },
+        { name: "湖北省", province: "湖北", lng: 114.3055, lat: 30.5931 },
+        { name: "湖南省", province: "湖南", lng: 112.9388, lat: 28.2282 },
+        { name: "广东省", province: "广东", lng: 113.2644, lat: 23.1291 },
+        { name: "海南省", province: "海南", lng: 110.1999, lat: 20.044 },
+        { name: "四川省", province: "四川", lng: 104.0668, lat: 30.5728 },
+        { name: "贵州省", province: "贵州", lng: 106.6302, lat: 26.6477 },
+        { name: "云南省", province: "云南", lng: 102.832, lat: 24.8801 },
+        { name: "陕西省", province: "陕西", lng: 108.9402, lat: 34.3416 },
+        { name: "甘肃省", province: "甘肃", lng: 103.8343, lat: 36.0611 },
+        { name: "青海省", province: "青海", lng: 101.7801, lat: 36.6232 },
+        { name: "台湾省", province: "台湾", lng: 121.5200, lat: 25.0307 },
+        // 自治区
+        { name: "内蒙古自治区", province: "内蒙古", lng: 111.751, lat: 40.8415 },
+        { name: "广西壮族自治区", province: "广西", lng: 108.320, lat: 22.824 },
+        { name: "西藏自治区", province: "西藏", lng: 91.1409, lat: 29.6564 },
+        { name: "宁夏回族自治区", province: "宁夏", lng: 106.2309, lat: 38.4872 },
+        { name: "新疆维吾尔自治区", province: "新疆", lng: 87.6168, lat: 43.8256 },
+        // 特别行政区
+        { name: "香港特别行政区", province: "香港", lng: 114.1697, lat: 22.3193 },
+        { name: "澳门特别行政区", province: "澳门", lng: 113.5431, lat: 22.1868 }
+    ];
 
-    // 获取城市标记样式
+    // ==================== 地图状态核心 ====================
+    let regionStatus = {}, map, regionMarkers = {}, currentFilter = 'all';
+
+    // 获取标记样式（已去过：绿色大圆；想去：粉色中圆；无状态：橙色小圆）
     function getMarkerStyle(status) {
-        if(status === 'go') {
-            return { color: '#2E8B57', fillColor: '#7ccd7c', fillOpacity: 0.85, radius: 18 };
-        }
-        if(status === 'want') {
-            return { color: '#ff476b', fillColor: '#ff6b8c', fillOpacity: 0.85, radius: 16 };
-        }
-        return { color: '#ffaa66', fillColor: '#ffdd99', fillOpacity: 0.65, radius: 14 };
+        if(status === 'go') return { color: '#2E8B57', fillColor: '#7ccd7c', fillOpacity: 0.85, radius: 22 };
+        if(status === 'want') return { color: '#ff476b', fillColor: '#ff6b8c', fillOpacity: 0.85, radius: 18 };
+        return { color: '#ffaa66', fillColor: '#ffdd99', fillOpacity: 0.7, radius: 14 };
     }
 
-    function updateCityMarker(cityName, status) {
-        if(!cityMarkers[cityName]) return;
+    function updateRegionMarker(regionName, status) {
+        if(!regionMarkers[regionName]) return;
         const style = getMarkerStyle(status);
-        cityMarkers[cityName].setStyle({
+        regionMarkers[regionName].setStyle({
             color: style.color,
             fillColor: style.fillColor,
             fillOpacity: style.fillOpacity,
@@ -505,93 +482,90 @@
     }
 
     function updateStats() {
-        let go=0,want=0;
-        for(let c in cityStatus) {
-            if(cityStatus[c]==='go') go++;
-            else if(cityStatus[c]==='want') want++;
+        let go=0, want=0;
+        for(let r in regionStatus) {
+            if(regionStatus[r]==='go') go++;
+            else if(regionStatus[r]==='want') want++;
         }
         document.getElementById('goCount').innerText = go;
         document.getElementById('wantCount').innerText = want;
-        renderCityList();
+        renderRegionList();
     }
 
     function saveStatus() {
-        localStorage.setItem('city_status_data', JSON.stringify(cityStatus));
+        localStorage.setItem('region_status_data', JSON.stringify(regionStatus));
         updateStats();
     }
 
     function loadStatus() {
-        const saved = localStorage.getItem('city_status_data');
-        if(saved) cityStatus = JSON.parse(saved);
+        const saved = localStorage.getItem('region_status_data');
+        if(saved) regionStatus = JSON.parse(saved);
     }
 
-    function renderCityList() {
+    function renderRegionList() {
         let list = [];
-        for(let name in cityStatus) {
-            let st = cityStatus[name];
+        for(let name in regionStatus) {
+            let st = regionStatus[name];
             if(currentFilter === 'all') list.push({name, st});
             else if(currentFilter === 'go' && st === 'go') list.push({name, st});
             else if(currentFilter === 'want' && st === 'want') list.push({name, st});
         }
-        let html = list.length === 0 ? '<div style="text-align:center;color:#b7855b;padding:10px;">暂无城市</div>' :
-            list.map(item => `<div class="city-list-item" style="border-left-color:${item.st === 'go' ? '#7ccd7c' : '#ffb3c1'}" onclick="openCityPanelFromList('${escapeHtml(item.name)}')">${escapeHtml(item.name)}</div>`).join('');
+        let html = list.length === 0 ? '<div style="text-align:center;color:#b7855b;padding:10px;">暂无足迹</div>' :
+            list.map(item => `<div class="city-list-item" style="border-left-color:${item.st === 'go' ? '#7ccd7c' : '#ffb3c1'}" onclick="openRegionPanelFromList('${escapeHtml(item.name)}')">${escapeHtml(item.name)}</div>`).join('');
         document.getElementById('cityListContent').innerHTML = html;
     }
 
-    // 从列表打开城市弹窗
-    window.openCityPanelFromList = function(cityName) {
-        const cityData = citiesData.find(c => c.name === cityName);
-        if(cityData) openCityPanel(cityData.name, cityData.province);
-        else openCityPanel(cityName, cityName);
+    window.openRegionPanelFromList = function(regionName) {
+        const regionData = regionsData.find(r => r.name === regionName);
+        if(regionData) openRegionPanel(regionData.name, regionData.province);
+        else openRegionPanel(regionName, regionName);
     };
 
-    // 城市功能跳转（相册 / 记录 / 攻略）
-    window.openCityAction = function(cityName, provinceName, actionType) {
-        let targetUrl = '';
-        if(actionType === 'album') targetUrl = `city-album.html?city=${encodeURIComponent(cityName)}&province=${encodeURIComponent(provinceName)}`;
-        else if(actionType === 'diary') targetUrl = `write-diary.html?city=${encodeURIComponent(cityName)}&province=${encodeURIComponent(provinceName)}`;
-        else if(actionType === 'strategy') targetUrl = `write-strategy.html?city=${encodeURIComponent(cityName)}&province=${encodeURIComponent(provinceName)}`;
-        if(targetUrl) window.location.href = targetUrl;
-        else toastMsg(`即将开放：${actionType} 功能`);
+    // 跳转到功能页
+    window.openRegionAction = function(regionName, provinceName, actionType) {
+        let targetUrl = `city-detail.html?city=${encodeURIComponent(regionName)}&province=${encodeURIComponent(provinceName)}`;
+        if(actionType === 'album') targetUrl += `&tab=album`;
+        else if(actionType === 'diary') targetUrl += `&tab=record`;
+        else if(actionType === 'strategy') targetUrl += `&tab=strategy`;
+        window.location.href = targetUrl;
     };
 
-    // 设置城市状态
-    window.setCityStatus = function(cityName, statusType, provinceName) {
+    // 设置状态
+    window.setRegionStatus = function(regionName, statusType, provinceName) {
         if(statusType === 'go') {
-            cityStatus[cityName] = 'go';
-            updateCityMarker(cityName, 'go');
-            toastMsg(`✅ ${cityName} 标记为已去过`);
+            regionStatus[regionName] = 'go';
+            updateRegionMarker(regionName, 'go');
+            toastMsg(`✅ ${regionName} 标记为已去过`);
         }
         else if(statusType === 'want') {
-            cityStatus[cityName] = 'want';
-            updateCityMarker(cityName, 'want');
-            toastMsg(`💗 ${cityName} 加入想去清单`);
+            regionStatus[regionName] = 'want';
+            updateRegionMarker(regionName, 'want');
+            toastMsg(`💗 ${regionName} 加入想去清单`);
         }
         else {
-            delete cityStatus[cityName];
-            updateCityMarker(cityName, null);
-            toastMsg(`🔄 ${cityName} 状态已清空`);
+            delete regionStatus[regionName];
+            updateRegionMarker(regionName, null);
+            toastMsg(`🔄 ${regionName} 状态已清空`);
         }
         document.querySelector('.city-modal')?.remove();
     };
 
-    // 城市弹窗
-    function openCityPanel(cityName, provinceName) {
+    // 区域弹窗
+    function openRegionPanel(regionName, provinceName) {
         document.querySelectorAll('.city-modal').forEach(e => e.remove());
-        const currentSt = cityStatus[cityName] || null;
         const modal = document.createElement('div'); modal.className = 'city-modal';
         modal.innerHTML = `
             <div class="city-card">
-                <div class="city-title">🌆 ${escapeHtml(cityName)}</div>
+                <div class="city-title">🏞️ ${escapeHtml(regionName)}</div>
                 <div class="state-group">
-                    <button class="state-btn" style="background:#7ccd7c;color:#fff" onclick="window.setCityStatus('${cityName}','go','${provinceName}')">✅ 已去过</button>
-                    <button class="state-btn" style="background:#ff4a6c;color:#fff" onclick="window.setCityStatus('${cityName}','want','${provinceName}')">💗 想去</button>
-                    <button class="state-btn" style="background:#d4c5b8;color:#5e3a22" onclick="window.setCityStatus('${cityName}','clear','${provinceName}')">🔄 取消</button>
+                    <button class="state-btn" style="background:#7ccd7c;color:#fff" onclick="window.setRegionStatus('${regionName}','go','${provinceName}')">✅ 已去过</button>
+                    <button class="state-btn" style="background:#ff4a6c;color:#fff" onclick="window.setRegionStatus('${regionName}','want','${provinceName}')">💗 想去</button>
+                    <button class="state-btn" style="background:#ffe2d1;color:#ffffff" onclick="window.setRegionStatus('${regionName}','clear','${provinceName}')">🔄 取消</button>
                 </div>
                 <div class="func-group">
-                    <button class="func-btn" onclick="window.openCityAction('${cityName}','${provinceName}','album')">📸 上传相册</button>
-                    <button class="func-btn" onclick="window.openCityAction('${cityName}','${provinceName}','diary')">✍️ 写记录</button>
-                    <button class="func-btn" onclick="window.openCityAction('${cityName}','${provinceName}','strategy')">📖 发攻略</button>
+                    <button class="func-btn" onclick="window.openRegionAction('${regionName}','${provinceName}','album')">📸 上传相册</button>
+                    <button class="func-btn" onclick="window.openRegionAction('${regionName}','${provinceName}','diary')">✍️ 写记录</button>
+                    <button class="func-btn" onclick="window.openRegionAction('${regionName}','${provinceName}','strategy')">📖 发攻略</button>
                 </div>
                 <button class="close-card-btn" onclick="this.closest('.city-modal').remove()">关闭</button>
             </div>`;
@@ -602,76 +576,29 @@
     // 筛选
     function applyFilter() {
         currentFilter = document.getElementById('stateFilterSelect').value;
-        for(let name in cityMarkers) {
-            const st = cityStatus[name];
+        for(let name in regionMarkers) {
+            const st = regionStatus[name];
             const shouldShow = currentFilter === 'all' || currentFilter === st;
             if(shouldShow) {
-                cityMarkers[name].setStyle({ opacity: 1, fillOpacity: 0.85 });
+                regionMarkers[name].setStyle({ opacity: 1, fillOpacity: 0.85 });
             } else {
-                cityMarkers[name].setStyle({ opacity: 0.2, fillOpacity: 0.05 });
+                regionMarkers[name].setStyle({ opacity: 0.2, fillOpacity: 0.05 });
             }
         }
-        renderCityList();
+        renderRegionList();
         toastMsg('✅ 筛选完成');
     }
 
-    // 中国主要城市完整列表（41个主要城市，覆盖所有省级行政区）
-    const citiesData = [
-        { name: "北京市", province: "北京", lng: 116.4074, lat: 39.9042 },
-        { name: "上海市", province: "上海", lng: 121.4737, lat: 31.2304 },
-        { name: "广州市", province: "广东", lng: 113.2644, lat: 23.1291 },
-        { name: "深圳市", province: "广东", lng: 114.0579, lat: 22.5431 },
-        { name: "杭州市", province: "浙江", lng: 120.1551, lat: 30.2741 },
-        { name: "南京市", province: "江苏", lng: 118.7674, lat: 32.0415 },
-        { name: "成都市", province: "四川", lng: 104.0668, lat: 30.5728 },
-        { name: "武汉市", province: "湖北", lng: 114.3055, lat: 30.5931 },
-        { name: "西安市", province: "陕西", lng: 108.9402, lat: 34.3416 },
-        { name: "重庆市", province: "重庆", lng: 106.5044, lat: 29.5582 },
-        { name: "天津市", province: "天津", lng: 117.1902, lat: 39.1256 },
-        { name: "苏州市", province: "江苏", lng: 120.5853, lat: 31.2989 },
-        { name: "长沙市", province: "湖南", lng: 112.9388, lat: 28.2282 },
-        { name: "昆明市", province: "云南", lng: 102.832, lat: 24.8801 },
-        { name: "厦门市", province: "福建", lng: 118.0895, lat: 24.4798 },
-        { name: "青岛市", province: "山东", lng: 120.3552, lat: 36.0829 },
-        { name: "大连市", province: "辽宁", lng: 121.6147, lat: 38.914 },
-        { name: "三亚市", province: "海南", lng: 109.512, lat: 18.2528 },
-        { name: "桂林市", province: "广西", lng: 110.2908, lat: 25.2736 },
-        { name: "拉萨市", province: "西藏", lng: 91.1409, lat: 29.6564 },
-        { name: "乌鲁木齐市", province: "新疆", lng: 87.6168, lat: 43.8256 },
-        { name: "哈尔滨市", province: "黑龙江", lng: 126.6424, lat: 45.7567 },
-        { name: "长春市", province: "吉林", lng: 125.3245, lat: 43.8868 },
-        { name: "沈阳市", province: "辽宁", lng: 123.4315, lat: 41.8057 },
-        { name: "呼和浩特市", province: "内蒙古", lng: 111.751, lat: 40.8415 },
-        { name: "银川市", province: "宁夏", lng: 106.2309, lat: 38.4872 },
-        { name: "西宁市", province: "青海", lng: 101.7801, lat: 36.6232 },
-        { name: "兰州市", province: "甘肃", lng: 103.8343, lat: 36.0611 },
-        { name: "郑州市", province: "河南", lng: 113.6254, lat: 34.7466 },
-        { name: "济南市", province: "山东", lng: 117.1205, lat: 36.651 },
-        { name: "合肥市", province: "安徽", lng: 117.2272, lat: 31.8206 },
-        { name: "南昌市", province: "江西", lng: 115.858, lat: 28.682 },
-        { name: "福州市", province: "福建", lng: 119.2965, lat: 26.0745 },
-        { name: "南宁市", province: "广西", lng: 108.320, lat: 22.824 },
-        { name: "贵阳市", province: "贵州", lng: 106.6302, lat: 26.6477 },
-        { name: "海口市", province: "海南", lng: 110.1999, lat: 20.044 },
-        { name: "石家庄市", province: "河北", lng: 114.4995, lat: 38.1006 },
-        { name: "太原市", province: "山西", lng: 112.5624, lat: 37.8703 },
-        { name: "香港", province: "香港", lng: 114.1697, lat: 22.3193 },
-        { name: "澳门", province: "澳门", lng: 113.5431, lat: 22.1868 },
-        { name: "台北市", province: "台湾", lng: 121.5200, lat: 25.0307 }
-    ];
+    // 加载区域标记
+    async function loadRegionMarkers() {
+        toastMsg('🌏 加载中国足迹地图...');
+        for(let k in regionMarkers) if(regionMarkers[k]) map.removeLayer(regionMarkers[k]);
+        regionMarkers = {};
 
-    // 加载城市标记
-    async function loadCityMarkers() {
-        toastMsg('🌏 加载城市数据...');
-
-        for(let k in cityMarkers) if(cityMarkers[k]) map.removeLayer(cityMarkers[k]);
-        cityMarkers = {};
-
-        citiesData.forEach(city => {
-            const status = cityStatus[city.name];
+        regionsData.forEach(region => {
+            const status = regionStatus[region.name];
             const style = getMarkerStyle(status);
-
-            const marker = L.circleMarker([city.lat, city.lng], {
+            const marker = L.circleMarker([region.lat, region.lng], {
                 radius: style.radius,
                 color: style.color,
                 weight: 2.5,
@@ -679,40 +606,22 @@
                 fillOpacity: style.fillOpacity,
                 opacity: 1
             }).addTo(map);
-
-            // 绑定工具提示
-            marker.bindTooltip(city.name, {
-                permanent: false,
-                direction: 'top',
-                offset: [0, -12],
-                className: 'city-tooltip'
-            });
-
-            marker.on('click', () => openCityPanel(city.name, city.province));
-            cityMarkers[city.name] = marker;
+            marker.bindTooltip(region.name, { permanent: false, direction: 'top', offset: [0, -12] });
+            marker.on('click', () => openRegionPanel(region.name, region.province));
+            regionMarkers[region.name] = marker;
         });
-
         updateStats();
-        toastMsg('✅ 地图已加载，点击任意城市标记即可记录足迹');
-    }
-
-    // 添加比例尺控制
-    function addScaleControl() {
-        L.control.scale({ metric: true, imperial: false, position: 'bottomright' }).addTo(map);
+        toastMsg('✅ 地图已加载，点击任意省份即可记录足迹');
     }
 
     // 初始化地图
     async function initMap() {
         map = L.map('chinaMap').setView([35.0, 108.0], 5);
         L.tileLayer('https://webrd0.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
-            minZoom: 4,
-            maxZoom: 10,
-            attribution: '高德地图',
-            subdomains: '1234'
+            minZoom: 4, maxZoom: 10, attribution: '高德地图', subdomains: '1234'
         }).addTo(map);
-
-        addScaleControl();
-        await loadCityMarkers();
+        L.control.scale({ metric: true, imperial: false, position: 'bottomright' }).addTo(map);
+        await loadRegionMarkers();
         document.getElementById('filterQueryBtn').onclick = applyFilter;
     }
 
