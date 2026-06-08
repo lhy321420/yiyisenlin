@@ -10,57 +10,105 @@
         *{margin:0;padding:0;box-sizing:border-box;}
         body{background-color:#fff9f5;font-family:"Microsoft YaHei",sans-serif;overflow-x:hidden;}
 
-        /* ========== 顶部导航 手机终极适配 ========== */
-        .big{
-            display:flex;
-            align-items:center;
-            background:rgb(255,255,158);
-            padding:10px 12px;
-            justify-content:space-between;
-            margin:10px auto;
-            width:95%;
-            max-width:1200px;
-            border-radius:15px;
-            min-height:50px;
-            flex-wrap:wrap;
-            gap:8px;
+        /* ========== 顶部导航 完全对齐参照版 · 手机终极适配 ========== */
+        .big {
+            display: flex;
+            align-items: center;
+            background: rgb(255, 255, 158);
+            padding: 8px 12px;
+            justify-content: space-between;
+            margin: 10px auto;
+            max-width: 95%;
+            border-radius: 15px;
+            min-height: 46px;
+            flex-wrap: wrap;
+            gap: 8px;
         }
-        .first{display:flex;align-items:center;gap:6px;}
-        .heart{font-size:16px;cursor:pointer;transition:0.2s;}
-        .heart:hover{transform:scale(1.1);}
-        .name p{font-size:12px;line-height:1.2;color:rgb(146,86,30);}
-        .bell{font-size:18px;color:rgb(199,199,158);cursor:pointer;margin-left:6px;transition:0.3s;position:relative;}
-        .bell:hover{color:#f8446e;}
-        .red-dot{position:absolute;top:-5px;right:-8px;width:10px;height:10px;background:#f8446e;border-radius:50%;display:none;}
+        .first { display: flex; align-items: center; gap: 6px; }
+        .heart { font-size: 16px; cursor: pointer; transition: 0.2s; }
+        .heart:hover { transform: scale(1.1); }
+        .name p { font-size: 12px; line-height: 1.2; color: rgb(146, 86, 30); }
+        .bell {
+            font-size: 18px;
+            color: rgb(199, 199, 158);
+            cursor: pointer;
+            margin-left: 6px;
+            transition: 0.3s;
+            position: relative;
+        }
+        .bell:hover { color: #f8446e; }
+        .red-dot {
+            position: absolute;
+            top: -5px;
+            right: -8px;
+            width: 10px;
+            height: 10px;
+            background: #f8446e;
+            border-radius: 50%;
+            display: none;
+        }
 
-        .nav{
-            display:flex;
-            background:rgb(252,252,192);
-            color:rgb(146,86,30);
-            padding:4px 8px;
-            border-radius:15px;
-            min-height:32px;
-            gap:6px;
-            flex-wrap:wrap;
-            justify-content:center;
-            width:100%;
+        /* 导航菜单：手机自动换行，不挤压、不溢出 */
+        .nav {
+            display: flex;
+            background: rgb(252, 252, 192);
+            color: rgb(146, 86, 30);
+            padding: 2px 6px;
+            border-radius: 15px;
+            min-height: 28px;
+            gap: 4px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
-        .nav-item{
-            padding:4px 8px;
-            border:2px solid transparent;
-            border-radius:15px;
-            transition:all 0.3s ease;
-            font-size:13px;
-            cursor:pointer;
-            white-space:nowrap;
+        .nav-item {
+            padding: 2px 6px;
+            border: 2px solid transparent;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
         }
-        .nav-item.active{background-color:rgb(255,239,200);transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,0.1);}
-        .nav-item:hover{background-color:rgb(255,239,200);transform:translateY(-1px);}
+        .nav-item.active {
+            background-color: rgb(255, 239, 200);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .nav-item:hover {
+            background-color: rgb(255, 239, 200);
+            transform: translateY(-1px);
+        }
 
-        .user-right{display:flex;align-items:center;gap:8px;background:#ffdde0;padding:6px 10px;border-radius:20px;color:#c74c70;font-weight:bold;font-size:13px;cursor:pointer;}
-        .switch-btn{width:28px;height:14px;background:#fff;border-radius:10px;position:relative;}
-        .switch-btn::before{content:'';width:10px;height:10px;background:#f8446e;border-radius:50%;position:absolute;top:2px;left:2px;transition:0.2s;}
-        .switch-btn.active::before{left:16px;}
+        .user-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #ffdde0;
+            padding: 4px 10px;
+            border-radius: 20px;
+            color: #c74c70;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .switch-btn {
+            width: 28px;
+            height: 14px;
+            background: #fff;
+            border-radius: 10px;
+            position: relative;
+        }
+        .switch-btn::before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: #f8446e;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px; left: 2px;
+            transition: 0.2s;
+        }
+        .switch-btn.active::before { left: 16px; }
 
         /* ========== 弹窗 ========== */
         .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.3);display:none;align-items:center;justify-content:center;z-index:999;}
@@ -173,6 +221,7 @@
 </head>
 <body>
 
+<!-- 导航栏：完全和参照版一致 · 手机完美适配 -->
 <div class="big">
     <div class="first">
         <div class="heart" onclick="toUserInfo()">❤️</div>
@@ -182,7 +231,7 @@
         </div>
         <div class="bell" onclick="goToMessage()">
             <i class="fa-solid fa-bell"></i>
-            <span class="red-dot" id="redDot"></span>
+            <span class="red-dot" id="redDotDiary"></span>
         </div>
     </div>
     <div class="nav">
@@ -474,7 +523,7 @@
         try {
             const res = await fetch("/user/unreadRequestCount", { credentials: 'include' });
             const result = await res.json();
-            document.getElementById('redDot').style.display = (result.code === 200 && result.data > 0) ? 'block' : 'none';
+            document.getElementById('redDotDiary').style.display = (result.code === 200 && result.data > 0) ? 'block' : 'none';
         } catch (e) { }
     }
 

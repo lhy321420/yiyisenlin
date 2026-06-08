@@ -9,64 +9,105 @@
         *{margin:0;padding:0;box-sizing:border-box}
         body{background:#fff9f5;font-family:"Microsoft YaHei";overflow-x:hidden;}
 
-        /* ========== 顶部导航 手机终极适配 ========== */
-        .big{
-            display:flex;
-            align-items:center;
-            background:rgb(255,255,158);
-            padding:10px 12px;
-            margin:10px auto;
-            width:95%;
-            max-width:700px;
-            border-radius:15px;
-            min-height:50px;
-            justify-content:space-between;
-            flex-wrap:wrap;
-            gap:8px;
+        /* ========== 顶部导航 完全对齐参照版 · 手机终极适配 ========== */
+        .big {
+            display: flex;
+            align-items: center;
+            background: rgb(255, 255, 158);
+            padding: 8px 12px;
+            justify-content: space-between;
+            margin: 10px auto;
+            max-width: 95%;
+            border-radius: 15px;
+            min-height: 46px;
+            flex-wrap: wrap;
+            gap: 8px;
         }
-        .first{display:flex;align-items:center;gap:6px}
-        .heart{font-size:16px;cursor:pointer}
-        .name p{font-size:12px;color:rgb(146,86,30)}
-        .bell{font-size:18px;color:rgb(199,199,158);cursor:pointer;position:relative}
-        .red-dot{position:absolute;top:-5px;right:-8px;width:10px;height:10px;background:#f8446e;border-radius:50%;display:none}
+        .first { display: flex; align-items: center; gap: 6px; }
+        .heart { font-size: 16px; cursor: pointer; transition: 0.2s; }
+        .heart:hover { transform: scale(1.1); }
+        .name p { font-size: 12px; line-height: 1.2; color: rgb(146, 86, 30); }
+        .bell {
+            font-size: 18px;
+            color: rgb(199, 199, 158);
+            cursor: pointer;
+            margin-left: 6px;
+            transition: 0.3s;
+            position: relative;
+        }
+        .bell:hover { color: #f8446e; }
+        .red-dot {
+            position: absolute;
+            top: -5px;
+            right: -8px;
+            width: 10px;
+            height: 10px;
+            background: #f8446e;
+            border-radius: 50%;
+            display: none;
+        }
 
-        .nav{
-            display:flex;
-            background:rgb(252,252,192);
-            color:rgb(146,86,30);
-            padding:4px 8px;
-            border-radius:15px;
-            min-height:32px;
-            gap:6px;
-            flex-wrap:wrap;
-            justify-content:center;
-            width:100%;
+        /* 导航菜单：手机自动换行，不挤压、不溢出 */
+        .nav {
+            display: flex;
+            background: rgb(252, 252, 192);
+            color: rgb(146, 86, 30);
+            padding: 2px 6px;
+            border-radius: 15px;
+            min-height: 28px;
+            gap: 4px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
-        .nav-item{
-            padding:4px 8px;
-            border-radius:15px;
-            font-size:13px;
-            cursor:pointer;
-            white-space:nowrap;
+        .nav-item {
+            padding: 2px 6px;
+            border: 2px solid transparent;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
         }
-        .nav-item.active{
-            background:rgb(255,239,200);
-            transform:translateY(-1px);
-            box-shadow:0 2px 8px rgba(0,0,0,.1);
+        .nav-item.active {
+            background-color: rgb(255, 239, 200);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-        .user-right{
-            display:flex;
-            align-items:center;
-            background:#ffdde0;
-            padding:6px 10px;
-            border-radius:20px;
-            color:#c74c70;
-            font-size:13px;
-            font-weight:bold;
-            cursor:pointer;
+        .nav-item:hover {
+            background-color: rgb(255, 239, 200);
+            transform: translateY(-1px);
         }
-        .switch-btn{width:28px;height:14px;background:#fff;border-radius:10px;position:relative}
-        .switch-btn::before{content:'';width:10px;height:10px;background:#f8446e;border-radius:50%;position:absolute;top:2px;left:2px}
+
+        .user-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #ffdde0;
+            padding: 4px 10px;
+            border-radius: 20px;
+            color: #c74c70;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .switch-btn {
+            width: 28px;
+            height: 14px;
+            background: #fff;
+            border-radius: 10px;
+            position: relative;
+        }
+        .switch-btn::before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: #f8446e;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px; left: 2px;
+            transition: 0.2s;
+        }
+        .switch-btn.active::before { left: 16px; }
 
         /* ========== 内容容器 手机全屏 ========== */
         .container{
@@ -183,11 +224,18 @@
 </head>
 <body>
 
+<!-- 导航栏：完全和参照版一致 · 手机完美适配 -->
 <div class="big">
     <div class="first">
         <div class="heart" onclick="toUserInfo()">❤️</div>
-        <div class="name"><p>SPACE</p><p>壹一森林</p></div>
-        <div class="bell" onclick="goToMessage()"><i class="fa-solid fa-bell"></i><span class="red-dot" id="redDot"></span></div>
+        <div class="name">
+            <p>SPACE</p>
+            <p>壹一森林</p>
+        </div>
+        <div class="bell" onclick="goToMessage()">
+            <i class="fa-solid fa-bell"></i>
+            <span class="red-dot" id="redDotDetail"></span>
+        </div>
     </div>
     <div class="nav">
         <div class="nav-item" onclick="go('index')">首页</div>
@@ -196,7 +244,10 @@
         <div class="nav-item" onclick="go('album')">相册</div>
         <div class="nav-item" onclick="go('map')">地图</div>
     </div>
-    <div class="user-right" onclick="showLogoutModal()"><span id="userInitial">加载中...</span><div class="switch-btn"></div></div>
+    <div class="user-right" onclick="showLogoutModal()">
+        <span id="userInitial">加载中...</span>
+        <div class="switch-btn"></div>
+    </div>
 </div>
 
 <div class="container" id="detailContainer"></div>
