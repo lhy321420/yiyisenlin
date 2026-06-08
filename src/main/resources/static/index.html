@@ -2,27 +2,26 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>壹一森林</title>
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/pinyin-pro@3.19.6/dist/index.js"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
-        body{background-color:#fff9f5;font-family:"Microsoft YaHei",sans-serif;}
+        body{background-color:#fff9f5;font-family:"Microsoft YaHei",sans-serif;overflow-x:hidden;}
 
-        /* ========== 顶部导航栏 - 移动端适配核心 ========== */
+        /* ========== 顶部导航 手机终极适配 ========== */
         .big{
             display:flex;
             align-items:center;
             background:rgb(255,255,158);
-            padding:8px 12px;
+            padding:10px 12px;
             justify-content:space-between;
-            /* 关键：去掉固定左右边距，改用最大宽度 + 居中 */
             margin:10px auto;
+            width:95%;
             max-width:900px;
             border-radius:15px;
-            min-height:46px;
-            /* 手机端自动换行 */
+            min-height:50px;
             flex-wrap:wrap;
             gap:8px;
         }
@@ -34,20 +33,21 @@
         .bell:hover{color:#f8446e;}
         .red-dot{position:absolute;top:-5px;right:-8px;width:10px;height:10px;background:#f8446e;border-radius:50%;display:none;}
 
-        /* 导航栏 - 手机端自动缩放 */
+        /* 导航菜单 手机自动换行 + 不溢出 */
         .nav{
             display:flex;
             background:rgb(252,252,192);
             color:rgb(146,86,30);
-            padding:2px 6px;
+            padding:4px 8px;
             border-radius:15px;
-            min-height:28px;
-            gap:4px;
+            min-height:32px;
+            gap:6px;
             flex-wrap:wrap;
             justify-content:center;
+            width:100%;
         }
         .nav-item{
-            padding:2px 6px;
+            padding:4px 8px;
             border:2px solid transparent;
             border-radius:15px;
             transition:all 0.3s ease;
@@ -58,16 +58,15 @@
         .nav-item.active{background-color:rgb(255,239,200);transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,0.1);}
         .nav-item:hover{background-color:rgb(255,239,200);transform:translateY(-1px);}
 
-        .user-right{display:flex;align-items:center;gap:8px;background:#ffdde0;padding:4px 10px;border-radius:20px;color:#c74c70;font-weight:bold;font-size:13px;cursor:pointer;}
+        .user-right{display:flex;align-items:center;gap:8px;background:#ffdde0;padding:6px 10px;border-radius:20px;color:#c74c70;font-weight:bold;font-size:13px;cursor:pointer;}
         .switch-btn{width:28px;height:14px;background:#fff;border-radius:10px;position:relative;}
         .switch-btn::before{content:'';width:10px;height:10px;background:#f8446e;border-radius:50%;position:absolute;top:2px;left:2px;transition:0.2s;}
         .switch-btn.active::before{left:16px;}
 
-        /* 弹窗 - 百分比宽度，不超出屏幕 */
+        /* ========== 弹窗 手机全屏适配 ========== */
         .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.3);display:none;align-items:center;justify-content:center;z-index:999;}
         .modal-content{
             background:#fff;
-            /* 关键：最大宽度替代固定宽度 */
             width:90%;
             max-width:280px;
             padding:25px;
@@ -75,59 +74,19 @@
             text-align:center;
         }
         .modal-title{font-size:16px;margin-bottom:15px;}
-        .modal-btns{display:flex;gap:10px;justify-content:center;}
-        .modal-btn{padding:6px 18px;border-radius:20px;border:none;cursor:pointer;font-size:13px;}
+        .modal-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+        .modal-btn{padding:6px 18px;border-radius:20px;border:none;cursor:pointer;font-size:13px;min-width:80px;}
         .cancel{background:#f1f1f1;color:#666;}
         .logout{background:#f8446e;color:#fff;}
 
-        /* 头部区域 - 手机端内边距自适应 */
-        .hero-section{text-align:center;padding:40px 15px;color:#9c5a22;}
-        .hero-title{
-            font-size:32px;
-            /* 手机端自动缩小标题 */
-            font-size:clamp(26px,8vw,40px);
-            color:#e67a8a;
-            margin-bottom:10px;
-        }
-        .hero-buttons{margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
-        .btn{padding:8px 16px;border-radius:20px;text-decoration:none;font-size:14px;transition:0.3s;}
-        .btn-primary{background:#f9ce85;color:#9c5a22;}
-        .btn-secondary{background:#ffccd5;color:#c74c70;}
-        .btn-record{background:#e8f0ff;color:#6699cc;}
-
-        /* 好友卡片 - 网格自适应，手机端自动单列 */
-        .members-section{
-            padding:20px 15px 60px;
-            max-width:900px;
-            margin:0 auto;
-        }
-        .members-grid{
-            display:grid;
-            grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
-            gap:15px;
-        }
-        .member-card{background:#fff;border-radius:16px;padding:20px 15px;text-align:center;box-shadow:0 4px 12px rgba(245,190,150,0.15);transition:0.3s;cursor:pointer;}
-        .member-card:hover{transform:translateY(-5px);}
-        .member-avatar{
-            width:100%;
-            max-width:120px;
-            aspect-ratio:1/1;
-            border-radius:50%;
-            margin:0 auto 15px;
-            background-size:cover;
-            background-position:center;
-        }
-        .member-name{font-weight:bold;color:#9c5a22;margin-bottom:5px;}
-        .member-desc{font-size:12px;color:#888;}
-
-        /* 好友详情弹窗 - 移动端适配 */
+        /* 好友详情弹窗 */
         .detail-modal .modal-content{
-            width:92%;
-            max-width:400px;
+            width:94%;
+            max-width:380px;
             background:#fff9f5;
             padding:20px;
             position:relative;
-            max-height:90vh;
+            max-height:85vh;
             overflow-y:auto;
         }
         .detail-close{position:absolute;top:12px;right:16px;font-size:24px;cursor:pointer;color:#c74c70;}
@@ -140,9 +99,50 @@
         .photo-wall{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
         .photo-item{width:80px;height:80px;border-radius:12px;background:#ffe8e8;background-size:cover;}
         .detail-activity{background:#fff0e8;padding:10px;border-radius:16px;margin:10px 0;font-size:13px;color:#9c5a22;}
+
+        /* ========== 头部区域 手机适配 ========== */
+        .hero-section{text-align:center;padding:30px 15px;color:#9c5a22;}
+        .hero-title{
+            font-size:clamp(24px,7vw,36px);
+            color:#e67a8a;
+            margin-bottom:10px;
+        }
+        .hero-buttons{margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+        .btn{padding:10px 16px;border-radius:20px;text-decoration:none;font-size:14px;transition:0.3s;min-width:100px;}
+        .btn-primary{background:#f9ce85;color:#9c5a22;}
+        .btn-secondary{background:#ffccd5;color:#c74c70;}
+        .btn-record{background:#e8f0ff;color:#6699cc;}
+
+        /* ========== 好友卡片 手机自动单列 ========== */
+        .members-section{
+            padding:15px 15px 50px;
+            width:100%;
+            max-width:900px;
+            margin:0 auto;
+        }
+        .members-grid{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+            gap:12px;
+            width:100%;
+        }
+        .member-card{background:#fff;border-radius:16px;padding:18px 12px;text-align:center;box-shadow:0 4px 12px rgba(245,190,150,0.15);transition:0.3s;cursor:pointer;}
+        .member-card:hover{transform:translateY(-3px);}
+        .member-avatar{
+            width:100%;
+            max-width:100px;
+            aspect-ratio:1/1;
+            border-radius:50%;
+            margin:0 auto 12px;
+            background-size:cover;
+            background-position:center;
+        }
+        .member-name{font-weight:bold;color:#9c5a22;margin-bottom:5px;font-size:14px;}
+        .member-desc{font-size:12px;color:#888;}
     </style>
 </head>
 <body>
+
 <div class="big">
     <div class="first">
         <div class="heart" onclick="toUserInfo()">❤️</div>
@@ -156,11 +156,11 @@
         </div>
     </div>
     <div class="nav">
-        <div class="nav-item active" onclick="go('index')"><strong>首页</strong></div>
-        <div class="nav-item" onclick="go('role')"><strong>朋友</strong></div>
-        <div class="nav-item" onclick="go('record')"><strong>记录</strong></div>
-        <div class="nav-item" onclick="go('album')"><strong>相册</strong></div>
-        <div class="nav-item" onclick="go('map')"><strong>地图</strong></div>
+        <div class="nav-item active" onclick="go('index')">首页</div>
+        <div class="nav-item" onclick="go('role')">朋友</div>
+        <div class="nav-item" onclick="go('record')">记录</div>
+        <div class="nav-item" onclick="go('album')">相册</div>
+        <div class="nav-item" onclick="go('map')">地图</div>
     </div>
     <div class="user-right" onclick="showLogoutModal()">
         <span id="userInitial">加载中...</span>
@@ -168,7 +168,7 @@
     </div>
 </div>
 
-<!-- 退出确认弹窗 -->
+<!-- 退出弹窗 -->
 <div class="modal" id="logoutModal">
     <div class="modal-content">
         <div class="modal-title">确定要退出登录吗？</div>
@@ -179,7 +179,7 @@
     </div>
 </div>
 
-<!-- 好友详情弹窗 -->
+<!-- 好友详情 -->
 <div class="modal detail-modal" id="friendDetailModal">
     <div class="modal-content">
         <span class="detail-close" onclick="closeFriendDetail()">&times;</span>
@@ -208,7 +208,6 @@
 </section>
 
 <script>
-    // ==================== 辅助函数 ====================
     function escapeHtml(str) {
         if (!str) return '';
         return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;'));
@@ -228,11 +227,9 @@
         }).join(' ');
     }
 
-    // 关闭模态框
     function closeModal() { document.getElementById('logoutModal').style.display = 'none'; document.getElementById('switch').classList.remove('active'); }
     function closeFriendDetail() { document.getElementById('friendDetailModal').style.display = 'none'; }
 
-    // 加载好友列表并渲染
     async function loadFriends() {
         try {
             const res = await fetch("/user/friends", { method: "GET", credentials: "include" });
@@ -262,7 +259,6 @@
         }
     }
 
-    // 显示好友详情弹窗
     window.showFriendDetail = async function(friendId) {
         try {
             const res = await fetch(`/user/friendDetail?friendId=${friendId}`, { method: "GET", credentials: "include" });
@@ -293,7 +289,6 @@
         }
     };
 
-    // 未读消息红点
     async function updateRedDot() {
         try {
             const notifRes = await fetch("/user/unreadNotificationCount", { credentials: "include" });
@@ -317,7 +312,6 @@
     updateRedDot();
     setInterval(updateRedDot, 30000);
 
-    // 页面初始化
     window.onload = async function() {
         if (!localStorage.getItem('isLogin')) {
             location.href = 'login.html';

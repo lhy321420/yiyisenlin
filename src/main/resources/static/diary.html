@@ -8,19 +8,20 @@
     <script src="https://unpkg.com/pinyin-pro@3.19.6/dist/index.js"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
-        body{background-color:#fff9f5;font-family:"Microsoft YaHei",sans-serif;}
+        body{background-color:#fff9f5;font-family:"Microsoft YaHei",sans-serif;overflow-x:hidden;}
 
-        /* ========== 顶部导航 移动端适配 ========== */
+        /* ========== 顶部导航 手机终极适配 ========== */
         .big{
             display:flex;
             align-items:center;
             background:rgb(255,255,158);
-            padding:8px 12px;
+            padding:10px 12px;
             justify-content:space-between;
             margin:10px auto;
-            max-width:95%;
+            width:95%;
+            max-width:1200px;
             border-radius:15px;
-            min-height:46px;
+            min-height:50px;
             flex-wrap:wrap;
             gap:8px;
         }
@@ -31,21 +32,32 @@
         .bell{font-size:18px;color:rgb(199,199,158);cursor:pointer;margin-left:6px;transition:0.3s;position:relative;}
         .bell:hover{color:#f8446e;}
         .red-dot{position:absolute;top:-5px;right:-8px;width:10px;height:10px;background:#f8446e;border-radius:50%;display:none;}
+
         .nav{
             display:flex;
             background:rgb(252,252,192);
             color:rgb(146,86,30);
-            padding:2px 6px;
+            padding:4px 8px;
             border-radius:15px;
-            min-height:28px;
-            gap:4px;
+            min-height:32px;
+            gap:6px;
             flex-wrap:wrap;
             justify-content:center;
+            width:100%;
         }
-        .nav-item{padding:2px 6px;border:2px solid transparent;border-radius:15px;transition:all 0.3s ease;font-size:13px;cursor:pointer;white-space:nowrap;}
+        .nav-item{
+            padding:4px 8px;
+            border:2px solid transparent;
+            border-radius:15px;
+            transition:all 0.3s ease;
+            font-size:13px;
+            cursor:pointer;
+            white-space:nowrap;
+        }
         .nav-item.active{background-color:rgb(255,239,200);transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,0.1);}
         .nav-item:hover{background-color:rgb(255,239,200);transform:translateY(-1px);}
-        .user-right{display:flex;align-items:center;gap:8px;background:#ffdde0;padding:4px 10px;border-radius:20px;color:#c74c70;font-weight:bold;font-size:13px;cursor:pointer;}
+
+        .user-right{display:flex;align-items:center;gap:8px;background:#ffdde0;padding:6px 10px;border-radius:20px;color:#c74c70;font-weight:bold;font-size:13px;cursor:pointer;}
         .switch-btn{width:28px;height:14px;background:#fff;border-radius:10px;position:relative;}
         .switch-btn::before{content:'';width:10px;height:10px;background:#f8446e;border-radius:50%;position:absolute;top:2px;left:2px;transition:0.2s;}
         .switch-btn.active::before{left:16px;}
@@ -54,8 +66,8 @@
         .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.3);display:none;align-items:center;justify-content:center;z-index:999;}
         .modal-content{background:#fff;width:90%;max-width:280px;padding:22px;border-radius:16px;text-align:center;}
         .modal-title{font-size:16px;margin-bottom:15px;}
-        .modal-btns{display:flex;gap:10px;justify-content:center;}
-        .modal-btn{padding:6px 18px;border-radius:20px;border:none;cursor:pointer;font-size:13px;}
+        .modal-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+        .modal-btn{padding:6px 18px;border-radius:20px;border:none;cursor:pointer;font-size:13px;min-width:80px;}
         .cancel{background:#f1f1f1;color:#666;}
         .logout{background:#f8446e;color:#fff;}
         .img-modal{background:rgba(0,0,0,.85);}
@@ -67,51 +79,59 @@
             margin:20px auto;
             padding:0 15px;
             display:flex;
-            gap:20px;
+            gap:16px;
+            flex-direction:column;
         }
         /* 电脑端：侧边栏固定 */
-        .diary-sidebar{
-            width:220px;
-            flex-shrink:0;
-            background:#fff;
-            border-radius:16px;
-            padding:16px;
-            box-shadow:0 4px 12px rgba(245,190,150,.15);
-            border:1px solid #ffe8e8;
-        }
-        .side-tab{padding:10px;border-radius:12px;margin-bottom:8px;text-align:center;font-weight:bold;color:#9c5a22;cursor:pointer;}
-        .side-tab.active{background:#ffccd5;color:#c74c70;}
-        .diary-content{flex:1;}
-
-        /* 手机端：侧边栏变顶部横向 */
-        @media (max-width:768px){
+        @media (min-width:769px) {
             .diary-layout{
-                flex-direction:column;
+                flex-direction:row;
             }
             .diary-sidebar{
-                width:100% !important;
-                display:flex;
-                overflow-x:auto;
-                gap:8px;
-                padding:10px;
+                width:220px;
+                flex-shrink:0;
+                flex-direction:column;
             }
             .side-tab{
-                margin:0;
-                white-space:nowrap;
-                flex-shrink:0;
-                padding:8px 12px;
-                font-size:14px;
+                margin-bottom:8px;
+                white-space:normal;
             }
         }
+        /* 手机端：侧边栏横向滚动 */
+        .diary-sidebar{
+            background:#fff;
+            border-radius:16px;
+            padding:10px;
+            box-shadow:0 4px 12px rgba(245,190,150,.15);
+            border:1px solid #ffe8e8;
+            display:flex;
+            overflow-x:auto;
+            gap:8px;
+            width:100%;
+        }
+        .side-tab{
+            white-space:nowrap;
+            flex-shrink:0;
+            padding:8px 12px;
+            border-radius:12px;
+            text-align:center;
+            font-weight:bold;
+            color:#9c5a22;
+            cursor:pointer;
+            font-size:14px;
+        }
+        .side-tab.active{background:#ffccd5;color:#c74c70;}
+        .diary-content{flex:1;width:100%;}
 
-        /* ========== 日记卡片 ========== */
+        /* ========== 日记卡片 手机适配 ========== */
         .friend-diary-card{
             background:#fff;
-            border-radius:20px;
+            border-radius:16px;
             padding:16px;
             margin-bottom:16px;
             box-shadow:0 4px 12px rgba(245,190,150,.15);
             position:relative;
+            width:100%;
         }
         .diary-delete-btn{
             position:absolute;right:12px;top:12px;
@@ -166,11 +186,11 @@
         </div>
     </div>
     <div class="nav">
-        <div class="nav-item" onclick="go('index')"><strong>首页</strong></div>
-        <div class="nav-item" onclick="go('role')"><strong>朋友</strong></div>
-        <div class="nav-item active" onclick="go('record')"><strong>记录</strong></div>
-        <div class="nav-item" onclick="go('album')"><strong>相册</strong></div>
-        <div class="nav-item" onclick="go('map')"><strong>地图</strong></div>
+        <div class="nav-item" onclick="go('index')">首页</div>
+        <div class="nav-item" onclick="go('role')">朋友</div>
+        <div class="nav-item active" onclick="go('record')">记录</div>
+        <div class="nav-item" onclick="go('album')">相册</div>
+        <div class="nav-item" onclick="go('map')">地图</div>
     </div>
     <div class="user-right" onclick="showLogoutModal()">
         <span id="userInitial">加载中...</span>
