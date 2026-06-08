@@ -2,184 +2,448 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>壹一森林</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>森林信息 - 壹一森林</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/pinyin-pro@3.19.6/dist/index.js"></script>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box;}
-        body{
-            background:#fff9f5;
-            font-family:"Microsoft YaHei";
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
-        /* 顶部导航 手机适配 */
-        .header{
-            background:rgb(255,255,158);
-            margin: 10px auto;
-            padding:12px 20px;
-            border-radius:15px;
-            color:rgb(146,86,30);
-            font-size:16px;
-            font-weight:bold;
-            cursor:pointer;
-            display: block;
-            width: fit-content;
-            transition: 0.3s;
+        body {
+            background-color: #fff9f5;
+            font-family: system-ui, "Microsoft YaHei", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow-x: hidden;
         }
-        .header:hover{
-            background:rgb(252, 252, 192);
+
+        /* ========== 顶部导航 手机完美适配（与朋友/记录页面完全统一） ========== */
+        .big {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            background: rgb(255, 255, 158);
+            margin: 12px auto;
+            padding: 10px 14px;
+            width: calc(100% - 20px);
+            max-width: 1000px;
+            border-radius: 28px;
+            gap: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
         }
-        .back{
-            cursor:pointer;
-            color:#e67a8a;
+
+        .first {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
         }
-        /* 容器 手机全屏 */
-        .container{
-            max-width:600px;
-            margin:20px auto;
-            padding:0 15px;
-            width: 100%;
-        }
-        /* 卡片 手机内边距优化 */
-        .card{
-            background:#fff;
-            border-radius:20px;
-            padding:20px;
-            box-shadow:0 6px 20px rgba(255,180,180,0.1);
-            margin-bottom:20px;
-        }
-        .title{
-            color:#e67a8a;
-            font-size:20px;
-            margin-bottom:20px;
-            text-align:center;
-        }
-        /* 头像区域 */
-        .avatar-section{
-            text-align:center;
-            margin-bottom:20px;
-            position:relative;
-        }
-        .avatar{
-            width:100px;
-            height:100px;
-            border-radius:50%;
-            background:#ffe8e8;
-            margin:0 auto 10px;
-            overflow:hidden;
-            cursor:pointer;
-            transition:0.3s;
+
+        .heart {
+            font-size: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+            background: rgba(255, 220, 180, 0.4);
+            width: 34px;
+            height: 34px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 36px;
+            border-radius: 50%;
+        }
+
+        .heart:active {
+            transform: scale(0.94);
+            background: #ffe0b5;
+        }
+
+        .name p {
+            font-size: 11px;
+            line-height: 1.25;
+            color: rgb(146, 86, 30);
+            font-weight: 500;
+        }
+
+        .name p:first-child {
+            font-size: 10px;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+        }
+
+        .bell {
+            font-size: 20px;
+            color: rgb(199, 199, 158);
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+            background: rgba(255, 240, 200, 0.5);
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .bell:active {
+            transform: scale(0.94);
+            color: #f8446e;
+        }
+
+        .red-dot {
+            position: absolute;
+            top: 2px;
+            right: 4px;
+            width: 10px;
+            height: 10px;
+            background: #f8446e;
+            border-radius: 50%;
+            display: none;
+            border: 1.5px solid #ffff9e;
+        }
+
+        /* 导航菜单 完全自适应换行 */
+        .nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            background: rgb(252, 252, 192);
+            padding: 6px 12px;
+            border-radius: 40px;
+            flex: 1 1 auto;
+            min-width: 160px;
+        }
+
+        .nav-item {
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgb(146, 86, 30);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            background: transparent;
+            text-align: center;
+        }
+
+        .nav-item.active {
+            background-color: rgb(255, 239, 200);
+            color: #bc6f2c;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            transform: translateY(-1px);
+        }
+
+        .nav-item:active {
+            background-color: rgb(255, 230, 180);
+            transform: scale(0.96);
+        }
+
+        .user-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #ffdde0;
+            padding: 6px 12px;
+            border-radius: 40px;
             color: #c74c70;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            flex-shrink: 0;
         }
-        .avatar:hover{
-            transform:scale(1.05);
+
+        .user-right:active {
+            background: #ffcbd1;
+            transform: scale(0.97);
         }
-        .avatar img{
-            width:100%;
-            height:100%;
-            object-fit:cover;
+
+        .switch-btn {
+            width: 28px;
+            height: 14px;
+            background: #fff;
+            border-radius: 10px;
+            position: relative;
         }
-        .avatar-btns{
-            display:flex;
-            justify-content:center;
-            gap:8px;
-            margin-top:8px;
+
+        .switch-btn::before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: #f8446e;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: 0.2s;
+        }
+
+        @media (max-width: 620px) {
+            .big {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 12px;
+                gap: 10px;
+            }
+            .first {
+                justify-content: space-between;
+                width: 100%;
+            }
+            .nav {
+                width: 100%;
+                justify-content: center;
+            }
+            .user-right {
+                align-self: flex-end;
+                width: fit-content;
+            }
+            .nav-item {
+                padding: 6px 10px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-item {
+                padding: 5px 8px;
+                font-size: 12px;
+            }
+            .first .heart,
+            .first .bell {
+                width: 32px;
+                height: 32px;
+            }
+        }
+
+        /* ========== 个人资料卡片 ========== */
+        .container {
+            max-width: 700px;
+            margin: 20px auto 50px;
+            padding: 0 16px;
+            width: 100%;
+        }
+        .card {
+            background: #fff;
+            border-radius: 32px;
+            padding: 28px 22px;
+            box-shadow: 0 12px 28px rgba(245,190,150,0.12);
+        }
+        .title {
+            color: #c74c70;
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 24px;
+            text-align: center;
+            letter-spacing: -0.3px;
+        }
+        /* 头像区域 */
+        .avatar-section {
+            text-align: center;
+            margin-bottom: 28px;
+            position: relative;
+        }
+        .avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: #ffe8e8;
+            margin: 0 auto 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            color: #c74c70;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.05);
+        }
+        .avatar:active {
+            transform: scale(0.96);
+        }
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .avatar-btns {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 10px;
             flex-wrap: wrap;
         }
-        .avatar-btn{
-            padding:6px 12px;
-            background:#ffccd5;
-            color:#c74c70;
-            border:none;
-            border-radius:12px;
-            font-size:12px;
-            cursor:pointer;
-            transition: 0.3s;
+        .avatar-btn {
+            padding: 8px 16px;
+            background: #ffccd5;
+            color: #c74c70;
+            border: none;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
         }
-        .avatar-btn:hover{
-            background:#ffb3c1;
+        .avatar-btn:active {
+            background: #ffb8c4;
+            transform: scale(0.96);
         }
-        #avatarInput{
-            display:none;
+        #avatarInput {
+            display: none;
         }
         /* 表单项 */
-        .item{
-            margin-bottom:14px;
+        .item {
+            margin-bottom: 18px;
         }
-        label{
-            display:block;
-            font-size:13px;
-            color:#9c5a22;
-            margin-bottom:6px;
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #9c5a22;
+            margin-bottom: 6px;
         }
-        input, select{
-            width:100%;
-            padding:10px 14px;
-            border:1px solid #f7d3c2;
-            border-radius:16px;
-            outline:none;
-            font-size:14px;
-            background:#fff;
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #f7d3c2;
+            border-radius: 24px;
+            outline: none;
+            font-size: 14px;
+            background: #fff;
+            font-family: inherit;
+            transition: 0.2s;
         }
-        input:disabled, select:disabled{
-            background:#f9f9f9;
-            color:#666;
-            cursor: not-allowed;
+        input:focus, select:focus {
+            border-color: #ffb3c1;
+            box-shadow: 0 0 0 3px rgba(255,179,193,0.2);
         }
-        /* 按钮组 手机自动换行 */
-        .btn-group{
-            display:flex;
-            gap:10px;
-            margin-top:20px;
+        input:disabled, select:disabled {
+            background: #faf5f0;
+            color: #8b6a4a;
+            border-color: #f0d8c8;
+            cursor: default;
+        }
+        /* 按钮组 */
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 28px;
             flex-wrap: wrap;
         }
-        .save-btn{
-            flex:1;
-            min-width: 120px;
-            padding:10px;
-            background:#ffccd5;
-            color:#c74c70;
-            border:none;
-            border-radius:16px;
-            font-weight:bold;
-            cursor:pointer;
-            transition:0.3s;
+        .save-btn, .edit-btn {
+            flex: 1;
+            min-width: 130px;
+            padding: 12px;
+            border: none;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.2s;
         }
-        .save-btn:hover{
-            background:#ffb3c1;
+        .save-btn {
+            background: #ffccd5;
+            color: #c74c70;
         }
-        .edit-btn{
-            flex:1;
-            min-width: 120px;
-            padding:10px;
-            background:#f9ce85;
-            color:#9c5a22;
-            border:none;
-            border-radius:16px;
-            font-weight:bold;
-            cursor:pointer;
-            transition:0.3s;
+        .save-btn:active {
+            background: #ffb8c4;
+            transform: scale(0.97);
         }
-        .edit-btn:hover{
-            background:#f9c26a;
+        .edit-btn {
+            background: #f9ce85;
+            color: #9c5a22;
+        }
+        .edit-btn:active {
+            background: #f9c26a;
+            transform: scale(0.97);
+        }
+        .save-btn:disabled {
+            opacity: 0.5;
+            transform: none;
+            cursor: not-allowed;
+        }
+        /* 退出登录模态框简单提示 */
+        .logout-confirm {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1300;
+        }
+        .logout-card {
+            background: #fffef8;
+            width: 280px;
+            padding: 24px;
+            border-radius: 32px;
+            text-align: center;
+        }
+        .logout-card p {
+            margin-bottom: 20px;
+            color: #9c5a22;
+            font-weight: 600;
+        }
+        .logout-card button {
+            padding: 8px 20px;
+            margin: 0 8px;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+        }
+        .logout-confirm .cancel {
+            background: #f1f1f1;
+            color: #6b4c2c;
+        }
+        .logout-confirm .confirm {
+            background: #f8446e;
+            color: white;
         }
     </style>
 </head>
 <body>
 
-<div class="header" onclick="location.href='index.html'">
-    <span class="back">← 返回首页</span>
+<!-- 导航栏：与参照版本完全一致，手机自适应 -->
+<div class="big">
+    <div class="first">
+        <div class="heart" onclick="toUserInfo()">❤️</div>
+        <div class="name">
+            <p>SPACE</p>
+            <p>壹一森林</p>
+        </div>
+        <div class="bell" onclick="goToMessage()">
+            <i class="fa-solid fa-bell"></i>
+            <span class="red-dot" id="redDotProfile"></span>
+        </div>
+    </div>
+    <div class="nav">
+        <div class="nav-item" onclick="go('index')"><strong>首页</strong></div>
+        <div class="nav-item" onclick="go('role')"><strong>朋友</strong></div>
+        <div class="nav-item" onclick="go('record')"><strong>记录</strong></div>
+        <div class="nav-item" onclick="go('album')"><strong>相册</strong></div>
+        <div class="nav-item" onclick="go('map')"><strong>地图</strong></div>
+    </div>
+    <div class="user-right" onclick="showLogoutModal()">
+        <span id="userInitial">加载中...</span>
+        <div class="switch-btn" id="switch"></div>
+    </div>
 </div>
 
 <div class="container">
     <div class="card">
-        <div class="title">森林信息</div>
+        <div class="title">🌲 森林信息</div>
 
         <div class="avatar-section">
             <div class="avatar" onclick="previewAvatar()">
-                <img id="avatarImg" src="" alt="头像">
+                <img id="avatarImg" src="" alt="头像" style="display:none;">
+                <span id="avatarPlaceholder">🌳</span>
             </div>
             <div class="avatar-btns">
                 <button class="avatar-btn" onclick="previewAvatar()">查看头像</button>
@@ -189,27 +453,27 @@
         </div>
 
         <div class="item">
-            <label>你的名字</label>
+            <label>✨ 你的名字</label>
             <input type="text" id="username" placeholder="请输入你的名字" disabled>
         </div>
 
         <div class="item">
-            <label>手机号码</label>
-            <input type="text" id="phone" placeholder="请输入手机号码" disabled>
+            <label>📞 手机号码</label>
+            <input type="tel" id="phone" placeholder="请输入手机号码" disabled>
         </div>
 
         <div class="item">
-            <label>生日</label>
+            <label>🎂 生日</label>
             <input type="text" id="birthday" placeholder="例如：2000-01-01" disabled>
         </div>
 
         <div class="item">
-            <label>个性签名</label>
+            <label>🍃 个性签名</label>
             <input type="text" id="description" placeholder="一句话介绍自己" disabled>
         </div>
 
         <div class="item">
-            <label>MBTI 人格类型</label>
+            <label>🧠 MBTI 人格类型</label>
             <select id="mbti" disabled>
                 <option value="">请选择</option>
                 <option value="INTJ">INTJ</option><option value="INTP">INTP</option>
@@ -224,7 +488,7 @@
         </div>
 
         <div class="item">
-            <label>星座</label>
+            <label>⭐ 星座</label>
             <select id="zodiac" disabled>
                 <option value="">请选择</option>
                 <option value="白羊座">白羊座</option><option value="金牛座">金牛座</option>
@@ -237,23 +501,51 @@
         </div>
 
         <div class="btn-group">
-            <button class="edit-btn" id="editBtn" onclick="enableEdit()">编辑信息</button>
-            <button class="save-btn" id="saveBtn" onclick="saveInfo()" disabled>保存信息</button>
+            <button class="edit-btn" id="editBtn" onclick="enableEdit()">✏️ 编辑信息</button>
+            <button class="save-btn" id="saveBtn" onclick="saveInfo()" disabled>💾 保存信息</button>
+        </div>
+    </div>
+</div>
+
+<!-- 简单退出确认弹窗 -->
+<div class="logout-confirm" id="logoutConfirmModal">
+    <div class="logout-card">
+        <p>确定要退出登录吗？</p>
+        <div>
+            <button class="cancel" onclick="hideLogoutModal()">取消</button>
+            <button class="confirm" onclick="logout()">退出</button>
         </div>
     </div>
 </div>
 
 <script>
+    // ==================== 辅助函数 ====================
+    function getNameInitials(username) {
+        if (!username) return '游客';
+        const { pinyin } = window.pinyinPro || window.pinyin;
+        if (!pinyin) return username.charAt(0).toUpperCase();
+        return username.split('').map(ch => {
+            if (/[a-zA-Z]/.test(ch)) return ch.toUpperCase();
+            if (/[\u4e00-\u9fa5]/.test(ch)) {
+                const py = pinyin(ch, { pattern: 'first', toneType: 'none' });
+                return py ? py.toUpperCase() : ch;
+            }
+            return ch.toUpperCase();
+        }).join(' ');
+    }
+
     let isEdit = false;
 
-    window.onload = async function () {
+    // 加载用户信息
+    window.onload = async function() {
+        if (!localStorage.getItem('isLogin')) {
+            location.href = 'login.html';
+            return;
+        }
         try {
-            const res = await fetch("/user/info", {
-                method: "GET",
-                credentials: "include"
-            });
+            const res = await fetch("/user/info", { method: "GET", credentials: "include" });
             const result = await res.json();
-            if (result.code === 200) {
+            if (result.code === 200 && result.data) {
                 const user = result.data;
                 document.getElementById("username").value = user.username || "";
                 document.getElementById("phone").value = user.phone || "";
@@ -261,31 +553,47 @@
                 document.getElementById("description").value = user.description || "";
                 if (user.mbti) document.getElementById("mbti").value = user.mbti;
                 if (user.zodiac) document.getElementById("zodiac").value = user.zodiac;
+
+                // 头像展示
+                const avatarImg = document.getElementById("avatarImg");
+                const placeholder = document.getElementById("avatarPlaceholder");
                 if (user.avatar && user.avatar.startsWith("data:image")) {
-                    document.getElementById("avatarImg").src = user.avatar;
-                    document.getElementById("avatarImg").style.display = "block";
+                    avatarImg.src = user.avatar;
+                    avatarImg.style.display = "block";
+                    placeholder.style.display = "none";
                 } else {
-                    document.getElementById("avatarImg").style.display = "none";
+                    avatarImg.style.display = "none";
+                    placeholder.style.display = "flex";
                 }
+                // 右上角首字母
+                document.getElementById('userInitial').innerText = getNameInitials(user.username);
             } else {
-                alert("您尚未登录，请登录后查看个人信息");
+                localStorage.removeItem('isLogin');
+                location.href = 'login.html';
             }
         } catch (err) {
-            alert("加载失败，请检查后端是否启动");
+            console.error(err);
+            localStorage.removeItem('isLogin');
+            location.href = 'login.html';
         }
+        await updateRedDot();
     };
 
     function enableEdit() {
-        isEdit = true;
-        document.getElementById("username").disabled = false;
-        document.getElementById("phone").disabled = false;
-        document.getElementById("birthday").disabled = false;
-        document.getElementById("description").disabled = false;
-        document.getElementById("mbti").disabled = false;
-        document.getElementById("zodiac").disabled = false;
-        document.getElementById("saveBtn").disabled = false;
-        document.getElementById("editBtn").textContent = "取消编辑";
-        document.getElementById("editBtn").onclick = cancelEdit;
+        if (!isEdit) {
+            isEdit = true;
+            document.getElementById("username").disabled = false;
+            document.getElementById("phone").disabled = false;
+            document.getElementById("birthday").disabled = false;
+            document.getElementById("description").disabled = false;
+            document.getElementById("mbti").disabled = false;
+            document.getElementById("zodiac").disabled = false;
+            document.getElementById("saveBtn").disabled = false;
+            document.getElementById("editBtn").textContent = "取消编辑";
+            document.getElementById("editBtn").onclick = cancelEdit;
+        } else {
+            cancelEdit();
+        }
     }
 
     function cancelEdit() {
@@ -297,9 +605,9 @@
         document.getElementById("mbti").disabled = true;
         document.getElementById("zodiac").disabled = true;
         document.getElementById("saveBtn").disabled = true;
-        document.getElementById("editBtn").textContent = "编辑信息";
+        document.getElementById("editBtn").textContent = "✏️ 编辑信息";
         document.getElementById("editBtn").onclick = enableEdit;
-        window.location.reload();
+        window.location.reload(); // 重置数据
     }
 
     async function saveInfo() {
@@ -321,17 +629,16 @@
                 body: JSON.stringify(userData),
                 credentials: "include"
             });
-            if (!res.ok) throw new Error("请求失败，状态码：" + res.status);
             const result = await res.json();
-            alert(result.msg);
+            alert(result.msg || (result.code === 200 ? "保存成功" : "保存失败"));
             if (result.code === 200) window.location.reload();
         } catch (err) {
             alert("保存失败：" + err.message);
-            console.error(err);
         }
     }
 
     function chooseAvatar() { document.getElementById("avatarInput").click(); }
+
     async function uploadAvatar() {
         const file = document.getElementById("avatarInput").files[0];
         if (!file) return;
@@ -340,8 +647,11 @@
         const reader = new FileReader();
         reader.onload = async function(e) {
             const base64 = e.target.result;
-            document.getElementById("avatarImg").src = base64;
-            document.getElementById("avatarImg").style.display = "block";
+            const avatarImg = document.getElementById("avatarImg");
+            const placeholder = document.getElementById("avatarPlaceholder");
+            avatarImg.src = base64;
+            avatarImg.style.display = "block";
+            placeholder.style.display = "none";
             try {
                 const res = await fetch("/user/upload-avatar", {
                     method: "POST",
@@ -357,37 +667,74 @@
         reader.readAsDataURL(file);
     }
 
-    // 头像预览弹窗 手机适配
+    // 头像预览弹窗 手机友好
     function previewAvatar() {
-        let src = document.getElementById("avatarImg").src;
-        if (!src) { alert("还未上传头像！"); return; }
+        const avatarImg = document.getElementById("avatarImg");
+        const placeholder = document.getElementById("avatarPlaceholder");
+        let src = avatarImg.src;
+        if (!src || avatarImg.style.display === "none") {
+            alert("还未上传头像～");
+            return;
+        }
         let mask = document.createElement('div');
         mask.style.position = 'fixed'; mask.style.left = '0'; mask.style.top = '0';
         mask.style.width = '100%'; mask.style.height = '100%';
-        mask.style.background = 'rgba(0,0,0,0.5)'; mask.style.zIndex = '9998';
+        mask.style.background = 'rgba(0,0,0,0.6)'; mask.style.zIndex = '9998';
         mask.onclick = () => { document.body.removeChild(mask); document.body.removeChild(div); };
 
         let div = document.createElement('div');
         div.style.position = 'fixed'; div.style.left = '50%'; div.style.top = '50%';
         div.style.transform = 'translate(-50%,-50%)'; div.style.background = '#fff';
-        div.style.padding = '15px'; div.style.borderRadius = '16px'; div.style.zIndex = '9999';
-        div.style.textAlign = 'center'; div.style.width = '90%'; div.style.maxWidth = '300px';
+        div.style.padding = '16px'; div.style.borderRadius = '28px'; div.style.zIndex = '9999';
+        div.style.textAlign = 'center'; div.style.width = '85%'; div.style.maxWidth = '300px';
 
         let img = new Image();
         img.src = src;
-        img.style.width = '100%'; img.style.maxWidth = '250px'; img.style.borderRadius = '12px';
+        img.style.width = '100%'; img.style.maxWidth = '260px'; img.style.borderRadius = '20px';
         div.appendChild(img);
 
         let close = document.createElement('button');
         close.innerText = '关闭';
-        close.style.marginTop = '10px'; close.style.width = '100%'; close.style.padding = '8px';
-        close.style.background = '#ffccd5'; close.style.border = 'none'; close.style.borderRadius = '12px';
+        close.style.marginTop = '14px'; close.style.width = '100%'; close.style.padding = '10px';
+        close.style.background = '#ffccd5'; close.style.border = 'none'; close.style.borderRadius = '40px';
         close.style.color = '#c74c70'; close.style.fontWeight = 'bold';
         close.onclick = () => { document.body.removeChild(mask); document.body.removeChild(div); };
         div.appendChild(close);
 
         document.body.appendChild(mask);
         document.body.appendChild(div);
+    }
+
+    // 红点更新
+    async function updateRedDot() {
+        try {
+            const res = await fetch("/user/unreadRequestCount", { method: "GET", credentials: "include" });
+            const result = await res.json();
+            const redDot = document.getElementById('redDotProfile');
+            if (redDot) {
+                redDot.style.display = (result.code === 200 && result.data > 0) ? 'block' : 'none';
+            }
+        } catch(e) { console.error(e); }
+    }
+
+    // 导航栏函数
+    function toUserInfo() { location.href = "user-info.html"; }
+    function goToMessage() { location.href = "message.html"; }
+    function go(page) {
+        const links = { index:"index.html", role:"member.html", record:"diary.html", album:"about.html", map:"travel.html" };
+        window.location.href = links[page];
+    }
+
+    function showLogoutModal() {
+        document.getElementById('logoutConfirmModal').style.display = 'flex';
+    }
+    function hideLogoutModal() {
+        document.getElementById('logoutConfirmModal').style.display = 'none';
+    }
+    function logout() {
+        localStorage.clear();
+        fetch("/user/logout", { method: "POST", credentials: "include" }).catch(e=>console.log);
+        location.href = 'login.html';
     }
 </script>
 </body>

@@ -2,81 +2,168 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>壹一森林 - 地图</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>森林地图 - 壹一森林</title>
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/pinyin-pro@3.19.6/dist/index.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: #fff9f5; font-family: "Microsoft YaHei", sans-serif; overflow-x:hidden; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background-color: #fff9f5;
+            font-family: system-ui, "Microsoft YaHei", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow-x: hidden;
+        }
 
-        /* ========== 顶部导航 手机自适应 ========== */
+        /* ========== 顶部导航 手机完美适配（与统一样式完全一致） ========== */
         .big {
             display: flex;
-            align-items: center;
-            background: rgb(255, 255, 158);
-            padding: 10px 12px;
-            justify-content: space-between;
-            margin: 10px auto;
-            width:95%;
-            max-width:1200px;
-            border-radius: 15px;
-            min-height: 50px;
             flex-wrap: wrap;
-            gap: 8px;
+            align-items: center;
+            justify-content: space-between;
+            background: rgb(255, 255, 158);
+            margin: 12px auto;
+            padding: 10px 14px;
+            width: calc(100% - 20px);
+            max-width: 1000px;
+            border-radius: 28px;
+            gap: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
         }
-        .first { display: flex; align-items: center; gap: 6px; }
-        .heart{font-size:16px;cursor:pointer;transition:0.2s;}
-        .heart:hover{transform:scale(1.1);}
-        .name p { font-size: 12px; line-height: 1.2; color: rgb(146, 86, 30); }
-        .bell{font-size:18px;color:rgb(199,199,158);cursor:pointer;margin-left:6px;transition:0.3s;position:relative;}
-        .bell:hover{color:#f8446e;}
-        .red-dot{position:absolute;top:-5px;right:-8px;width:10px;height:10px;background:#f8446e;border-radius:50%;display:none;}
 
+        .first {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .heart {
+            font-size: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+            background: rgba(255, 220, 180, 0.4);
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .heart:active {
+            transform: scale(0.94);
+            background: #ffe0b5;
+        }
+
+        .name p {
+            font-size: 11px;
+            line-height: 1.25;
+            color: rgb(146, 86, 30);
+            font-weight: 500;
+        }
+
+        .name p:first-child {
+            font-size: 10px;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+        }
+
+        .bell {
+            font-size: 20px;
+            color: rgb(199, 199, 158);
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+            background: rgba(255, 240, 200, 0.5);
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .bell:active {
+            transform: scale(0.94);
+            color: #f8446e;
+        }
+
+        .red-dot {
+            position: absolute;
+            top: 2px;
+            right: 4px;
+            width: 10px;
+            height: 10px;
+            background: #f8446e;
+            border-radius: 50%;
+            display: none;
+            border: 1.5px solid #ffff9e;
+        }
+
+        /* 导航菜单 完全自适应换行 */
         .nav {
             display: flex;
-            background: rgb(252,252,192);
-            color: rgb(146,86,30);
-            padding: 4px 8px;
-            border-radius: 15px;
-            min-height: 32px;
-            gap: 6px;
             flex-wrap: wrap;
             justify-content: center;
-            width:100%;
+            gap: 8px;
+            background: rgb(252, 252, 192);
+            padding: 6px 12px;
+            border-radius: 40px;
+            flex: 1 1 auto;
+            min-width: 160px;
         }
+
         .nav-item {
-            padding: 4px 8px;
-            border: 2px solid transparent;
-            border-radius: 15px;
-            transition: all 0.3s ease;
-            font-size: 13px;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgb(146, 86, 30);
             cursor: pointer;
+            transition: all 0.2s ease;
             white-space: nowrap;
+            background: transparent;
+            text-align: center;
         }
+
         .nav-item.active {
-            background-color: rgb(255,239,200);
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .nav-item:hover {
-            background-color: rgb(255,239,200);
+            background-color: rgb(255, 239, 200);
+            color: #bc6f2c;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
             transform: translateY(-1px);
         }
+
+        .nav-item:active {
+            background-color: rgb(255, 230, 180);
+            transform: scale(0.96);
+        }
+
         .user-right {
             display: flex;
             align-items: center;
             gap: 8px;
             background: #ffdde0;
-            padding: 6px 10px;
-            border-radius: 20px;
+            padding: 6px 12px;
+            border-radius: 40px;
             color: #c74c70;
             font-weight: bold;
             font-size: 13px;
             cursor: pointer;
+            flex-shrink: 0;
         }
+
+        .user-right:active {
+            background: #ffcbd1;
+            transform: scale(0.97);
+        }
+
         .switch-btn {
             width: 28px;
             height: 14px;
@@ -84,6 +171,7 @@
             border-radius: 10px;
             position: relative;
         }
+
         .switch-btn::before {
             content: '';
             width: 10px;
@@ -91,67 +179,113 @@
             background: #f8446e;
             border-radius: 50%;
             position: absolute;
-            top: 2px; left: 2px;
+            top: 2px;
+            left: 2px;
             transition: 0.2s;
         }
-        .switch-btn.active::before { left: 16px; }
+
+        @media (max-width: 620px) {
+            .big {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 12px;
+                gap: 10px;
+            }
+            .first {
+                justify-content: space-between;
+                width: 100%;
+            }
+            .nav {
+                width: 100%;
+                justify-content: center;
+            }
+            .user-right {
+                align-self: flex-end;
+                width: fit-content;
+            }
+            .nav-item {
+                padding: 6px 10px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-item {
+                padding: 5px 8px;
+                font-size: 12px;
+            }
+            .first .heart,
+            .first .bell {
+                width: 32px;
+                height: 32px;
+            }
+        }
 
         /* ========== 筛选栏 手机适配 ========== */
         .filter-bar {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 0 15px;
+            max-width: 1000px;
+            margin: 20px auto 12px;
+            padding: 12px 16px;
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
             align-items: center;
             justify-content: center;
             background: #fffaf5;
-            border-radius: 20px;
+            border-radius: 32px;
+            width: calc(100% - 30px);
         }
-        .filter-title { font-size: 20px; color: #e67a8a; font-weight: 600; }
+        .filter-title {
+            font-size: 20px;
+            color: #e67a8a;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
         .filter-select {
-            padding: 6px 12px;
+            padding: 8px 14px;
             border: 1px solid #f0d8c0;
-            border-radius: 16px;
+            border-radius: 40px;
             outline: none;
-            font-size: 13px;
+            font-size: 14px;
             background: #fff;
         }
         .filter-btn {
-            padding: 6px 16px;
+            padding: 8px 20px;
             background: #ffccd5;
             color: #c74c70;
             border: none;
-            border-radius: 16px;
+            border-radius: 40px;
             cursor: pointer;
-            transition: 0.3s;
-            font-weight: bold;
-            font-size: 13px;
+            transition: 0.2s;
+            font-weight: 600;
+            font-size: 14px;
         }
-        .filter-btn:hover { background: #ffb3c1; }
+        .filter-btn:active {
+            background: #ffb8c4;
+            transform: scale(0.96);
+        }
 
         /* ========== 统计栏 手机适配 ========== */
         .stats-bar {
-            max-width: 1100px;
+            max-width: 1000px;
             margin: 0 auto 15px;
             display: flex;
-            gap: 15px;
+            gap: 20px;
             justify-content: center;
             align-items: center;
             background: #fff0e0;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 13px;
             color: #a55b2a;
             flex-wrap: wrap;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            width: calc(100% - 30px);
         }
         .stat-badge {
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-weight: bold;
+            gap: 8px;
+            font-weight: 700;
         }
         .stat-color {
             width: 14px;
@@ -161,23 +295,22 @@
 
         /* ========== 地图容器 手机全屏 ========== */
         .map-wrap {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto 15px;
             padding: 0 15px;
             position: relative;
         }
         #chinaMap {
             width: 100%;
-            height: 500px;
-            border-radius: 16px;
+            height: 520px;
+            border-radius: 28px;
             border: 2px solid #ffccd5;
             background: #fff9f5;
             z-index: 1;
         }
-        /* 手机端地图高度缩小 */
-        @media (max-width:768px){
-            #chinaMap{
-                height: 420px;
+        @media (max-width: 768px) {
+            #chinaMap {
+                height: 440px;
             }
         }
 
@@ -187,91 +320,102 @@
             top: 15px;
             right: 15px;
             width: 160px;
-            background: #fff;
-            border-radius: 12px;
-            padding: 10px;
-            box-shadow: 0 4px 12px rgba(255,204,213,0.2);
+            background: #fffef8;
+            border-radius: 24px;
+            padding: 12px;
+            box-shadow: 0 6px 18px rgba(255, 204, 213, 0.25);
             border: 1px solid #ffccd5;
             max-height: 400px;
             overflow-y: auto;
             z-index: 100;
+            backdrop-filter: blur(2px);
         }
-        /* 小屏手机自动隐藏右侧面板，避免遮挡 */
-        @media (max-width:500px){
-            .city-list-panel{
+        @media (max-width: 550px) {
+            .city-list-panel {
                 display: none;
             }
         }
         .city-list-title {
             text-align: center;
             color: #c74c70;
-            font-weight: bold;
-            margin-bottom: 8px;
+            font-weight: 800;
+            margin-bottom: 10px;
             font-size: 13px;
         }
         .city-list-item {
-            padding: 4px 8px;
+            padding: 6px 10px;
             background: #fff9f5;
-            border-radius: 6px;
-            margin-bottom: 4px;
+            border-radius: 20px;
+            margin-bottom: 6px;
             font-size: 12px;
             color: #9c5a22;
             border-left: 3px solid #ffccd5;
         }
-        .city-list-empty {
-            text-align: center;
-            color: #ccc;
-            font-size: 12px;
-            padding: 8px 0;
-        }
 
         /* 提示文字 */
         .desc-tips {
-            max-width: 90%;
+            max-width: 1000px;
             margin: 10px auto 30px;
-            padding: 10px 15px;
+            padding: 12px 18px;
             text-align: center;
             color: #9c5a22;
             font-size: 12px;
             background: #fff2e6;
-            border-radius: 20px;
+            border-radius: 40px;
             line-height: 1.4;
+            width: calc(100% - 30px);
         }
 
-        /* 弹窗 */
+        /* 退出弹窗 */
         .modal {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.3);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
             display: none;
             align-items: center;
             justify-content: center;
-            z-index: 999;
-            padding: 15px;
+            z-index: 1200;
+            padding: 16px;
         }
         .modal-content {
-            background: #fff;
-            width: 280px;
-            max-width: 100%;
-            padding: 25px;
-            border-radius: 16px;
+            background: #fffef8;
+            width: 90%;
+            max-width: 280px;
+            padding: 22px;
+            border-radius: 32px;
             text-align: center;
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.2);
+        }
+        .modal-content h3 {
+            color: #9c5a22;
+            margin-bottom: 15px;
         }
         .modal-btns {
             display: flex;
             gap: 10px;
             justify-content: center;
-            margin-top: 15px;
+            flex-wrap: wrap;
         }
         .modal-btn {
             padding: 6px 18px;
-            border-radius: 20px;
+            border-radius: 40px;
             border: none;
             cursor: pointer;
+            font-size: 13px;
+            min-width: 80px;
+            font-weight: 500;
         }
-        .cancel { background: #f1f1f1; }
-        .logout { background: #f8446e; color: #fff; }
+        .cancel {
+            background: #f1f1f1;
+            color: #6b4c2c;
+        }
+        .logout {
+            background: #f8446e;
+            color: #fff;
+        }
 
         /* 轻提示 */
         .toast-msg {
@@ -281,12 +425,13 @@
             transform: translateX(-50%);
             background: #f7d9c4;
             color: #a3442e;
-            padding: 8px 18px;
-            border-radius: 30px;
+            padding: 8px 20px;
+            border-radius: 40px;
             font-size: 14px;
-            z-index: 1000;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 1100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             pointer-events: none;
+            white-space: nowrap;
         }
 
         /* 城市弹窗 手机全屏适配 */
@@ -300,31 +445,31 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            z-index: 1300;
             padding: 15px;
         }
         .city-card {
             background-color: #fffaf2;
-            border-radius: 20px;
+            border-radius: 32px;
             width: 100%;
             max-width: 340px;
-            padding: 20px;
+            padding: 24px 20px;
             box-shadow: 0 20px 35px rgba(0,0,0,0.25);
             text-align: center;
             border: 1px solid #ffddb0;
-            animation: fadeInUp 0.25s ease;
+            animation: fadeInUp 0.2s ease;
         }
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .city-title {
-            font-size: 22px;
-            font-weight: bold;
+            font-size: 24px;
+            font-weight: 800;
             color: #c74c70;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
             border-bottom: 2px dashed #ffccd5;
-            padding-bottom: 8px;
+            padding-bottom: 10px;
         }
         .state-group {
             display: flex;
@@ -334,16 +479,18 @@
             flex-wrap: wrap;
         }
         .state-btn {
-            padding: 6px 14px;
-            border-radius: 30px;
+            padding: 8px 16px;
+            border-radius: 40px;
             font-size: 13px;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
-            transition: 0.2s;
+            transition: 0.1s;
             border: none;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
         }
-        .state-btn:hover { transform: scale(0.96); opacity: 0.9; }
+        .state-btn:active {
+            transform: scale(0.95);
+        }
         .func-group {
             display: flex;
             flex-direction: column;
@@ -354,66 +501,49 @@
             background-color: #ffdde0;
             border: none;
             padding: 10px;
-            border-radius: 30px;
+            border-radius: 40px;
             font-size: 14px;
             cursor: pointer;
             color: #b94e6e;
-            font-weight: 500;
-            transition: all 0.3s ease;
+            font-weight: 600;
+            transition: 0.1s;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
         }
-        .func-btn:hover {
+        .func-btn:active {
             background-color: #ffccd5;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(255, 179, 193, 0.4);
+            transform: scale(0.97);
         }
         .close-card-btn {
-            margin-top: 15px;
-            padding: 8px 24px;
+            margin-top: 18px;
+            padding: 10px 24px;
             background: #ffe0d4;
             border: none;
-            border-radius: 30px;
+            border-radius: 40px;
             cursor: pointer;
             color: #b3623a;
             font-size: 14px;
-            transition: all 0.3s ease;
+            font-weight: 600;
+            transition: 0.1s;
         }
-        .close-card-btn:hover {
+        .close-card-btn:active {
             background: #ffd0c0;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(255, 224, 212, 0.4);
-        }
-        .province-label {
-            font-size: 12px;
-            font-weight: bold;
-            text-shadow: 1px 1px 0 white;
-            color: #c74c70;
-            white-space: nowrap;
-            background: rgba(255,255,255,0.85);
-            padding: 2px 6px;
-            border-radius: 15px;
-            border: 1px solid #ffb3c1;
-        }
-        .city-tooltip {
-            font-size: 12px;
-            font-weight: bold;
-            background: rgba(255,255,255,0.9);
-            border: 1px solid #ffccd5;
-            color: #c74c70;
-            padding: 4px 8px;
-            border-radius: 12px;
+            transform: scale(0.96);
         }
     </style>
 </head>
 <body>
 
+<!-- 导航栏：统一样式 手机完美适配 -->
 <div class="big">
     <div class="first">
         <div class="heart" onclick="toUserInfo()">❤️</div>
-        <div class="name"><p>SPACE</p><p>壹一森林</p></div>
+        <div class="name">
+            <p>SPACE</p>
+            <p>壹一森林</p>
+        </div>
         <div class="bell" onclick="goToMessage()">
             <i class="fa-solid fa-bell"></i>
             <span class="red-dot" id="redDot"></span>
@@ -433,11 +563,11 @@
 </div>
 
 <div class="filter-bar">
-    <h2 class="filter-title">森林地图</h2>
+    <span class="filter-title">🗺️ 森林地图</span>
     <select class="filter-select" id="stateFilterSelect">
         <option value="all">全部状态</option>
-        <option value="go">已去过</option>
-        <option value="want">想去打卡</option>
+        <option value="go">✅ 已去过</option>
+        <option value="want">💗 想去打卡</option>
     </select>
     <button class="filter-btn" id="filterQueryBtn">筛选查询</button>
 </div>
@@ -450,7 +580,7 @@
 <div class="map-wrap">
     <div id="chinaMap"></div>
     <div class="city-list-panel" id="cityListPanel">
-        <div class="city-list-title">📍 筛选城市列表</div>
+        <div class="city-list-title">📍 当前城市</div>
         <div id="cityListContent"></div>
     </div>
 </div>
@@ -459,6 +589,7 @@
     💡 点击城市区域 → 修改状态(绿色=已去过 / 粉色=想去) | 取消状态 | 上传相册 📸 | 写记录 ✍️ | 发攻略 📖
 </div>
 
+<!-- 退出弹窗 -->
 <div class="modal" id="logoutModal">
     <div class="modal-content">
         <h3>确定退出登录？</h3>
@@ -470,7 +601,7 @@
 </div>
 
 <script>
-    // ==================== 顶部导航功能 ====================
+    // ==================== 辅助函数 ====================
     function escapeHtml(str) {
         if (!str) return '';
         return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;'));
@@ -478,27 +609,34 @@
 
     function getNameInitials(username) {
         if (!username) return '游客';
-        return username.charAt(0).toUpperCase();
+        const { pinyin } = window.pinyinPro || window.pinyin;
+        if (!pinyin) return username.charAt(0).toUpperCase();
+        return username.split('').map(ch => {
+            if (/[a-zA-Z]/.test(ch)) return ch.toUpperCase();
+            if (/[\u4e00-\u9fa5]/.test(ch)) {
+                const py = pinyin(ch, { pattern: 'first', toneType: 'none' });
+                return py ? py.toUpperCase() : ch;
+            }
+            return ch.toUpperCase();
+        }).join(' ');
     }
 
     function closeModal() {
         document.getElementById('logoutModal').style.display = 'none';
-        document.getElementById('switch').classList.remove('active');
+        const switchBtn = document.getElementById('switch');
+        if (switchBtn) switchBtn.classList.remove('active');
     }
-    function toUserInfo() { location.href = "user-info.html"; }
-    function goToMessage() { window.location.href = "message.html"; }
-    function go(page) {
-        const links = { index:"index.html", role:"member.html", record:"diary.html", album:"about.html", map:"travel.html" };
-        window.location.href = links[page];
-    }
+
     function showLogoutModal() {
         document.getElementById('logoutModal').style.display = 'flex';
-        document.getElementById('switch').classList.add('active');
+        const switchBtn = document.getElementById('switch');
+        if (switchBtn) switchBtn.classList.add('active');
     }
+
     async function logout() {
         localStorage.removeItem('isLogin');
         localStorage.removeItem('username');
-        try { await fetch("/user/logout", { method: "POST", credentials: "include" }); } catch(e){}
+        try { await fetch("/user/logout", { method: "POST", credentials: "include" }); } catch(e) {}
         location.href = 'login.html';
     }
 
@@ -507,19 +645,28 @@
             const res = await fetch("/user/unreadRequestCount", { method: "GET", credentials: "include" });
             const result = await res.json();
             const redDot = document.getElementById('redDot');
-            if (result.code === 200 && result.data > 0) redDot.style.display = 'block';
-            else redDot.style.display = 'none';
+            if (redDot) {
+                redDot.style.display = (result.code === 200 && result.data > 0) ? 'block' : 'none';
+            }
         } catch(e) { console.error(e); }
     }
 
     function toastMsg(msg) {
         let toast = document.querySelector('.toast-msg');
-        if(toast) toast.remove();
+        if (toast) toast.remove();
         let div = document.createElement('div');
         div.className = 'toast-msg';
         div.innerText = msg;
         document.body.appendChild(div);
-        setTimeout(() => { if(div) div.remove(); }, 2000);
+        setTimeout(() => { if (div) div.remove(); }, 2000);
+    }
+
+    // 导航函数
+    function toUserInfo() { location.href = "user-info.html"; }
+    function goToMessage() { location.href = "message.html"; }
+    function go(page) {
+        const links = { index: "index.html", role: "member.html", record: "diary.html", album: "about.html", map: "travel.html" };
+        window.location.href = links[page];
     }
 
     // ==================== 核心：城市状态 + 地图染色 ====================
@@ -527,34 +674,17 @@
     let map, cityLayers = {};
     let currentFilter = 'all';
 
-    // 状态颜色（整个市染色）
     function getStyleByStatus(status) {
         switch(status) {
             case 'go':
-                return {
-                    color: '#2E8B57',
-                    weight: 2,
-                    fillColor: '#7ccd7c',
-                    fillOpacity: 0.6
-                };
+                return { color: '#2E8B57', weight: 2, fillColor: '#7ccd7c', fillOpacity: 0.6 };
             case 'want':
-                return {
-                    color: '#ff476b',
-                    weight: 2,
-                    fillColor: '#ff4163',
-                    fillOpacity: 0.5
-                };
+                return { color: '#ff476b', weight: 2, fillColor: '#ff4163', fillOpacity: 0.5 };
             default:
-                return {
-                    color: '#999',
-                    weight: 1,
-                    fillColor: '#fff',
-                    fillOpacity: 0.1
-                };
+                return { color: '#b89a7a', weight: 1, fillColor: '#f5ede5', fillOpacity: 0.3 };
         }
     }
 
-    // 更新整个市的颜色
     function updateCityStyle(cityName, status) {
         if (!cityLayers[cityName]) return;
         const style = getStyleByStatus(status);
@@ -562,7 +692,6 @@
         saveStatus();
     }
 
-    // 统计数量
     function updateStats() {
         let go = 0, want = 0;
         for (let city in cityStatus) {
@@ -574,171 +703,157 @@
         renderCityList();
     }
 
-    // 保存状态
     function saveStatus() {
         localStorage.setItem('city_status_data', JSON.stringify(cityStatus));
         updateStats();
     }
 
-    // 加载状态
     function loadStatus() {
         const saved = localStorage.getItem('city_status_data');
         if (saved) cityStatus = JSON.parse(saved);
     }
 
-    // 城市列表
     function renderCityList() {
         let list = [];
-        for(let name in cityStatus) {
+        for (let name in cityStatus) {
             let st = cityStatus[name];
-            if(currentFilter === 'all') list.push({name, st});
-            else if(currentFilter === 'go' && st === 'go') list.push({name, st});
-            else if(currentFilter === 'want' && st === 'want') list.push({name, st});
+            if (currentFilter === 'all') list.push({ name, st });
+            else if (currentFilter === 'go' && st === 'go') list.push({ name, st });
+            else if (currentFilter === 'want' && st === 'want') list.push({ name, st });
         }
-
         let html = list.length === 0
-            ? '<div class="city-list-empty">暂无城市</div>'
+            ? '<div style="text-align:center;color:#b7855b;padding:10px;">暂无城市</div>'
             : list.map(item => `
-                <div class="city-list-item" style="border-left-color:${item.st==='go'?'#7ccd7c':'#ffb3c1'}">
+                <div class="city-list-item" style="border-left-color:${item.st === 'go' ? '#7ccd7c' : '#ffb3c1'}">
                     ${escapeHtml(item.name)}
                 </div>
             `).join('');
-
         document.getElementById('cityListContent').innerHTML = html;
     }
 
-    // ==================== 点击城市 → 弹出面板 ====================
+    // 点击城市弹窗
     function openCityPanel(cityName, provinceName) {
         document.querySelectorAll('.city-modal').forEach(e => e.remove());
-
         const modal = document.createElement('div');
         modal.className = 'city-modal';
         modal.innerHTML = `
-        <div class="city-card">
-            <div class="city-title">${cityName}</div>
-            <div class="state-group">
-                <button class="state-btn" style="background:#7ccd7c;color:#fff" onclick="setStatus('go','${cityName}')">✅ 已去过</button>
-                <button class="state-btn" style="background:#ff4a6c;color:#fff" onclick="setStatus('want','${cityName}')">💗 想去</button>
-                <button class="state-btn" style="background:#ccc" onclick="setStatus('clear','${cityName}')">🔄 取消状态</button>
-            </div>
-            <div class="func-group">
-                <button class="func-btn" onclick="goPage('album','${provinceName}','${cityName}')">📸 上传相册</button>
-                <button class="func-btn" onclick="goPage('record','${provinceName}','${cityName}')">✍️ 写记录</button>
-                <button class="func-btn" onclick="goPage('strategy','${provinceName}','${cityName}')">📖 发攻略</button>
-            </div>
-            <button class="close-card-btn" onclick="this.closest('.city-modal').remove()">关闭</button>
-        </div>`;
+            <div class="city-card">
+                <div class="city-title">${escapeHtml(cityName)}</div>
+                <div class="state-group">
+                    <button class="state-btn" style="background:#7ccd7c;color:#fff" onclick="setStatus('go','${cityName}')">✅ 已去过</button>
+                    <button class="state-btn" style="background:#ff4a6c;color:#fff" onclick="setStatus('want','${cityName}')">💗 想去</button>
+                    <button class="state-btn" style="background:#d4c5b8;color:#5e3a22" onclick="setStatus('clear','${cityName}')">🔄 取消</button>
+                </div>
+                <div class="func-group">
+                    <button class="func-btn" onclick="goPage('album','${provinceName}','${cityName}')">📸 上传相册</button>
+                    <button class="func-btn" onclick="goPage('record','${provinceName}','${cityName}')">✍️ 写记录</button>
+                    <button class="func-btn" onclick="goPage('strategy','${provinceName}','${cityName}')">📖 发攻略</button>
+                </div>
+                <button class="close-card-btn" onclick="this.closest('.city-modal').remove()">关闭</button>
+            </div>`;
         document.body.appendChild(modal);
         modal.onclick = e => e.target === modal && modal.remove();
     }
 
-    // 设置状态（自动染色整个市）
-    function setStatus(type, cityName) {
+    window.setStatus = function(type, cityName) {
         if (type === 'go') {
             cityStatus[cityName] = 'go';
             updateCityStyle(cityName, 'go');
-            toastMsg(`✅ ${cityName} 已去过`);
-        }
-        else if (type === 'want') {
+            toastMsg(`✅ ${cityName} 标记为已去过`);
+        } else if (type === 'want') {
             cityStatus[cityName] = 'want';
             updateCityStyle(cityName, 'want');
-            toastMsg(`💗 ${cityName} 想去打卡`);
-        }
-        else {
+            toastMsg(`💗 ${cityName} 加入想去清单`);
+        } else {
             delete cityStatus[cityName];
             updateCityStyle(cityName, null);
             toastMsg(`🔄 ${cityName} 状态已清空`);
         }
         document.querySelector('.city-modal')?.remove();
-    }
+    };
 
-    // 跳转到功能页
     function goPage(tab, province, city) {
         const url = `city-detail.html?province=${encodeURIComponent(province)}&city=${encodeURIComponent(city)}&tab=${tab}`;
         window.open(url, '_blank');
     }
 
-    // ==================== 地图筛选 ====================
     function applyFilter() {
         currentFilter = document.getElementById('stateFilterSelect').value;
         for (let name in cityLayers) {
             const st = cityStatus[name];
-            const style = currentFilter === 'all' || currentFilter === st
-                ? getStyleByStatus(st)
-                : { color:'#eee', fillColor:'#f9f9f9', fillOpacity:0.1, weight:1 };
+            const shouldShow = currentFilter === 'all' || currentFilter === st;
+            const style = shouldShow ? getStyleByStatus(st) : { color: '#d9caba', fillColor: '#f5ede5', fillOpacity: 0.2, weight: 0.8 };
             cityLayers[name].setStyle(style);
         }
         renderCityList();
         toastMsg('✅ 筛选完成');
     }
 
-    // ==================== 加载地图 + 城市边界 ====================
+    // 加载城市边界 (本地geo json)
     async function loadCityBoundaries() {
-        toastMsg('正在加载城市...');
+        toastMsg('🌏 加载地图数据...');
         const res = await fetch('/geo/china.json');
         const data = await res.json();
-
-        // 清空旧图层
-        for (let k in cityLayers) map.removeLayer(cityLayers[k]);
+        for (let k in cityLayers) if (cityLayers[k]) map.removeLayer(cityLayers[k]);
         cityLayers = {};
 
         data.features.forEach(f => {
             const city = f.properties.name;
             const province = f.properties.province || city;
             const status = cityStatus[city];
-
-            const layer = L.geoJSON(f, {
-                style: getStyleByStatus(status)
-            }).addTo(map);
-
-            // 点击城市 → 弹出
+            const layer = L.geoJSON(f, { style: getStyleByStatus(status) }).addTo(map);
             layer.on('click', () => openCityPanel(city, province));
             cityLayers[city] = layer;
         });
-
         updateStats();
         toastMsg('✅ 地图加载完成，点击城市使用功能');
     }
 
-    // 加载省级轮廓
     async function loadProvinceBoundary() {
-        const res = await fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json');
-        const data = await res.json();
-        L.geoJSON(data, {
-            style: { fillOpacity:0, color:'#ff6b8c', weight:1 },
-            interactive: false
-        }).addTo(map);
+        try {
+            const res = await fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json');
+            const data = await res.json();
+            L.geoJSON(data, { style: { fillOpacity: 0, color: '#ff8aa8', weight: 1.2 }, interactive: false }).addTo(map);
+        } catch(e) { console.log("省级边界加载可选，不影响使用"); }
     }
 
-    // 初始化地图
     async function initMap() {
         map = L.map('chinaMap').setView([35.0, 108.0], 5);
         L.tileLayer('https://webrd0.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
-            minZoom:4, maxZoom:18, attribution:'高德地图'
+            minZoom: 4, maxZoom: 18, attribution: '高德地图'
         }).addTo(map);
-
         await loadProvinceBoundary();
         await loadCityBoundaries();
-
         document.getElementById('filterQueryBtn').onclick = applyFilter;
-        renderCityList();
     }
 
-    // ==================== 启动 ====================
-    async function init() {
-        if (!localStorage.getItem('isLogin')) return location.href = 'login.html';
+    // 页面启动
+    window.onload = async function() {
+        if (!localStorage.getItem('isLogin')) {
+            location.href = 'login.html';
+            return;
+        }
         try {
-            const res = await fetch("/user/info", { credentials:'include' });
-            const d = (await res.json()).data;
-            document.getElementById('userInitial').innerText = getNameInitials(d.username);
-        } catch(e) {}
-
+            const res = await fetch("/user/info", { method: "GET", credentials: "include" });
+            const result = await res.json();
+            if (result.code === 200 && result.data && result.data.username) {
+                const initials = getNameInitials(result.data.username);
+                document.getElementById('userInitial').innerText = initials;
+            } else {
+                localStorage.removeItem('isLogin');
+                location.href = 'login.html';
+                return;
+            }
+        } catch(err) {
+            console.error(err);
+            localStorage.removeItem('isLogin');
+            location.href = 'login.html';
+            return;
+        }
         loadStatus();
         await initMap();
-        updateRedDot();
-    }
-
-    window.addEventListener('load', init);
+        await updateRedDot();
+    };
 </script>
 </body>
 </html>

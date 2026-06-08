@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>写下今天 - 壹一森林</title>
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/pinyin-pro@3.19.6/dist/index.js"></script>
@@ -11,90 +11,157 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
         body {
             background-color: #fff9f5;
-            font-family: "Microsoft YaHei", sans-serif;
+            font-family: system-ui, "Microsoft YaHei", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow-x: hidden;
         }
 
-        /* ========== 顶部导航 手机完美适配 ========== */
+        /* ========== 顶部导航 手机完美适配（与朋友/记录页面完全统一） ========== */
         .big {
             display: flex;
-            align-items: center;
-            background: rgb(255, 255, 158);
-            padding: 8px 12px;
-            justify-content: space-between;
-            margin: 10px auto;
-            max-width: 95%;
-            border-radius: 15px;
-            min-height: 46px;
             flex-wrap: wrap;
-            gap: 8px;
+            align-items: center;
+            justify-content: space-between;
+            background: rgb(255, 255, 158);
+            margin: 12px auto;
+            padding: 10px 14px;
+            width: calc(100% - 20px);
+            max-width: 1000px;
+            border-radius: 28px;
+            gap: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
         }
-        .first { display: flex; align-items: center; gap: 6px; }
-        .heart { font-size: 16px; cursor: pointer; transition: 0.2s; }
-        .heart:hover { transform: scale(1.1); }
-        .name p { font-size: 12px; line-height: 1.2; color: rgb(146, 86, 30); }
+
+        .first {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .heart {
+            font-size: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+            background: rgba(255, 220, 180, 0.4);
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .heart:active {
+            transform: scale(0.94);
+            background: #ffe0b5;
+        }
+
+        .name p {
+            font-size: 11px;
+            line-height: 1.25;
+            color: rgb(146, 86, 30);
+            font-weight: 500;
+        }
+
+        .name p:first-child {
+            font-size: 10px;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+        }
+
         .bell {
-            font-size: 18px;
+            font-size: 20px;
             color: rgb(199, 199, 158);
             cursor: pointer;
-            margin-left: 6px;
-            transition: 0.3s;
+            transition: 0.2s;
             position: relative;
+            background: rgba(255, 240, 200, 0.5);
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
         }
-        .bell:hover { color: #f8446e; }
+
+        .bell:active {
+            transform: scale(0.94);
+            color: #f8446e;
+        }
+
         .red-dot {
             position: absolute;
-            top: -5px;
-            right: -8px;
+            top: 2px;
+            right: 4px;
             width: 10px;
             height: 10px;
             background: #f8446e;
             border-radius: 50%;
             display: none;
+            border: 1.5px solid #ffff9e;
         }
+
+        /* 导航菜单 完全自适应换行 */
         .nav {
             display: flex;
-            background: rgb(252, 252, 192);
-            color: rgb(146, 86, 30);
-            padding: 2px 6px;
-            border-radius: 15px;
-            min-height: 28px;
-            gap: 4px;
             flex-wrap: wrap;
             justify-content: center;
+            gap: 8px;
+            background: rgb(252, 252, 192);
+            padding: 6px 12px;
+            border-radius: 40px;
+            flex: 1 1 auto;
+            min-width: 160px;
         }
+
         .nav-item {
-            padding: 2px 6px;
-            border: 2px solid transparent;
-            border-radius: 15px;
-            transition: all 0.3s ease;
-            font-size: 13px;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgb(146, 86, 30);
             cursor: pointer;
+            transition: all 0.2s ease;
             white-space: nowrap;
+            background: transparent;
+            text-align: center;
         }
+
         .nav-item.active {
             background-color: rgb(255, 239, 200);
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .nav-item:hover {
-            background-color: rgb(255, 239, 200);
+            color: #bc6f2c;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
             transform: translateY(-1px);
         }
+
+        .nav-item:active {
+            background-color: rgb(255, 230, 180);
+            transform: scale(0.96);
+        }
+
         .user-right {
             display: flex;
             align-items: center;
             gap: 8px;
             background: #ffdde0;
-            padding: 4px 10px;
-            border-radius: 20px;
+            padding: 6px 12px;
+            border-radius: 40px;
             color: #c74c70;
             font-weight: bold;
             font-size: 13px;
             cursor: pointer;
+            flex-shrink: 0;
         }
+
+        .user-right:active {
+            background: #ffcbd1;
+            transform: scale(0.97);
+        }
+
         .switch-btn {
             width: 28px;
             height: 14px;
@@ -102,6 +169,7 @@
             border-radius: 10px;
             position: relative;
         }
+
         .switch-btn::before {
             content: '';
             width: 10px;
@@ -109,61 +177,104 @@
             background: #f8446e;
             border-radius: 50%;
             position: absolute;
-            top: 2px; left: 2px;
+            top: 2px;
+            left: 2px;
             transition: 0.2s;
+        }
+
+        @media (max-width: 620px) {
+            .big {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 12px;
+                gap: 10px;
+            }
+
+            .first {
+                justify-content: space-between;
+                width: 100%;
+            }
+
+            .nav {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .user-right {
+                align-self: flex-end;
+                width: fit-content;
+            }
+
+            .nav-item {
+                padding: 6px 10px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-item {
+                padding: 5px 8px;
+                font-size: 12px;
+            }
+
+            .first .heart,
+            .first .bell {
+                width: 32px;
+                height: 32px;
+            }
         }
 
         /* ========== 写日记表单 手机全屏适配 ========== */
         .write-container {
             max-width: 800px;
             margin: 20px auto;
-            padding: 0 15px;
+            padding: 0 15px 40px;
             width: 100%;
         }
         .write-card {
             background: #fff;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 8px 25px rgba(245,190,150,0.15);
+            border-radius: 32px;
+            padding: 24px 20px;
+            box-shadow: 0 12px 28px rgba(245,190,150,0.12);
+            transition: 0.2s;
         }
         .write-title {
-            font-size: 22px;
+            font-size: 26px;
+            font-weight: 800;
             color: #c74c70;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+            letter-spacing: -0.3px;
         }
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
         .form-group label {
             display: block;
-            font-size: 13px;
+            font-size: 14px;
+            font-weight: 600;
             color: #9c5a22;
-            margin-bottom: 6px;
-            font-weight: 500;
+            margin-bottom: 8px;
         }
         .form-group input,
         .form-group textarea,
         .form-group select {
             width: 100%;
-            padding: 10px 14px;
-            border: 1px solid #f7d3c2;
-            border-radius: 16px;
-            font-size: 14px;
+            padding: 12px 16px;
+            border: 1.5px solid #f7d3c2;
+            border-radius: 24px;
+            font-size: 15px;
             background: #fff;
             outline: none;
             transition: 0.2s;
+            font-family: inherit;
         }
         .form-group select {
             cursor: pointer;
             appearance: none;
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23c74c70" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
             background-repeat: no-repeat;
-            background-position: right 12px center;
-        }
-        .form-group select:hover {
-            border-color: #ffb3c1;
-            background-color: #fff9f5;
+            background-position: right 16px center;
         }
         .form-group input:focus,
         .form-group textarea:focus,
@@ -172,7 +283,7 @@
             box-shadow: 0 0 0 3px rgba(255,179,193,0.2);
         }
         .form-group textarea {
-            height: 150px;
+            height: 160px;
             resize: vertical;
         }
         .custom-file-upload {
@@ -192,59 +303,72 @@
         .file-label {
             display: block;
             width: 100%;
-            padding: 10px 14px;
+            padding: 12px 16px;
             background: #ffdde0;
             color: #c74c70;
-            border-radius: 16px;
+            border-radius: 28px;
             text-align: center;
-            font-size: 14px;
-            font-weight: bold;
+            font-size: 15px;
+            font-weight: 700;
             cursor: pointer;
-            transition: 0.3s;
+            transition: 0.2s;
             border: 1px solid #f7d3c2;
         }
-        .file-label:hover {
+        .file-label:active {
             background: #ffccd5;
+            transform: scale(0.98);
         }
         .photo-preview {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             flex-wrap: wrap;
-            margin-top: 10px;
+            margin-top: 14px;
         }
         .photo-preview img {
-            width: 70px;
-            height: 70px;
+            width: 80px;
+            height: 80px;
             object-fit: cover;
-            border-radius: 12px;
-            border: 1px solid #ffe0cc;
+            border-radius: 20px;
+            border: 2px solid #ffe0cc;
+            background: #fef2e8;
         }
         .submit-btn {
             width: 100%;
-            padding: 10px;
+            padding: 14px;
             background: #ffccd5;
             color: #c74c70;
             border: none;
-            border-radius: 20px;
-            font-size: 15px;
-            font-weight: bold;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 800;
             cursor: pointer;
-            transition: 0.3s;
-            margin-top: 10px;
+            transition: 0.2s;
+            margin-top: 8px;
         }
-        .submit-btn:hover {
-            background: #ffb3c1;
+        .submit-btn:active {
+            background: #ffb8c4;
+            transform: scale(0.98);
         }
         .back-link {
             display: inline-block;
-            margin-top: 15px;
+            margin-top: 18px;
             color: #c74c70;
             text-decoration: none;
             font-size: 14px;
+            font-weight: 500;
+            background: #fff4ef;
+            padding: 8px 16px;
+            border-radius: 40px;
+            transition: 0.1s;
+        }
+        .back-link:active {
+            background: #ffe4d4;
         }
     </style>
 </head>
 <body>
+
+<!-- 导航栏：与参照版本完全一致，手机自适应 -->
 <div class="big">
     <div class="first">
         <div class="heart" onclick="toUserInfo()">❤️</div>
@@ -254,15 +378,15 @@
         </div>
         <div class="bell" onclick="goToMessage()">
             <i class="fa-solid fa-bell"></i>
-            <span class="red-dot" id="redDot"></span>
+            <span class="red-dot" id="redDotWrite"></span>
         </div>
     </div>
     <div class="nav">
-        <div class="nav-item" onclick="go('index')">首页</div>
-        <div class="nav-item" onclick="go('role')">朋友</div>
-        <div class="nav-item active" onclick="go('record')">记录</div>
-        <div class="nav-item" onclick="go('album')">相册</div>
-        <div class="nav-item" onclick="go('map')">地图</div>
+        <div class="nav-item" onclick="go('index')"><strong>首页</strong></div>
+        <div class="nav-item" onclick="go('role')"><strong>朋友</strong></div>
+        <div class="nav-item active" onclick="go('record')"><strong>记录</strong></div>
+        <div class="nav-item" onclick="go('album')"><strong>相册</strong></div>
+        <div class="nav-item" onclick="go('map')"><strong>地图</strong></div>
     </div>
     <div class="user-right" onclick="showLogoutModal()">
         <span id="userInitial">加载中...</span>
@@ -275,7 +399,7 @@
         <h1 class="write-title">✨ 写下今天 ✨</h1>
         <div class="form-group">
             <label>📝 标题</label>
-            <input type="text" id="diaryTitle" placeholder="给今天一个主题吧">
+            <input type="text" id="diaryTitle" placeholder="给今天一个主题吧" maxlength="80">
         </div>
         <div class="form-group">
             <label>💭 内容</label>
@@ -292,7 +416,7 @@
             <label>📸 上传照片（可多选）</label>
             <div class="custom-file-upload">
                 <input type="file" id="diaryPhoto" accept="image/*" multiple>
-                <div class="file-label">📷 点击选择照片</div>
+                <div class="file-label">📷 点击选择照片 (最多9张)</div>
             </div>
             <div id="photoPreview" class="photo-preview"></div>
         </div>
@@ -304,8 +428,9 @@
 </div>
 
 <script>
-    // 辅助函数
+    // ==================== 辅助函数 ====================
     function showMessage(msg) { alert(msg); }
+
     function getNameInitials(username) {
         if (!username) return '游客';
         const { pinyin } = window.pinyinPro || window.pinyin;
@@ -321,10 +446,16 @@
     }
 
     let photoFiles = [];
+    const MAX_PHOTOS = 9;
 
-    // 照片预览
+    // 照片预览 & 限制数量
     document.getElementById('diaryPhoto').addEventListener('change', function(e) {
         const files = Array.from(e.target.files);
+        if (files.length > MAX_PHOTOS) {
+            showMessage(`最多只能上传${MAX_PHOTOS}张照片`);
+            this.value = '';
+            return;
+        }
         const preview = document.getElementById('photoPreview');
         preview.innerHTML = '';
         photoFiles = files;
@@ -344,24 +475,40 @@
         const title = document.getElementById('diaryTitle').value.trim();
         const content = document.getElementById('diaryContent').value.trim();
         const permission = parseInt(document.getElementById('diaryPermission').value);
-        if (!title || !content) {
-            showMessage('请填写标题和内容');
+
+        if (!title) {
+            showMessage('请填写标题');
             return;
         }
-        const photosBase64 = [];
-        for (let file of photoFiles) {
-            const base64 = await new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = e => resolve(e.target.result);
-                reader.readAsDataURL(file);
-            });
-            photosBase64.push(base64);
+        if (!content) {
+            showMessage('请填写日记内容');
+            return;
         }
-        const diaryData = {
-            title, content, permission,
-            photos: JSON.stringify(photosBase64)
-        };
+
+        // 显示加载状态
+        const submitBtn = document.getElementById('submitBtn');
+        const originalText = submitBtn.innerText;
+        submitBtn.innerText = '✨ 发布中... ✨';
+        submitBtn.disabled = true;
+
         try {
+            const photosBase64 = [];
+            for (let file of photoFiles) {
+                const base64 = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.readAsDataURL(file);
+                });
+                photosBase64.push(base64);
+            }
+
+            const diaryData = {
+                title,
+                content,
+                permission,
+                photos: JSON.stringify(photosBase64)
+            };
+
             const res = await fetch('/user/diary/create', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -370,18 +517,44 @@
             });
             const result = await res.json();
             if (result.code === 200) {
-                showMessage('发布成功！');
+                showMessage('✅ 发布成功！日记已存入森林');
                 window.location.href = 'diary.html';
             } else {
                 showMessage('发布失败：' + (result.msg || '未知错误'));
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
             }
         } catch(e) {
             console.error(e);
             showMessage('网络错误，请稍后重试');
+            submitBtn.innerText = originalText;
+            submitBtn.disabled = false;
         }
     });
 
-    // 初始化用户信息和红点
+    // 退出登录确认模态框（简洁版）
+    function showLogoutModal() {
+        if (confirm('确定要退出登录吗？')) {
+            localStorage.removeItem('isLogin');
+            localStorage.removeItem('username');
+            fetch("/user/logout", { method: "POST", credentials: "include" }).catch(e=>console.log);
+            location.href = 'login.html';
+        }
+    }
+
+    // 更新红点（好友申请未读数）
+    async function updateRedDot() {
+        try {
+            const res = await fetch("/user/unreadRequestCount", { method: "GET", credentials: "include" });
+            const result = await res.json();
+            const redDot = document.getElementById('redDotWrite');
+            if (redDot) {
+                redDot.style.display = (result.code === 200 && result.data > 0) ? 'block' : 'none';
+            }
+        } catch(e) { console.error(e); }
+    }
+
+    // 页面初始化 & 登录校验
     window.onload = async function() {
         if (!localStorage.getItem('isLogin')) {
             location.href = 'login.html';
@@ -408,29 +581,18 @@
         await updateRedDot();
     };
 
-    async function updateRedDot() {
-        try {
-            const res = await fetch("/user/unreadNotificationCount", { method: "GET", credentials: "include" });
-            const result = await res.json();
-            const redDot = document.getElementById('redDot');
-            if (result.code === 200 && result.data > 0) redDot.style.display = 'block';
-            else redDot.style.display = 'none';
-        } catch(e) { console.error(e); }
-    }
-
+    // 导航函数
     function toUserInfo() { location.href = "user-info.html"; }
     function goToMessage() { window.location.href = "message.html"; }
     function go(page) {
-        const links = { index:"index.html", role:"member.html", record:"diary.html", album:"about.html", map:"travel.html" };
+        const links = {
+            index: "index.html",
+            role: "member.html",
+            record: "diary.html",
+            album: "about.html",
+            map: "travel.html"
+        };
         window.location.href = links[page];
-    }
-    function showLogoutModal() {
-        if (confirm('确定退出登录吗？')) {
-            localStorage.removeItem('isLogin');
-            localStorage.removeItem('username');
-            fetch("/user/logout", { method: "POST", credentials: "include" }).catch(e=>console.log);
-            location.href = 'login.html';
-        }
     }
 </script>
 </body>
