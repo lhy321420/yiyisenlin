@@ -263,7 +263,10 @@
             font-size: 12px;
             color: #9c5a22;
             border-left: 3px solid #ffccd5;
+            cursor: pointer;
+            transition: all 0.1s;
         }
+        .city-list-item:active { background: #ffede5; transform: scale(0.98); }
         .desc-tips {
             max-width: 1000px;
             margin: 10px auto 30px;
@@ -445,7 +448,7 @@
         <div id="cityListContent"></div>
     </div>
 </div>
-<div class="desc-tips">💡 点击城市区域 → 修改状态(绿色=已去过 / 粉色=想去) | 取消状态 | 上传相册 📸 | 写记录 ✍️ | 发攻略 📖</div>
+<div class="desc-tips">💡 点击城市标记 → 修改状态(绿色=已去过 / 粉色=想去) | 取消状态 | 上传相册 📸 | 写记录 ✍️ | 发攻略 📖</div>
 
 <div class="modal" id="logoutModal">
     <div class="modal-content"><h3>确定退出登录？</h3>
@@ -476,16 +479,52 @@
     function go(page) { const links = { index:"index.html", role:"member.html", record:"diary.html", album:"about.html", map:"travel.html" }; location.href = links[page]; }
 
     // ==================== 地图状态核心 ====================
-    let cityStatus = {}, map, cityLayers = {}, currentFilter = 'all';
-    function getStyleByStatus(status) {
-        if(status === 'go') return { color: '#2E8B57', weight: 2, fillColor: '#7ccd7c', fillOpacity: 0.6 };
-        if(status === 'want') return { color: '#ff476b', weight: 2, fillColor: '#ff4163', fillOpacity: 0.5 };
-        return { color: '#b89a7a', weight: 1, fillColor: '#f5ede5', fillOpacity: 0.3 };
+    let cityStatus = {}, map, cityMarkers = {}, currentFilter = 'all';
+
+    // 获取城市标记样式
+    function getMarkerStyle(status) {
+        if(status === 'go') {
+            return { color: '#2E8B57', fillColor: '#7ccd7c', fillOpacity: 0.85, radius: 18 };
+        }
+        if(status === 'want') {
+            return { color: '#ff476b', fillColor: '#ff6b8c', fillOpacity: 0.85, radius: 16 };
+        }
+        return { color: '#ffaa66', fillColor: '#ffdd99', fillOpacity: 0.65, radius: 14 };
     }
-    function updateCityStyle(cityName, status) { if(cityLayers[cityName]) { cityLayers[cityName].setStyle(getStyleByStatus(status)); saveStatus(); } }
-    function updateStats() { let go=0,want=0; for(let c in cityStatus) { if(cityStatus[c]==='go') go++; else if(cityStatus[c]==='want') want++; } document.getElementById('goCount').innerText = go; document.getElementById('wantCount').innerText = want; renderCityList(); }
-    function saveStatus() { localStorage.setItem('city_status_data', JSON.stringify(cityStatus)); updateStats(); }
-    function loadStatus() { const saved = localStorage.getItem('city_status_data'); if(saved) cityStatus = JSON.parse(saved); }
+
+    function updateCityMarker(cityName, status) {
+        if(!cityMarkers[cityName]) return;
+        const style = getMarkerStyle(status);
+        cityMarkers[cityName].setStyle({
+            color: style.color,
+            fillColor: style.fillColor,
+            fillOpacity: style.fillOpacity,
+            radius: style.radius
+        });
+        saveStatus();
+    }
+
+    function updateStats() {
+        let go=0,want=0;
+        for(let c in cityStatus) {
+            if(cityStatus[c]==='go') go++;
+            else if(cityStatus[c]==='want') want++;
+        }
+        document.getElementById('goCount').innerText = go;
+        document.getElementById('wantCount').innerText = want;
+        renderCityList();
+    }
+
+    function saveStatus() {
+        localStorage.setItem('city_status_data', JSON.stringify(cityStatus));
+        updateStats();
+    }
+
+    function loadStatus() {
+        const saved = localStorage.getItem('city_status_data');
+        if(saved) cityStatus = JSON.parse(saved);
+    }
+
     function renderCityList() {
         let list = [];
         for(let name in cityStatus) {
@@ -494,9 +533,17 @@
             else if(currentFilter === 'go' && st === 'go') list.push({name, st});
             else if(currentFilter === 'want' && st === 'want') list.push({name, st});
         }
-        let html = list.length === 0 ? '<div style="text-align:center;color:#b7855b;padding:10px;">暂无城市</div>' : list.map(item => `<div class="city-list-item" style="border-left-color:${item.st === 'go' ? '#7ccd7c' : '#ffb3c1'}">${escapeHtml(item.name)}</div>`).join('');
+        let html = list.length === 0 ? '<div style="text-align:center;color:#b7855b;padding:10px;">暂无城市</div>' :
+            list.map(item => `<div class="city-list-item" style="border-left-color:${item.st === 'go' ? '#7ccd7c' : '#ffb3c1'}" onclick="openCityPanelFromList('${escapeHtml(item.name)}')">${escapeHtml(item.name)}</div>`).join('');
         document.getElementById('cityListContent').innerHTML = html;
     }
+
+    // 从列表打开城市弹窗
+    window.openCityPanelFromList = function(cityName) {
+        const cityData = citiesData.find(c => c.name === cityName);
+        if(cityData) openCityPanel(cityData.name, cityData.province);
+        else openCityPanel(cityName, cityName);
+    };
 
     // 城市功能跳转（相册 / 记录 / 攻略）
     window.openCityAction = function(cityName, provinceName, actionType) {
@@ -510,20 +557,32 @@
 
     // 设置城市状态
     window.setCityStatus = function(cityName, statusType, provinceName) {
-        if(statusType === 'go') { cityStatus[cityName] = 'go'; updateCityStyle(cityName, 'go'); toastMsg(`✅ ${cityName} 标记为已去过`); }
-        else if(statusType === 'want') { cityStatus[cityName] = 'want'; updateCityStyle(cityName, 'want'); toastMsg(`💗 ${cityName} 加入想去清单`); }
-        else { delete cityStatus[cityName]; updateCityStyle(cityName, null); toastMsg(`🔄 ${cityName} 状态已清空`); }
+        if(statusType === 'go') {
+            cityStatus[cityName] = 'go';
+            updateCityMarker(cityName, 'go');
+            toastMsg(`✅ ${cityName} 标记为已去过`);
+        }
+        else if(statusType === 'want') {
+            cityStatus[cityName] = 'want';
+            updateCityMarker(cityName, 'want');
+            toastMsg(`💗 ${cityName} 加入想去清单`);
+        }
+        else {
+            delete cityStatus[cityName];
+            updateCityMarker(cityName, null);
+            toastMsg(`🔄 ${cityName} 状态已清空`);
+        }
         document.querySelector('.city-modal')?.remove();
     };
 
-    // 城市弹窗（增强版：完整功能）
+    // 城市弹窗
     function openCityPanel(cityName, provinceName) {
         document.querySelectorAll('.city-modal').forEach(e => e.remove());
         const currentSt = cityStatus[cityName] || null;
         const modal = document.createElement('div'); modal.className = 'city-modal';
         modal.innerHTML = `
             <div class="city-card">
-                <div class="city-title">${escapeHtml(cityName)}</div>
+                <div class="city-title">🌆 ${escapeHtml(cityName)}</div>
                 <div class="state-group">
                     <button class="state-btn" style="background:#7ccd7c;color:#fff" onclick="window.setCityStatus('${cityName}','go','${provinceName}')">✅ 已去过</button>
                     <button class="state-btn" style="background:#ff4a6c;color:#fff" onclick="window.setCityStatus('${cityName}','want','${provinceName}')">💗 想去</button>
@@ -543,93 +602,117 @@
     // 筛选
     function applyFilter() {
         currentFilter = document.getElementById('stateFilterSelect').value;
-        for(let name in cityLayers) {
+        for(let name in cityMarkers) {
             const st = cityStatus[name];
             const shouldShow = currentFilter === 'all' || currentFilter === st;
-            const style = shouldShow ? getStyleByStatus(st) : { color: '#d9caba', fillColor: '#f5ede5', fillOpacity: 0.2, weight: 0.8 };
-            cityLayers[name].setStyle(style);
+            if(shouldShow) {
+                cityMarkers[name].setStyle({ opacity: 1, fillOpacity: 0.85 });
+            } else {
+                cityMarkers[name].setStyle({ opacity: 0.2, fillOpacity: 0.05 });
+            }
         }
         renderCityList();
         toastMsg('✅ 筛选完成');
     }
 
-    // 加载城市GeoJSON (内置模拟数据)
-    async function loadCityBoundaries() {
+    // 中国主要城市完整列表（41个主要城市，覆盖所有省级行政区）
+    const citiesData = [
+        { name: "北京市", province: "北京", lng: 116.4074, lat: 39.9042 },
+        { name: "上海市", province: "上海", lng: 121.4737, lat: 31.2304 },
+        { name: "广州市", province: "广东", lng: 113.2644, lat: 23.1291 },
+        { name: "深圳市", province: "广东", lng: 114.0579, lat: 22.5431 },
+        { name: "杭州市", province: "浙江", lng: 120.1551, lat: 30.2741 },
+        { name: "南京市", province: "江苏", lng: 118.7674, lat: 32.0415 },
+        { name: "成都市", province: "四川", lng: 104.0668, lat: 30.5728 },
+        { name: "武汉市", province: "湖北", lng: 114.3055, lat: 30.5931 },
+        { name: "西安市", province: "陕西", lng: 108.9402, lat: 34.3416 },
+        { name: "重庆市", province: "重庆", lng: 106.5044, lat: 29.5582 },
+        { name: "天津市", province: "天津", lng: 117.1902, lat: 39.1256 },
+        { name: "苏州市", province: "江苏", lng: 120.5853, lat: 31.2989 },
+        { name: "长沙市", province: "湖南", lng: 112.9388, lat: 28.2282 },
+        { name: "昆明市", province: "云南", lng: 102.832, lat: 24.8801 },
+        { name: "厦门市", province: "福建", lng: 118.0895, lat: 24.4798 },
+        { name: "青岛市", province: "山东", lng: 120.3552, lat: 36.0829 },
+        { name: "大连市", province: "辽宁", lng: 121.6147, lat: 38.914 },
+        { name: "三亚市", province: "海南", lng: 109.512, lat: 18.2528 },
+        { name: "桂林市", province: "广西", lng: 110.2908, lat: 25.2736 },
+        { name: "拉萨市", province: "西藏", lng: 91.1409, lat: 29.6564 },
+        { name: "乌鲁木齐市", province: "新疆", lng: 87.6168, lat: 43.8256 },
+        { name: "哈尔滨市", province: "黑龙江", lng: 126.6424, lat: 45.7567 },
+        { name: "长春市", province: "吉林", lng: 125.3245, lat: 43.8868 },
+        { name: "沈阳市", province: "辽宁", lng: 123.4315, lat: 41.8057 },
+        { name: "呼和浩特市", province: "内蒙古", lng: 111.751, lat: 40.8415 },
+        { name: "银川市", province: "宁夏", lng: 106.2309, lat: 38.4872 },
+        { name: "西宁市", province: "青海", lng: 101.7801, lat: 36.6232 },
+        { name: "兰州市", province: "甘肃", lng: 103.8343, lat: 36.0611 },
+        { name: "郑州市", province: "河南", lng: 113.6254, lat: 34.7466 },
+        { name: "济南市", province: "山东", lng: 117.1205, lat: 36.651 },
+        { name: "合肥市", province: "安徽", lng: 117.2272, lat: 31.8206 },
+        { name: "南昌市", province: "江西", lng: 115.858, lat: 28.682 },
+        { name: "福州市", province: "福建", lng: 119.2965, lat: 26.0745 },
+        { name: "南宁市", province: "广西", lng: 108.320, lat: 22.824 },
+        { name: "贵阳市", province: "贵州", lng: 106.6302, lat: 26.6477 },
+        { name: "海口市", province: "海南", lng: 110.1999, lat: 20.044 },
+        { name: "石家庄市", province: "河北", lng: 114.4995, lat: 38.1006 },
+        { name: "太原市", province: "山西", lng: 112.5624, lat: 37.8703 },
+        { name: "香港", province: "香港", lng: 114.1697, lat: 22.3193 },
+        { name: "澳门", province: "澳门", lng: 113.5431, lat: 22.1868 },
+        { name: "台北市", province: "台湾", lng: 121.5200, lat: 25.0307 }
+    ];
+
+    // 加载城市标记
+    async function loadCityMarkers() {
         toastMsg('🌏 加载城市数据...');
 
-        // 中国主要城市坐标（简化版）
-        const citiesData = [
-            { name: "北京市", province: "北京", lng: 116.4074, lat: 39.9042 },
-            { name: "上海市", province: "上海", lng: 121.4737, lat: 31.2304 },
-            { name: "广州市", province: "广东", lng: 113.2644, lat: 23.1291 },
-            { name: "深圳市", province: "广东", lng: 114.0579, lat: 22.5431 },
-            { name: "杭州市", province: "浙江", lng: 120.1551, lat: 30.2741 },
-            { name: "南京市", province: "江苏", lng: 118.7674, lat: 32.0415 },
-            { name: "成都市", province: "四川", lng: 104.0668, lat: 30.5728 },
-            { name: "武汉市", province: "湖北", lng: 114.3055, lat: 30.5931 },
-            { name: "西安市", province: "陕西", lng: 108.9402, lat: 34.3416 },
-            { name: "重庆市", province: "重庆", lng: 106.5044, lat: 29.5582 },
-            { name: "天津市", province: "天津", lng: 117.1902, lat: 39.1256 },
-            { name: "苏州市", province: "江苏", lng: 120.5853, lat: 31.2989 },
-            { name: "长沙市", province: "湖南", lng: 112.9388, lat: 28.2282 },
-            { name: "昆明市", province: "云南", lng: 102.832, lat: 24.8801 },
-            { name: "厦门市", province: "福建", lng: 118.0895, lat: 24.4798 },
-            { name: "青岛市", province: "山东", lng: 120.3552, lat: 36.0829 },
-            { name: "大连市", province: "辽宁", lng: 121.6147, lat: 38.914 },
-            { name: "三亚市", province: "海南", lng: 109.512, lat: 18.2528 },
-            { name: "桂林市", province: "广西", lng: 110.2908, lat: 25.2736 },
-            { name: "拉萨市", province: "西藏", lng: 91.1409, lat: 29.6564 },
-            { name: "乌鲁木齐市", province: "新疆", lng: 87.6168, lat: 43.8256 },
-            { name: "哈尔滨市", province: "黑龙江", lng: 126.6424, lat: 45.7567 },
-            { name: "长春市", province: "吉林", lng: 125.3245, lat: 43.8868 },
-            { name: "沈阳市", province: "辽宁", lng: 123.4315, lat: 41.8057 },
-            { name: "呼和浩特市", province: "内蒙古", lng: 111.751, lat: 40.8415 },
-            { name: "银川市", province: "宁夏", lng: 106.2309, lat: 38.4872 },
-            { name: "西宁市", province: "青海", lng: 101.7801, lat: 36.6232 },
-            { name: "兰州市", province: "甘肃", lng: 103.8343, lat: 36.0611 },
-            { name: "郑州市", province: "河南", lng: 113.6254, lat: 34.7466 },
-            { name: "济南市", province: "山东", lng: 117.1205, lat: 36.651 },
-            { name: "合肥市", province: "安徽", lng: 117.2272, lat: 31.8206 },
-            { name: "南昌市", province: "江西", lng: 115.858, lat: 28.682 },
-            { name: "福州市", province: "福建", lng: 119.2965, lat: 26.0745 },
-            { name: "南宁市", province: "广西", lng: 108.320, lat: 22.824 },
-            { name: "贵阳市", province: "贵州", lng: 106.6302, lat: 26.6477 },
-            { name: "海口市", province: "海南", lng: 110.1999, lat: 20.044 },
-            { name: "香港", province: "香港", lng: 114.1697, lat: 22.3193 },
-            { name: "澳门", province: "澳门", lng: 113.5431, lat: 22.1868 },
-            { name: "台北市", province: "台湾", lng: 121.5200, lat: 25.0307 }
-        ];
-
-        for(let k in cityLayers) if(cityLayers[k]) map.removeLayer(cityLayers[k]);
-        cityLayers = {};
+        for(let k in cityMarkers) if(cityMarkers[k]) map.removeLayer(cityMarkers[k]);
+        cityMarkers = {};
 
         citiesData.forEach(city => {
             const status = cityStatus[city.name];
-            // 创建圆形标记
-            const circle = L.circleMarker([city.lat, city.lng], {
-                radius: 16,
-                color: status === 'go' ? '#2E8B57' : (status === 'want' ? '#ff476b' : '#ffaa66'),
-                weight: 2,
-                fillColor: status === 'go' ? '#7ccd7c' : (status === 'want' ? '#ff6b8c' : '#ffdd99'),
-                fillOpacity: 0.7
+            const style = getMarkerStyle(status);
+
+            const marker = L.circleMarker([city.lat, city.lng], {
+                radius: style.radius,
+                color: style.color,
+                weight: 2.5,
+                fillColor: style.fillColor,
+                fillOpacity: style.fillOpacity,
+                opacity: 1
             }).addTo(map);
 
-            circle.bindTooltip(city.name, { permanent: false, direction: 'top', offset: [0, -10] });
-            circle.on('click', () => openCityPanel(city.name, city.province));
-            cityLayers[city.name] = circle;
+            // 绑定工具提示
+            marker.bindTooltip(city.name, {
+                permanent: false,
+                direction: 'top',
+                offset: [0, -12],
+                className: 'city-tooltip'
+            });
+
+            marker.on('click', () => openCityPanel(city.name, city.province));
+            cityMarkers[city.name] = marker;
         });
 
         updateStats();
-        toastMsg('✅ 地图已加载，点击城市标记即可记录足迹');
+        toastMsg('✅ 地图已加载，点击任意城市标记即可记录足迹');
+    }
+
+    // 添加比例尺控制
+    function addScaleControl() {
+        L.control.scale({ metric: true, imperial: false, position: 'bottomright' }).addTo(map);
     }
 
     // 初始化地图
     async function initMap() {
         map = L.map('chinaMap').setView([35.0, 108.0], 5);
         L.tileLayer('https://webrd0.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
-            minZoom: 4, maxZoom: 18, attribution: '高德地图'
+            minZoom: 4,
+            maxZoom: 10,
+            attribution: '高德地图',
+            subdomains: '1234'
         }).addTo(map);
-        await loadCityBoundaries();
+
+        addScaleControl();
+        await loadCityMarkers();
         document.getElementById('filterQueryBtn').onclick = applyFilter;
     }
 
