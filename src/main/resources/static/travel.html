@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/pinyin-pro@3.19.6/dist/index.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/pinyin-pro/3.18.2/index.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background-color: #fff9f5; font-family: system-ui, "Microsoft YaHei", sans-serif; overflow-x: hidden; }
@@ -336,6 +336,16 @@
             font-weight: 600;
         }
         .close-card-btn:active { background: #ffd0c0; transform: scale(0.96); }
+
+        /* 省份Tooltip样式 */
+        .province-tooltip {
+            font-size: 12px;
+            font-weight: bold;
+            padding: 4px 8px;
+            background: rgba(0,0,0,0.7);
+            color: #fff;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -395,16 +405,22 @@
 <script>
     // ==================== 工具函数 ====================
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;')); }
+
     function getNameInitials(username) {
         if (!username) return '游客';
-        const { pinyin } = window.pinyinPro || window.pinyin;
-        if (!pinyin) return username.charAt(0).toUpperCase();
-        return username.split('').map(ch => {
-            if (/[a-zA-Z]/.test(ch)) return ch.toUpperCase();
-            if (/[\u4e00-\u9fa5]/.test(ch)) { const py = pinyin(ch, { pattern: 'first', toneType: 'none' }); return py ? py.toUpperCase() : ch; }
-            return ch.toUpperCase();
-        }).join('');
+        if (typeof pinyinPro !== 'undefined' && pinyinPro.pinyin) {
+            return username.split('').map(ch => {
+                if (/[a-zA-Z]/.test(ch)) return ch.toUpperCase();
+                if (/[\u4e00-\u9fa5]/.test(ch)) {
+                    const py = pinyinPro.pinyin(ch, { pattern: 'first', toneType: 'none' });
+                    return py ? py.toUpperCase() : ch;
+                }
+                return ch.toUpperCase();
+            }).join('');
+        }
+        return username.charAt(0).toUpperCase();
     }
+
     function closeModal() { document.getElementById('logoutModal').style.display = 'none'; document.getElementById('switch')?.classList.remove('active'); }
     function showLogoutModal() { document.getElementById('logoutModal').style.display = 'flex'; document.getElementById('switch')?.classList.add('active'); }
     async function logout() { localStorage.clear(); await fetch("/user/logout", { method: "POST", credentials: "include" }).catch(e=>{}); location.href = 'login.html'; }
@@ -416,6 +432,21 @@
 
     // ==================== 地图状态核心 ====================
     let regionStatus = {}, map, regionLayers = {}, currentFilter = 'all';
+
+    // 省份省会坐标映射（用于地图中心定位）
+    const provinceCapitals = {
+        "北京市": [39.9042, 116.4074], "天津市": [39.1256, 117.1902], "上海市": [31.2304, 121.4737], "重庆市": [29.5582, 106.5044],
+        "河北省": [38.0423, 114.5149], "山西省": [37.8703, 112.5624], "内蒙古自治区": [40.8175, 111.7656],
+        "辽宁省": [41.8056, 123.4315], "吉林省": [43.8868, 125.3245], "黑龙江省": [45.7567, 126.6424],
+        "江苏省": [32.0415, 118.7674], "浙江省": [30.2875, 120.1536], "安徽省": [31.8612, 117.2830],
+        "福建省": [26.0753, 119.3062], "江西省": [28.6765, 115.8922], "山东省": [36.6758, 117.0009],
+        "河南省": [34.7570, 113.6654], "湖北省": [30.5844, 114.2986], "湖南省": [28.1941, 112.9823],
+        "广东省": [23.1291, 113.2644], "广西壮族自治区": [22.8287, 108.3285], "海南省": [20.0174, 110.3489],
+        "四川省": [30.6595, 104.0657], "贵州省": [26.5783, 106.7135], "云南省": [25.0406, 102.7123],
+        "西藏自治区": [29.6472, 91.1175], "陕西省": [34.2632, 108.9480], "甘肃省": [36.0580, 103.8236],
+        "青海省": [36.6224, 101.7806], "宁夏回族自治区": [38.4667, 106.1957], "新疆维吾尔自治区": [43.7928, 87.6177],
+        "台湾省": [25.0443, 121.5091], "香港特别行政区": [22.3200, 114.1734], "澳门特别行政区": [22.1868, 113.5430]
+    };
 
     function getRegionStyle(status) {
         switch(status) {
@@ -537,21 +568,18 @@
         toastMsg('✅ 筛选完成');
     }
 
-    // ========== 使用本地GeoJSON文件（解决网络问题）==========
+    // ========== 加载GeoJSON省级边界数据 ==========
     async function loadRegionBoundaries() {
         toastMsg('🌏 加载中国地图数据...');
 
-        // 方案1：使用本地GeoJSON文件（推荐）
-        // 将你提供的china.json文件放在 src/main/resources/static/geo/china.json
+        // 本地GeoJSON文件路径（请将china.json放在 static/geo/ 目录下）
         const localGeoJsonUrl = '/geo/china.json';
-
-        // 方案2：如果本地文件不存在，使用备用CDN（阿里云DataV，国内可用）
+        // 备用CDN（阿里云DataV）
         const fallbackUrl = 'https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json';
 
         try {
             let response = await fetch(localGeoJsonUrl);
 
-            // 如果本地文件不存在（404），则使用备用CDN
             if (!response.ok) {
                 console.warn('本地GeoJSON文件不存在，尝试备用CDN...');
                 response = await fetch(fallbackUrl);
@@ -564,33 +592,21 @@
             for(let k in regionLayers) if(regionLayers[k]) map.removeLayer(regionLayers[k]);
             regionLayers = {};
 
-            // 过滤出省级行政区
+            // 获取features
             let features = data.features;
-
-            // 如果是阿里云数据，需要按level过滤；如果是自定义GeoJSON，直接使用全部features
             if (data.features && data.features[0]?.properties?.level) {
                 features = data.features.filter(f => f.properties.level === 'province');
             }
 
-            // 处理省份名称映射（统一名称）
+            // 省份名称映射
             const nameMapping = {
-                '广西壮族自治区': '广西',
-                '新疆维吾尔自治区': '新疆',
-                '宁夏回族自治区': '宁夏',
-                '西藏自治区': '西藏',
-                '内蒙古自治区': '内蒙古',
-                '广西': '广西',
-                '新疆': '新疆',
-                '宁夏': '宁夏',
-                '西藏': '西藏',
-                '内蒙古': '内蒙古'
+                '广西壮族自治区': '广西', '新疆维吾尔自治区': '新疆', '宁夏回族自治区': '宁夏',
+                '西藏自治区': '西藏', '内蒙古自治区': '内蒙古'
             };
 
             features.forEach(feature => {
                 let name = feature.properties.name;
-                // 应用名称映射
                 const mappedName = nameMapping[name] || name;
-
                 const status = regionStatus[mappedName] || regionStatus[name];
                 const style = getRegionStyle(status);
 
@@ -602,7 +618,6 @@
                 layer.bindTooltip(name, { permanent: false, direction: 'center', className: 'province-tooltip' });
                 layer.on('click', () => openRegionPanel(mappedName, name));
 
-                // 同时用原始名称和映射名称存储，确保状态匹配
                 regionLayers[name] = layer;
                 if (mappedName !== name) regionLayers[mappedName] = layer;
             });
@@ -613,54 +628,48 @@
         } catch(error) {
             console.error('加载地图数据失败:', error);
             toastMsg('地图加载失败，请检查网络后刷新');
-
-            // 显示错误提示，建议用户检查文件路径
-            console.log('提示：请确保GeoJSON文件放在 src/main/resources/static/geo/china.json');
-            console.log('或使用阿里云CDN作为备用数据源');
         }
     }
 
-    // ========== 使用高德地图瓦片（国内可用） ==========
+    // ========== 初始化地图 ==========
     async function initMap() {
-        // 使用高德地图官方瓦片（国内正常访问）
-        // 注意：高德瓦片需要申请key，这里使用无需key的瓦片服务
+        // 使用高德地图瓦片（国内可用，无需key）
         map = L.map('chinaMap').setView([35.0, 108.0], 5);
 
-        // 方案1：使用OpenStreetMap（全球可用，国内速度一般）
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB',
-            subdomains: 'abcd',
-            maxZoom: 19,
-            minZoom: 4
+        L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+            subdomains: '1234',
+            maxZoom: 10,
+            minZoom: 4,
+            attribution: '高德地图'
         }).addTo(map);
 
-        // 方案2：如果上述慢，可以使用天地图（需要token，国内快）
-        // 天地图需要申请key，这里注释作为备选
-        /*
-        L.tileLayer('https://t{s}.tianditu.gov.cn/DataServer?T=vec_w&x={x}&y={y}&l={z}&tk=你的天地图token', {
-            attribution: '天地图',
-            subdomains: ['0', '1', '2', '3', '4', '5', '6', '7'],
-            maxZoom: 18,
-            minZoom: 4
-        }).addTo(map);
-        */
-
+        // 添加比例尺控件
         L.control.scale({ metric: true, imperial: false, position: 'bottomright' }).addTo(map);
 
         await loadRegionBoundaries();
         document.getElementById('filterQueryBtn').onclick = applyFilter;
     }
 
-    // 页面启动
+    // ========== 页面启动 ==========
     window.onload = async function() {
         if (!localStorage.getItem('isLogin')) { location.href = 'login.html'; return; }
+
         try {
             const res = await fetch("/user/info", { credentials: "include" });
             const result = await res.json();
             if (result.code === 200 && result.data && result.data.username) {
                 document.getElementById('userInitial').innerText = getNameInitials(result.data.username);
-            } else { localStorage.removeItem('isLogin'); location.href = 'login.html'; return; }
-        } catch(e) { localStorage.removeItem('isLogin'); location.href = 'login.html'; return; }
+            } else {
+                localStorage.removeItem('isLogin');
+                location.href = 'login.html';
+                return;
+            }
+        } catch(e) {
+            localStorage.removeItem('isLogin');
+            location.href = 'login.html';
+            return;
+        }
+
         loadStatus();
         await initMap();
         await updateRedDot();
