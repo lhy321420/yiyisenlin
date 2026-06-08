@@ -2,80 +2,145 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>壹一森林</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>壹一森林 · 日记详情</title>
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{background:#fff9f5;font-family:"Microsoft YaHei";overflow-x:hidden;}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-        /* ========== 顶部导航 完全对齐参照版 · 手机终极适配 ========== */
+        body {
+            background: #fff9f5;
+            font-family: system-ui, "Microsoft YaHei", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* ========== 顶部导航 手机完美适配（与朋友/记录页面完全统一） ========== */
         .big {
             display: flex;
-            align-items: center;
-            background: rgb(255, 255, 158);
-            padding: 8px 12px;
-            justify-content: space-between;
-            margin: 10px auto;
-            max-width: 95%;
-            border-radius: 15px;
-            min-height: 46px;
             flex-wrap: wrap;
-            gap: 8px;
+            align-items: center;
+            justify-content: space-between;
+            background: rgb(255, 255, 158);
+            margin: 12px auto;
+            padding: 10px 14px;
+            width: calc(100% - 20px);
+            max-width: 1000px;
+            border-radius: 28px;
+            gap: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
         }
-        .first { display: flex; align-items: center; gap: 6px; }
-        .heart { font-size: 16px; cursor: pointer; transition: 0.2s; }
-        .heart:hover { transform: scale(1.1); }
-        .name p { font-size: 12px; line-height: 1.2; color: rgb(146, 86, 30); }
+
+        .first {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .heart {
+            font-size: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+            background: rgba(255, 220, 180, 0.4);
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .heart:active {
+            transform: scale(0.94);
+            background: #ffe0b5;
+        }
+
+        .name p {
+            font-size: 11px;
+            line-height: 1.25;
+            color: rgb(146, 86, 30);
+            font-weight: 500;
+        }
+
+        .name p:first-child {
+            font-size: 10px;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+        }
+
         .bell {
-            font-size: 18px;
+            font-size: 20px;
             color: rgb(199, 199, 158);
             cursor: pointer;
-            margin-left: 6px;
-            transition: 0.3s;
+            transition: 0.2s;
             position: relative;
+            background: rgba(255, 240, 200, 0.5);
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
         }
-        .bell:hover { color: #f8446e; }
+
+        .bell:active {
+            transform: scale(0.94);
+            color: #f8446e;
+        }
+
         .red-dot {
             position: absolute;
-            top: -5px;
-            right: -8px;
+            top: 2px;
+            right: 4px;
             width: 10px;
             height: 10px;
             background: #f8446e;
             border-radius: 50%;
             display: none;
+            border: 1.5px solid #ffff9e;
         }
 
-        /* 导航菜单：手机自动换行，不挤压、不溢出 */
+        /* 导航菜单：完全自适应换行 */
         .nav {
             display: flex;
-            background: rgb(252, 252, 192);
-            color: rgb(146, 86, 30);
-            padding: 2px 6px;
-            border-radius: 15px;
-            min-height: 28px;
-            gap: 4px;
             flex-wrap: wrap;
             justify-content: center;
+            gap: 8px;
+            background: rgb(252, 252, 192);
+            padding: 6px 12px;
+            border-radius: 40px;
+            flex: 1 1 auto;
+            min-width: 160px;
         }
+
         .nav-item {
-            padding: 2px 6px;
-            border: 2px solid transparent;
-            border-radius: 15px;
-            transition: all 0.3s ease;
-            font-size: 13px;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgb(146, 86, 30);
             cursor: pointer;
+            transition: all 0.2s ease;
             white-space: nowrap;
+            background: transparent;
+            text-align: center;
         }
+
         .nav-item.active {
             background-color: rgb(255, 239, 200);
+            color: #bc6f2c;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
             transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-        .nav-item:hover {
-            background-color: rgb(255, 239, 200);
-            transform: translateY(-1px);
+
+        .nav-item:active {
+            background-color: rgb(255, 230, 180);
+            transform: scale(0.96);
         }
 
         .user-right {
@@ -83,13 +148,20 @@
             align-items: center;
             gap: 8px;
             background: #ffdde0;
-            padding: 4px 10px;
-            border-radius: 20px;
+            padding: 6px 12px;
+            border-radius: 40px;
             color: #c74c70;
             font-weight: bold;
             font-size: 13px;
             cursor: pointer;
+            flex-shrink: 0;
         }
+
+        .user-right:active {
+            background: #ffcbd1;
+            transform: scale(0.97);
+        }
+
         .switch-btn {
             width: 28px;
             height: 14px;
@@ -97,6 +169,7 @@
             border-radius: 10px;
             position: relative;
         }
+
         .switch-btn::before {
             content: '';
             width: 10px;
@@ -104,121 +177,232 @@
             background: #f8446e;
             border-radius: 50%;
             position: absolute;
-            top: 2px; left: 2px;
+            top: 2px;
+            left: 2px;
             transition: 0.2s;
         }
-        .switch-btn.active::before { left: 16px; }
 
-        /* ========== 内容容器 手机全屏 ========== */
-        .container{
-            max-width:700px;
-            margin:20px auto;
-            padding:16px;
-            width:95%;
-            background:#fff;
-            border-radius:20px;
-            box-shadow:0 4px 12px rgba(245,190,150,.15);
-        }
-
-        /* ========== 图片弹窗 ========== */
-        .img-modal{
-            position:fixed;
-            top:0;left:0;
-            width:100%;height:100%;
-            background:rgba(0,0,0,.85);
-            display:none;
-            align-items:center;
-            justify-content:center;
-            z-index:1000;
-            padding:15px;
-        }
-        .img-modal img{
-            max-width:100%;
-            max-height:90%;
-            border-radius:16px;
-            object-fit:contain;
-        }
-
-        /* ========== 评论样式 ========== */
-        .comment-item{
-            background:#fff0e8;
-            border-radius:16px;
-            padding:12px;
-            margin-top:12px;
-            word-break:break-all;
-            width:100%;
-        }
-        .comment-reply{
-            background:#ffe8e0;
-            border-radius:12px;
-            padding:10px;
-            margin:8px 0 8px 20px;
-            word-break:break-all;
-            width:calc(100% - 20px);
-        }
-        .like-btn,.comment-btn,.fav-btn{
-            background:none;
-            border:none;
-            color:#c74c70;
-            cursor:pointer;
-            font-size:14px;
-            margin-right:8px;
-        }
-
-        /* 输入框手机适配 */
-        textarea, input{
-            width:100% !important;
-            max-width:100%;
-            border:1px solid #f7d3c2;
-            border-radius:12px;
-            padding:10px;
-            margin-top:10px;
-            font-size:14px;
-            -webkit-appearance:none;
-        }
-        button{
-            cursor:pointer;
-            border:none;
-            outline:none;
-        }
-
-        /* 照片列表自动换行 */
-        .photo-wrap{
-            display:flex;
-            flex-wrap:wrap;
-            gap:6px;
-            margin:10px 0;
-            width:100%;
-        }
-        .photo-wrap img{
-            width:100px;
-            height:100px;
-            object-fit:cover;
-            border-radius:12px;
-            cursor:pointer;
-            flex-shrink:0;
-        }
-
-        /* 小屏手机优化 */
-        @media (max-width:400px){
-            .photo-wrap img{
-                width:70px;
-                height:70px;
+        @media (max-width: 620px) {
+            .big {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 12px;
+                gap: 10px;
             }
-            .container{
-                padding:14px;
+
+            .first {
+                justify-content: space-between;
+                width: 100%;
+            }
+
+            .nav {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .user-right {
+                align-self: flex-end;
+                width: fit-content;
+            }
+
+            .nav-item {
+                padding: 6px 10px;
+                font-size: 13px;
             }
         }
 
-        /* 按钮全屏适配 */
-        .full-btn{
-            width:100%;
-            background:#ffccd5;
-            border-radius:20px;
-            padding:8px 20px;
-            color:#c74c70;
-            margin-top:8px;
-            text-align:center;
+        @media (max-width: 480px) {
+            .nav-item {
+                padding: 5px 8px;
+                font-size: 12px;
+            }
+
+            .first .heart,
+            .first .bell {
+                width: 32px;
+                height: 32px;
+            }
+        }
+
+        /* ========== 内容容器 手机全屏优化 ========== */
+        .container {
+            max-width: 700px;
+            margin: 20px auto;
+            padding: 24px 20px;
+            width: calc(100% - 30px);
+            background: #fff;
+            border-radius: 32px;
+            box-shadow: 0 8px 24px rgba(245, 190, 150, 0.12);
+            word-wrap: break-word;
+        }
+
+        /* 图片弹窗 */
+        .img-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.88);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1200;
+            padding: 20px;
+        }
+
+        .img-modal img {
+            max-width: 95%;
+            max-height: 85%;
+            border-radius: 24px;
+            object-fit: contain;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 留言区域样式 - 手机友好 */
+        .comment-item {
+            background: #fff0e8;
+            border-radius: 20px;
+            padding: 14px;
+            margin-top: 14px;
+            word-break: break-word;
+            width: 100%;
+        }
+
+        .comment-reply {
+            background: #ffe8e0;
+            border-radius: 16px;
+            padding: 12px;
+            margin: 10px 0 8px 16px;
+            word-break: break-word;
+            width: calc(100% - 16px);
+        }
+
+        .like-btn, .comment-btn, .fav-btn {
+            background: none;
+            border: none;
+            color: #c74c70;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            margin-right: 12px;
+            padding: 5px 6px;
+            border-radius: 25px;
+        }
+
+        .like-btn:active, .comment-btn:active, .fav-btn:active {
+            background: rgba(199, 76, 112, 0.1);
+            transform: scale(0.96);
+        }
+
+        /* 输入框及按钮自适应 */
+        textarea, input {
+            width: 100% !important;
+            max-width: 100%;
+            border: 1px solid #f7d3c2;
+            border-radius: 24px;
+            padding: 12px 16px;
+            margin-top: 12px;
+            font-size: 14px;
+            font-family: inherit;
+            background: #fff;
+            -webkit-appearance: none;
+            resize: vertical;
+        }
+
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: #f9bc8c;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            outline: none;
+            background: none;
+            font-family: inherit;
+        }
+
+        /* 照片列表自适应换行 */
+        .photo-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 16px 0;
+            width: 100%;
+        }
+
+        .photo-wrap img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 20px;
+            cursor: pointer;
+            flex-shrink: 0;
+            background: #f5e2d4;
+            transition: 0.1s;
+        }
+
+        .photo-wrap img:active {
+            transform: scale(0.96);
+        }
+
+        /* 小屏手机图片缩小 */
+        @media (max-width: 450px) {
+            .photo-wrap img {
+                width: 80px;
+                height: 80px;
+                border-radius: 16px;
+            }
+            .container {
+                padding: 18px 16px;
+            }
+        }
+
+        /* 全宽按钮 */
+        .full-btn {
+            width: 100%;
+            background: #ffccd5;
+            border-radius: 40px;
+            padding: 12px 20px;
+            color: #c74c70;
+            margin-top: 12px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 15px;
+            transition: 0.1s;
+        }
+
+        .full-btn:active {
+            background: #ffb8c4;
+            transform: scale(0.98);
+        }
+
+        /* 分割线 */
+        .divider {
+            height: 1px;
+            background: #f0e0d4;
+            margin: 16px 0;
+        }
+
+        .reply-input-area {
+            margin-top: 10px;
+        }
+
+        .reply-input-area input {
+            margin-top: 4px;
+            padding: 10px 14px;
+        }
+
+        .send-reply-btn {
+            background: #ffccd5;
+            border-radius: 40px;
+            padding: 8px 16px;
+            color: #c74c70;
+            font-weight: 600;
+            margin-top: 8px;
+            width: 100%;
+            text-align: center;
         }
     </style>
 </head>
@@ -250,199 +434,327 @@
     </div>
 </div>
 
-<div class="container" id="detailContainer"></div>
+<div class="container" id="detailContainer">
+    <div style="text-align:center; padding:30px;">🌿 加载日记中...</div>
+</div>
 
-<div class="img-modal" id="imgModal" onclick="closeModal()">
-    <img id="enlargedImg" src="">
+<!-- 图片放大弹窗 -->
+<div class="img-modal" id="imgModal" onclick="closeImgModal()">
+    <img id="enlargedImg" src="" alt="放大预览">
 </div>
 
 <script>
-    let diaryId = null, currentUserId = null;
+    // ==================== 辅助函数 ====================
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;'));
+    }
 
-    window.onload = async function () {
+    function getNameInitials(username) {
+        if (!username) return '👤';
+        // 简单取首字母或汉字首字
+        const first = username.charAt(0);
+        if (/[\u4e00-\u9fa5]/.test(first)) return first;
+        return first.toUpperCase();
+    }
+
+    let diaryId = null;
+    let currentUserId = null;
+
+    // 关闭模态框
+    function closeImgModal() {
+        document.getElementById('imgModal').style.display = 'none';
+    }
+
+    // 打开大图
+    function openImg(src) {
+        const modal = document.getElementById('imgModal');
+        const imgEl = document.getElementById('enlargedImg');
+        imgEl.src = src;
+        modal.style.display = 'flex';
+    }
+
+    window.onload = async function() {
+        // 登录校验
         if (!localStorage.getItem('isLogin')) {
             location.href = 'login.html';
             return;
         }
 
+        // 获取当前用户信息
         try {
             const res = await fetch("/user/info", { credentials: 'include' });
             const result = await res.json();
-            if (result.code === 200 && result.data) {
+            if (result.code === 200 && result.data && result.data.id) {
                 currentUserId = result.data.id;
-                document.getElementById('userInitial').innerText = getNameInitials(result.data.username);
+                const username = result.data.username;
+                document.getElementById('userInitial').innerText = getNameInitials(username);
+                localStorage.setItem('username', username);
+            } else {
+                localStorage.removeItem('isLogin');
+                location.href = 'login.html';
+                return;
             }
         } catch (e) {
-            console.log("用户信息加载失败");
+            console.error(e);
+            localStorage.removeItem('isLogin');
+            location.href = 'login.html';
+            return;
         }
 
+        // 获取日记ID
         const params = new URLSearchParams(location.search);
         diaryId = params.get('id');
         if (!diaryId) {
-            alert('参数错误');
+            alert('日记不存在');
+            history.back();
             return;
         }
+
         await loadDetail();
+        await updateRedDot();
     };
 
+    // 加载日记详情 + 评论
     async function loadDetail() {
-        const res = await fetch(`/user/diary/detail?id=${diaryId}`, { credentials: 'include' });
-        const result = await res.json();
-        if (result.code !== 200) {
-            alert('无法查看');
+        const container = document.getElementById('detailContainer');
+        try {
+            const res = await fetch(`/user/diary/detail?id=${diaryId}`, { credentials: 'include' });
+            const result = await res.json();
+            if (result.code !== 200 || !result.data) {
+                container.innerHTML = '<div style="text-align:center; padding:40px;">🍂 日记不存在或已被删除</div>';
+                return;
+            }
+            const d = result.data;
+
+            // 处理照片
+            let photosHtml = '';
+            if (d.photos) {
+                try {
+                    const arr = JSON.parse(d.photos);
+                    if (Array.isArray(arr) && arr.length) {
+                        arr.forEach(p => {
+                            if (p && p.startsWith('http') || p.startsWith('data:image')) {
+                                photosHtml += `<img src="${escapeHtml(p)}" onclick="openImg('${escapeHtml(p)}')">`;
+                            }
+                        });
+                    }
+                } catch (e) { }
+            }
+
+            // 加载评论列表（支持顶层+回复）
+            const commentRes = await fetch(`/user/diary/comments?diaryId=${diaryId}`, { credentials: 'include' });
+            const commentResult = await commentRes.json();
+            let commentsHtml = '';
+            if (commentResult.code === 200 && commentResult.data) {
+                const allComments = commentResult.data;
+                const topComments = allComments.filter(c => !c.parentId);
+                topComments.forEach(c => {
+                    commentsHtml += `
+                    <div class="comment-item" id="comment-${c.id}">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap;">
+                            <div><strong style="color:#9c5a22;">${escapeHtml(c.username)}</strong> <span style="font-size:11px; color:#b7855b;">${escapeHtml(c.createTime || '刚刚')}</span></div>
+                        </div>
+                        <div style="margin: 8px 0 10px; line-height:1.45;">${escapeHtml(c.content)}</div>
+                        <div>
+                            <button class="like-btn" onclick="toggleCommentLike(this, ${c.id})">❤️ <span>${c.likeCount || 0}</span></button>
+                            <button class="comment-btn" onclick="showReplyBox(${c.id})">💬 回复</button>
+                        </div>
+                        <div id="replyContainer-${c.id}" class="reply-input-area"></div>
+                    `;
+                    // 渲染二级回复
+                    const replies = allComments.filter(r => r.parentId === c.id);
+                    replies.forEach(r => {
+                        commentsHtml += `
+                        <div class="comment-reply">
+                            <div><strong style="color:#9c5a22;">${escapeHtml(r.username)}</strong> 回复 <strong>${escapeHtml(r.replyToUsername || c.username)}</strong> · <span style="font-size:10px;">${escapeHtml(r.createTime || '')}</span></div>
+                            <div style="margin:6px 0 8px;">${escapeHtml(r.content)}</div>
+                            <button class="like-btn" onclick="toggleCommentLike(this, ${r.id})">❤️ <span>${r.likeCount || 0}</span></button>
+                        </div>
+                        `;
+                    });
+                    commentsHtml += `</div>`;
+                });
+            }
+
+            // 组装整个页面
+            container.innerHTML = `
+                <h2 style="color:#c74c70; margin-bottom: 12px; font-size: 22px; word-break:break-word;">${escapeHtml(d.title)}</h2>
+                <div style="color:#b98f6b; margin-bottom: 12px; display: flex; justify-content: space-between; flex-wrap:wrap; gap:6px;">
+                    <span>✍️ ${escapeHtml(d.username)}</span>
+                    <span>📅 ${escapeHtml(d.createTime || '')}</span>
+                </div>
+                <div class="divider"></div>
+                <div style="line-height: 1.7; margin: 14px 0; font-size: 15px; color:#4d3824; word-break:break-word;">${escapeHtml(d.content)}</div>
+                ${photosHtml ? `<div class="photo-wrap">${photosHtml}</div>` : ''}
+                <div class="divider"></div>
+                <div style="display:flex; gap: 20px; margin: 12px 0 8px; align-items:center; flex-wrap:wrap;">
+                    <button class="like-btn" id="likeDiaryBtn" data-id="${d.id}" onclick="toggleDiaryLike(this)">❤️ <span>${d.likeCount || 0}</span></button>
+                    <button class="fav-btn" id="favDiaryBtn" data-id="${d.id}" onclick="toggleDiaryFav(this)">⭐ <span>${d.favoriteCount || 0}</span></button>
+                </div>
+                <h3 style="margin: 22px 0 8px; color:#9c5a22; font-size: 18px;">🌱 留言 · ${commentResult.data ? commentResult.data.filter(c => !c.parentId).length : 0}</h3>
+                <div id="commentsArea">${commentsHtml || '<div style="padding:20px 0; text-align:center; color:#b7865c;">暂无留言，写下第一条吧～</div>'}</div>
+                <textarea id="newComment" placeholder="写下你的留言..." rows="3" maxlength="500"></textarea>
+                <button onclick="submitTopComment()" class="full-btn">✨ 发布留言</button>
+            `;
+        } catch (err) {
+            console.error(err);
+            container.innerHTML = '<div style="text-align:center; padding:40px;">🌧 加载失败，请稍后重试</div>';
+        }
+    }
+
+    // 日记点赞
+    async function toggleDiaryLike(btn) {
+        const diaryIdVal = btn.dataset.id;
+        if (!diaryIdVal) return;
+        try {
+            const res = await fetch('/user/diary/toggleLike', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ diaryId: parseInt(diaryIdVal) }),
+                credentials: 'include'
+            });
+            const result = await res.json();
+            if (result.code === 200) {
+                const span = btn.querySelector('span');
+                let current = parseInt(span.innerText);
+                span.innerText = result.liked ? current + 1 : Math.max(current - 1, 0);
+            } else {
+                alert('操作失败');
+            }
+        } catch (e) {
+            alert('网络异常');
+        }
+    }
+
+    // 日记收藏
+    async function toggleDiaryFav(btn) {
+        const diaryIdVal = btn.dataset.id;
+        if (!diaryIdVal) return;
+        try {
+            const res = await fetch('/user/diary/toggleFavorite', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ diaryId: parseInt(diaryIdVal) }),
+                credentials: 'include'
+            });
+            const result = await res.json();
+            if (result.code === 200) {
+                const span = btn.querySelector('span');
+                let current = parseInt(span.innerText);
+                span.innerText = result.favorited ? current + 1 : Math.max(current - 1, 0);
+            } else {
+                alert('收藏失败');
+            }
+        } catch (e) {
+            alert('网络异常');
+        }
+    }
+
+    // 评论点赞
+    async function toggleCommentLike(btn, commentId) {
+        try {
+            const res = await fetch('/user/diary/toggleCommentLike', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ commentId: commentId }),
+                credentials: 'include'
+            });
+            const result = await res.json();
+            if (result.code === 200) {
+                const span = btn.querySelector('span');
+                let current = parseInt(span.innerText);
+                span.innerText = result.liked ? current + 1 : Math.max(current - 1, 0);
+            } else {
+                alert('点赞失败');
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    // 显示回复输入框
+    function showReplyBox(parentCommentId) {
+        const container = document.getElementById(`replyContainer-${parentCommentId}`);
+        if (!container) return;
+        // 如果已经存在则不再重复创建
+        if (container.innerHTML.trim() !== '') {
+            container.innerHTML = '';
             return;
         }
-        const d = result.data;
-
-        let photosHtml = '';
-        if (d.photos) {
-            try {
-                const arr = JSON.parse(d.photos);
-                arr.forEach(p => {
-                    photosHtml += `<img src="${p}" onclick="openImg('${p}')">`;
-                });
-            } catch (e) {}
-        }
-
-        const resC = await fetch(`/user/diary/comments?diaryId=${diaryId}`, { credentials: 'include' });
-        const resultC = await res.json();
-        let commentsHtml = '';
-        if (resultC.code === 200 && resultC.data) {
-            resultC.data.filter(c => !c.parentId).forEach(c => {
-                commentsHtml += `
-                <div class="comment-item">
-                    <div><strong>${escapeHtml(c.username)}</strong> ${c.createTime}</div>
-                    <div>${escapeHtml(c.content)}</div>
-                    <button class="like-btn" onclick="toggleCommentLike(this,${c.id})">❤️ ${c.likeCount}</button>
-                    <button class="comment-btn" onclick="showReplyBox(${c.id})">回复</button>
-                    <div id="reply-${c.id}"></div>
-                </div>
-                `;
-                resultC.data.filter(r => r.parentId === c.id).forEach(r => {
-                    commentsHtml += `
-                    <div class="comment-reply">
-                        <div><strong>${escapeHtml(r.username)}</strong> 回复 ${escapeHtml(r.replyToUsername)}</div>
-                        <div>${escapeHtml(r.content)}</div>
-                        <button class="like-btn" onclick="toggleCommentLike(this,${r.id})">❤️ ${r.likeCount}</button>
-                    </div>
-                    `;
-                });
-            });
-        }
-
-        document.getElementById('detailContainer').innerHTML = `
-            <h2 style="color:#c74c70; margin-bottom:10px; word-break:break-all;">${escapeHtml(d.title)}</h2>
-            <div style="color:#999; margin-bottom:10px;">${escapeHtml(d.username)} · ${d.createTime}</div>
-            <div style="line-height:1.6; margin:10px 0; word-break:break-all;">${escapeHtml(d.content)}</div>
-            <div class="photo-wrap">${photosHtml}</div>
-            <div style="display:flex;gap:15px;margin:10px 0">
-                <button class="like-btn" data-id="${d.id}" onclick="toggleLike(this)">❤️ ${d.likeCount}</button>
-                <button class="fav-btn" data-id="${d.id}" onclick="toggleFav(this)">⭐ ${d.favoriteCount}</button>
-            </div>
-            <h3 style="margin:15px 0 8px; color:#9c5a22;">留言</h3>
-            <div id="commentsArea">${commentsHtml}</div>
-            <textarea id="newComment" placeholder="写留言..." rows="3"></textarea>
-            <button onclick="submitComment()" class="full-btn">发布留言</button>
+        container.innerHTML = `
+            <input type="text" id="replyInput-${parentCommentId}" placeholder="回复留言..." maxlength="200">
+            <button class="send-reply-btn" onclick="submitReply(${parentCommentId})">发送回复</button>
         `;
     }
 
-    async function toggleLike(btn) {
-        const id = btn.dataset.id;
-        const res = await fetch('/user/diary/toggleLike', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ diaryId: id }),
-            credentials: 'include'
-        });
-        const result = await res.json();
-        let num = parseInt(btn.innerText.match(/\d+/)[0]);
-        btn.innerText = `❤️ ${result.liked ? num + 1 : num - 1}`;
-    }
-
-    async function toggleFav(btn) {
-        const id = btn.dataset.id;
-        const res = await fetch('/user/diary/toggleFavorite', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ diaryId: id }),
-            credentials: 'include'
-        });
-        const result = await res.json();
-        let num = parseInt(btn.innerText.match(/\d+/)[0]);
-        btn.innerText = `⭐ ${result.favorited ? num + 1 : num - 1}`;
-    }
-
-    async function toggleCommentLike(btn, id) {
-        const res = await fetch('/user/diary/toggleCommentLike', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ commentId: id }),
-            credentials: 'include'
-        });
-        const result = await res.json();
-        let num = parseInt(btn.innerText.match(/\d+/)[0]);
-        btn.innerText = `❤️ ${result.liked ? num + 1 : num - 1}`;
-    }
-
-    function showReplyBox(cid) {
-        const box = document.getElementById(`reply-${cid}`);
-        box.innerHTML = `<input placeholder="回复..." style="margin-top:8px;"><button onclick="submitReply(${cid})" style="margin-top:6px; background:#ffccd5; border-radius:20px; padding:4px 12px; color:#c74c70; width:100%;">发送</button>`;
-    }
-
-    async function submitComment() {
-        const txt = document.getElementById('newComment').value.trim();
-        if (!txt) {
-            alert('不能为空');
+    // 提交顶层留言
+    async function submitTopComment() {
+        const txtArea = document.getElementById('newComment');
+        const content = txtArea.value.trim();
+        if (!content) {
+            alert('留言不能为空');
             return;
         }
-        const res = await fetch('/user/diary/addComment', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ diaryId: diaryId, content: txt, parentId: 0 }),
-            credentials: 'include'
-        });
-        const result = await res.json();
-        if (result.code === 200) {
-            alert('成功');
-            loadDetail();
+        try {
+            const res = await fetch('/user/diary/addComment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ diaryId: parseInt(diaryId), content: content, parentId: 0 }),
+                credentials: 'include'
+            });
+            const result = await res.json();
+            if (result.code === 200) {
+                txtArea.value = '';
+                await loadDetail();
+            } else {
+                alert('发布失败：' + (result.msg || '未知错误'));
+            }
+        } catch (e) {
+            alert('网络错误');
         }
     }
 
-    async function submitReply(cid) {
-        const txt = document.querySelector(`#reply-${cid} input`).value.trim();
-        if (!txt) return;
-        const res = await fetch('/user/diary/addComment', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ diaryId: diaryId, content: txt, parentId: cid }),
-            credentials: 'include'
-        });
-        const result = await res.json();
-        if (result.code === 200) {
-            alert('回复成功');
-            loadDetail();
+    // 提交回复
+    async function submitReply(parentCommentId) {
+        const input = document.getElementById(`replyInput-${parentCommentId}`);
+        if (!input) return;
+        const content = input.value.trim();
+        if (!content) {
+            alert('回复内容不能为空');
+            return;
+        }
+        try {
+            const res = await fetch('/user/diary/addComment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ diaryId: parseInt(diaryId), content: content, parentId: parentCommentId }),
+                credentials: 'include'
+            });
+            const result = await res.json();
+            if (result.code === 200) {
+                await loadDetail();
+            } else {
+                alert('回复失败：' + (result.msg || '错误'));
+            }
+        } catch (e) {
+            alert('网络错误');
         }
     }
 
-    function openImg(src) {
-        document.getElementById('enlargedImg').src = src;
-        document.getElementById('imgModal').style.display = 'flex';
+    // 红点更新 (好友申请未读数)
+    async function updateRedDot() {
+        try {
+            const res = await fetch("/user/unreadRequestCount", { credentials: 'include' });
+            const result = await res.json();
+            const redDot = document.getElementById('redDotDetail');
+            if (redDot) {
+                redDot.style.display = (result.code === 200 && result.data > 0) ? 'block' : 'none';
+            }
+        } catch (e) { }
     }
 
-    function closeModal() {
-        document.getElementById('imgModal').style.display = 'none';
-    }
-
-    function escapeHtml(s) {
-        if (!s) return '';
-        return s.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
-    }
-
-    function getNameInitials(n) {
-        if (!n) return '游客';
-        return n.substring(0, 1).toUpperCase();
-    }
-
+    // 导航函数
     function go(page) {
         const links = {
             index: "index.html",
@@ -451,7 +763,7 @@
             album: "about.html",
             map: "travel.html"
         };
-        location.href = links[page];
+        window.location.href = links[page];
     }
 
     function toUserInfo() {
@@ -463,8 +775,9 @@
     }
 
     function showLogoutModal() {
-        if (confirm("确定退出登录？")) {
+        if (confirm("确定要退出登录吗？")) {
             localStorage.removeItem("isLogin");
+            fetch("/user/logout", { method: "POST", credentials: "include" }).catch(e=>console.log);
             location.href = "login.html";
         }
     }
