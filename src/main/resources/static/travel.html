@@ -555,30 +555,72 @@
 
     // 加载城市GeoJSON (内置模拟数据)
     async function loadCityBoundaries() {
-        toastMsg('🌏 加载中国城市边界...');
-        // 使用一份完整的中国市级GeoJSON (内置高德数据)
-        const geoJsonUrl = 'https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json';
-        try {
-            const resp = await fetch(geoJsonUrl);
-            const data = await resp.json();
-            for(let k in cityLayers) if(cityLayers[k]) map.removeLayer(cityLayers[k]);
-            cityLayers = {};
-            // 遍历所有市级区域
-            const cities = data.features.filter(f => f.properties.level === 'city');
-            cities.forEach(f => {
-                const cityName = f.properties.name;
-                const provinceName = f.properties.parent?.name || cityName;
-                const status = cityStatus[cityName];
-                const layer = L.geoJSON(f, { style: getStyleByStatus(status), interactive: true }).addTo(map);
-                layer.on('click', (e) => { L.DomEvent.stopPropagation(e); openCityPanel(cityName, provinceName); });
-                cityLayers[cityName] = layer;
-            });
-            updateStats();
-            toastMsg('✅ 地图已加载，点击任意城市即可记录足迹');
-        } catch(e) {
-            console.error(e);
-            toastMsg('地图加载失败，请检查网络');
-        }
+        toastMsg('🌏 加载城市数据...');
+
+        // 中国主要城市坐标（简化版）
+        const citiesData = [
+            { name: "北京市", province: "北京", lng: 116.4074, lat: 39.9042 },
+            { name: "上海市", province: "上海", lng: 121.4737, lat: 31.2304 },
+            { name: "广州市", province: "广东", lng: 113.2644, lat: 23.1291 },
+            { name: "深圳市", province: "广东", lng: 114.0579, lat: 22.5431 },
+            { name: "杭州市", province: "浙江", lng: 120.1551, lat: 30.2741 },
+            { name: "南京市", province: "江苏", lng: 118.7674, lat: 32.0415 },
+            { name: "成都市", province: "四川", lng: 104.0668, lat: 30.5728 },
+            { name: "武汉市", province: "湖北", lng: 114.3055, lat: 30.5931 },
+            { name: "西安市", province: "陕西", lng: 108.9402, lat: 34.3416 },
+            { name: "重庆市", province: "重庆", lng: 106.5044, lat: 29.5582 },
+            { name: "天津市", province: "天津", lng: 117.1902, lat: 39.1256 },
+            { name: "苏州市", province: "江苏", lng: 120.5853, lat: 31.2989 },
+            { name: "长沙市", province: "湖南", lng: 112.9388, lat: 28.2282 },
+            { name: "昆明市", province: "云南", lng: 102.832, lat: 24.8801 },
+            { name: "厦门市", province: "福建", lng: 118.0895, lat: 24.4798 },
+            { name: "青岛市", province: "山东", lng: 120.3552, lat: 36.0829 },
+            { name: "大连市", province: "辽宁", lng: 121.6147, lat: 38.914 },
+            { name: "三亚市", province: "海南", lng: 109.512, lat: 18.2528 },
+            { name: "桂林市", province: "广西", lng: 110.2908, lat: 25.2736 },
+            { name: "拉萨市", province: "西藏", lng: 91.1409, lat: 29.6564 },
+            { name: "乌鲁木齐市", province: "新疆", lng: 87.6168, lat: 43.8256 },
+            { name: "哈尔滨市", province: "黑龙江", lng: 126.6424, lat: 45.7567 },
+            { name: "长春市", province: "吉林", lng: 125.3245, lat: 43.8868 },
+            { name: "沈阳市", province: "辽宁", lng: 123.4315, lat: 41.8057 },
+            { name: "呼和浩特市", province: "内蒙古", lng: 111.751, lat: 40.8415 },
+            { name: "银川市", province: "宁夏", lng: 106.2309, lat: 38.4872 },
+            { name: "西宁市", province: "青海", lng: 101.7801, lat: 36.6232 },
+            { name: "兰州市", province: "甘肃", lng: 103.8343, lat: 36.0611 },
+            { name: "郑州市", province: "河南", lng: 113.6254, lat: 34.7466 },
+            { name: "济南市", province: "山东", lng: 117.1205, lat: 36.651 },
+            { name: "合肥市", province: "安徽", lng: 117.2272, lat: 31.8206 },
+            { name: "南昌市", province: "江西", lng: 115.858, lat: 28.682 },
+            { name: "福州市", province: "福建", lng: 119.2965, lat: 26.0745 },
+            { name: "南宁市", province: "广西", lng: 108.320, lat: 22.824 },
+            { name: "贵阳市", province: "贵州", lng: 106.6302, lat: 26.6477 },
+            { name: "海口市", province: "海南", lng: 110.1999, lat: 20.044 },
+            { name: "香港", province: "香港", lng: 114.1697, lat: 22.3193 },
+            { name: "澳门", province: "澳门", lng: 113.5431, lat: 22.1868 },
+            { name: "台北市", province: "台湾", lng: 121.5200, lat: 25.0307 }
+        ];
+
+        for(let k in cityLayers) if(cityLayers[k]) map.removeLayer(cityLayers[k]);
+        cityLayers = {};
+
+        citiesData.forEach(city => {
+            const status = cityStatus[city.name];
+            // 创建圆形标记
+            const circle = L.circleMarker([city.lat, city.lng], {
+                radius: 16,
+                color: status === 'go' ? '#2E8B57' : (status === 'want' ? '#ff476b' : '#ffaa66'),
+                weight: 2,
+                fillColor: status === 'go' ? '#7ccd7c' : (status === 'want' ? '#ff6b8c' : '#ffdd99'),
+                fillOpacity: 0.7
+            }).addTo(map);
+
+            circle.bindTooltip(city.name, { permanent: false, direction: 'top', offset: [0, -10] });
+            circle.on('click', () => openCityPanel(city.name, city.province));
+            cityLayers[city.name] = circle;
+        });
+
+        updateStats();
+        toastMsg('✅ 地图已加载，点击城市标记即可记录足迹');
     }
 
     // 初始化地图

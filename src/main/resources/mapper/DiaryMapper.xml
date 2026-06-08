@@ -21,13 +21,14 @@
         <result column="favoritedByCurrentUser" property="favoritedByCurrentUser"/>
     </resultMap>
 
+    <!-- ✅ 修复：添加 photos 字段 -->
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO diary (user_id, title, content, permission, create_time)
-        VALUES (#{userId}, #{title}, #{content}, #{permission}, now())
+        INSERT INTO diary (user_id, title, content, photos, permission, create_time)
+        VALUES (#{userId}, #{title}, #{content}, #{photos}, #{permission}, now())
     </insert>
+
     <delete id="deleteDiary">
-        DELETE FROM diary
-        WHERE id = #{diaryId}
+        DELETE FROM diary WHERE id = #{diaryId}
     </delete>
 
     <!-- 公开日记：permission=3 -->
@@ -100,6 +101,7 @@
     <update id="updateFavoriteCount">
         UPDATE diary SET favorite_count = favorite_count + #{increment} WHERE id = #{id}
     </update>
+
     <insert id="insertFavorite">
         INSERT INTO diary_favorite (diary_id, user_id) VALUES (#{diaryId}, #{userId})
     </insert>
