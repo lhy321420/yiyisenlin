@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>壹一森林 - 足迹地图</title>
+    <title>壹一森林</title>
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -432,25 +432,14 @@
     // ==================== 地图状态核心 ====================
     let regionStatus = {}, map, regionLayers = {}, currentFilter = 'all';
 
-    const provinceCapitals = {
-        "北京市": [39.9042, 116.4074], "天津市": [39.1256, 117.1902], "上海市": [31.2304, 121.4737], "重庆市": [29.5582, 106.5044],
-        "河北省": [38.0423, 114.5149], "山西省": [37.8703, 112.5624], "内蒙古自治区": [40.8175, 111.7656],
-        "辽宁省": [41.8056, 123.4315], "吉林省": [43.8868, 125.3245], "黑龙江省": [45.7567, 126.6424],
-        "江苏省": [32.0415, 118.7674], "浙江省": [30.2875, 120.1536], "安徽省": [31.8612, 117.2830],
-        "福建省": [26.0753, 119.3062], "江西省": [28.6765, 115.8922], "山东省": [36.6758, 117.0009],
-        "河南省": [34.7570, 113.6654], "湖北省": [30.5844, 114.2986], "湖南省": [28.1941, 112.9823],
-        "广东省": [23.1291, 113.2644], "广西壮族自治区": [22.8287, 108.3285], "海南省": [20.0174, 110.3489],
-        "四川省": [30.6595, 104.0657], "贵州省": [26.5783, 106.7135], "云南省": [25.0406, 102.7123],
-        "西藏自治区": [29.6472, 91.1175], "陕西省": [34.2632, 108.9480], "甘肃省": [36.0580, 103.8236],
-        "青海省": [36.6224, 101.7806], "宁夏回族自治区": [38.4667, 106.1957], "新疆维吾尔自治区": [43.7928, 87.6177],
-        "台湾省": [25.0443, 121.5091], "香港特别行政区": [22.3200, 114.1734], "澳门特别行政区": [22.1868, 113.5430]
-    };
-
     function getRegionStyle(status) {
         switch(status) {
-            case 'go': return { color: '#2E8B57', weight: 1.5, fillColor: '#7ccd7c', fillOpacity: 0.65 };
-            case 'want': return { color: '#ff476b', weight: 1.5, fillColor: '#ff6b8c', fillOpacity: 0.55 };
-            default: return { color: '#c4b5a6', weight: 1, fillColor: '#e8e0d8', fillOpacity: 0.35 };
+            case 'go':
+                return { color: '#2E8B57', weight: 1.5, fillColor: '#7ccd7c', fillOpacity: 0.65 };
+            case 'want':
+                return { color: '#ff476b', weight: 1.5, fillColor: '#ff6b8c', fillOpacity: 0.55 };
+            default:
+                return { color: '#c4b5a6', weight: 1, fillColor: '#e8e0d8', fillOpacity: 0.35 };
         }
     }
 
@@ -559,7 +548,10 @@
     // ========== 加载GeoJSON省级边界数据 ==========
     async function loadRegionBoundaries() {
         toastMsg('🌏 加载中国地图数据...');
+
+        // 本地GeoJSON文件路径（请将china.json放在 static/geo/ 目录下）
         const localGeoJsonUrl = '/geo/china.json';
+        // 备用CDN（阿里云DataV）
         const fallbackUrl = 'https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json';
 
         try {
@@ -571,14 +563,17 @@
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
 
+            // 清除旧图层
             for(let k in regionLayers) if(regionLayers[k]) map.removeLayer(regionLayers[k]);
             regionLayers = {};
 
+            // 获取features
             let features = data.features;
             if (data.features && data.features[0]?.properties?.level) {
                 features = data.features.filter(f => f.properties.level === 'province');
             }
 
+            // 省份名称映射
             const nameMapping = {
                 '广西壮族自治区': '广西', '新疆维吾尔自治区': '新疆', '宁夏回族自治区': '宁夏',
                 '西藏自治区': '西藏', '内蒙古自治区': '内蒙古'
@@ -606,16 +601,16 @@
         }
     }
 
-    // ========== 初始化地图（使用稳定瓦片） ==========
+    // ========== 初始化地图（使用高德瓦片） ==========
     async function initMap() {
         map = L.map('chinaMap').setView([35.0, 108.0], 5);
 
-        // 使用CartoDB瓦片（国内海外都稳定）
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB',
-            subdomains: 'abcd',
-            maxZoom: 19,
-            minZoom: 4
+        // 高德地图瓦片（国内可用）
+        L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+            subdomains: '1234',
+            maxZoom: 10,
+            minZoom: 4,
+            attribution: '高德地图'
         }).addTo(map);
 
         L.control.scale({ metric: true, imperial: false, position: 'bottomright' }).addTo(map);
