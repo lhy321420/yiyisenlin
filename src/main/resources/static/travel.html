@@ -408,7 +408,7 @@
     function getNameInitials(username) {
         if (!username) return '游客';
         if (typeof pinyinPro !== 'undefined' && pinyinPro.pinyin) {
-            return username.split('').map(ch => {
+            return username.split(' ').map(ch => {
                 if (/[a-zA-Z]/.test(ch)) return ch.toUpperCase();
                 if (/[\u4e00-\u9fa5]/.test(ch)) {
                     const py = pinyinPro.pinyin(ch, { pattern: 'first', toneType: 'none' });

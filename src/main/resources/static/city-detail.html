@@ -555,11 +555,18 @@
 
 <script>
     function getNameInitials(username) {
-        if (!username) return 'U';
-        if (/^[a-zA-Z]+$/.test(username)) {
-            return username.charAt(0).toUpperCase();
+        if (!username) return '游客';
+        if (typeof pinyinPro !== 'undefined' && pinyinPro.pinyin) {
+            return username.split(' ').map(ch => {
+                if (/[a-zA-Z]/.test(ch)) return ch.toUpperCase();
+                if (/[\u4e00-\u9fa5]/.test(ch)) {
+                    const py = pinyinPro.pinyin(ch, { pattern: 'first', toneType: 'none' });
+                    return py ? py.toUpperCase() : ch;
+                }
+                return ch.toUpperCase();
+            }).join('');
         }
-        return pinyinPro.pinyin(username, { pattern: 'first', toneType: 'none' }).charAt(0).toUpperCase();
+        return username.charAt(0).toUpperCase();
     }
 
     let province, city, tab, loginUserId, loginUserName, loginUserAvatar;
