@@ -299,6 +299,7 @@
             background-position:center;
             transition:0.3s;
             box-shadow:0 2px 5px rgba(0,0,0,0.1);
+            cursor:pointer;
         }
         .photo-item:hover { transform:scale(1.05); }
         .del-btn {
@@ -480,6 +481,43 @@
             .mini-map { height: 400px; }
             .photo-grid { grid-template-columns: repeat(2, 1fr); }
         }
+
+        /* ========== 图片放大弹窗样式 ========== */
+        .image-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            cursor: pointer;
+        }
+        .image-modal img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+        }
+        .image-modal .close-img {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 40px;
+            color: #fff;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-weight: bold;
+            z-index: 2001;
+        }
+        .image-modal .close-img:hover {
+            color: #f8446e;
+        }
     </style>
 </head>
 <body>
@@ -554,17 +592,50 @@
 </div>
 
 <script>
+    // ========== 图片放大功能 ==========
+    function showImageModal(imgUrl) {
+        // 移除已存在的弹窗
+        const existingModal = document.querySelector('.image-modal');
+        if (existingModal) existingModal.remove();
+
+        // 创建弹窗
+        const modal = document.createElement('div');
+        modal.className = 'image-modal';
+        modal.innerHTML = `
+            <button class="close-img">&times;</button>
+            <img src="${imgUrl}" alt="放大图片">
+        `;
+        document.body.appendChild(modal);
+
+        // 点击弹窗关闭
+        modal.onclick = function(e) {
+            if (e.target === modal || e.target.classList.contains('close-img')) {
+                modal.remove();
+            }
+        };
+
+        // ESC键关闭
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.querySelector('.image-modal')) {
+                document.querySelector('.image-modal').remove();
+            }
+        });
+    }
+
     function getNameInitials(username) {
         if (!username) return '游客';
         if (typeof pinyinPro !== 'undefined' && pinyinPro.pinyin) {
-            return username.split(' ').map(ch => {
-                if (/[a-zA-Z]/.test(ch)) return ch.toUpperCase();
-                if (/[\u4e00-\u9fa5]/.test(ch)) {
-                    const py = pinyinPro.pinyin(ch, { pattern: 'first', toneType: 'none' });
-                    return py ? py.toUpperCase() : ch;
+            // 按空格分割，取每个部分的首字母
+            const parts = username.split(/\s+/);
+            const initials = parts.map(part => {
+                if (/[a-zA-Z]/.test(part)) return part.charAt(0).toUpperCase();
+                if (/[\u4e00-\u9fa5]/.test(part)) {
+                    const py = pinyinPro.pinyin(part, { pattern: 'first', toneType: 'none' });
+                    return py ? py.toUpperCase() : part.charAt(0);
                 }
-                return ch.toUpperCase();
-            }).join('');
+                return part.charAt(0).toUpperCase();
+            }).join(' ');
+            return initials;
         }
         return username.charAt(0).toUpperCase();
     }
@@ -635,6 +706,12 @@
 
             let fullImgUrl = x.url;
             div.style.backgroundImage=`url(${fullImgUrl})`;
+
+            // 点击照片放大
+            div.onclick = (e) => {
+                e.stopPropagation();
+                showImageModal(fullImgUrl);
+            };
 
             const btn=document.createElement('button');btn.className='del-btn';
             btn.innerHTML='<i class="fa-solid fa-xmark"></i>';
