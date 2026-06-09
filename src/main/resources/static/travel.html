@@ -337,7 +337,6 @@
         }
         .close-card-btn:active { background: #ffd0c0; transform: scale(0.96); }
 
-        /* 省份Tooltip样式 */
         .province-tooltip {
             font-size: 12px;
             font-weight: bold;
@@ -433,7 +432,6 @@
     // ==================== 地图状态核心 ====================
     let regionStatus = {}, map, regionLayers = {}, currentFilter = 'all';
 
-    // 省份省会坐标映射（用于地图中心定位）
     const provinceCapitals = {
         "北京市": [39.9042, 116.4074], "天津市": [39.1256, 117.1902], "上海市": [31.2304, 121.4737], "重庆市": [29.5582, 106.5044],
         "河北省": [38.0423, 114.5149], "山西省": [37.8703, 112.5624], "内蒙古自治区": [40.8175, 111.7656],
@@ -450,19 +448,15 @@
 
     function getRegionStyle(status) {
         switch(status) {
-            case 'go':
-                return { color: '#2E8B57', weight: 1.5, fillColor: '#7ccd7c', fillOpacity: 0.65 };
-            case 'want':
-                return { color: '#ff476b', weight: 1.5, fillColor: '#ff6b8c', fillOpacity: 0.55 };
-            default:
-                return { color: '#c4b5a6', weight: 1, fillColor: '#e8e0d8', fillOpacity: 0.35 };
+            case 'go': return { color: '#2E8B57', weight: 1.5, fillColor: '#7ccd7c', fillOpacity: 0.65 };
+            case 'want': return { color: '#ff476b', weight: 1.5, fillColor: '#ff6b8c', fillOpacity: 0.55 };
+            default: return { color: '#c4b5a6', weight: 1, fillColor: '#e8e0d8', fillOpacity: 0.35 };
         }
     }
 
     function updateRegionStyle(regionName, status) {
         if(!regionLayers[regionName]) return;
-        const style = getRegionStyle(status);
-        regionLayers[regionName].setStyle(style);
+        regionLayers[regionName].setStyle(getRegionStyle(status));
         saveStatus();
     }
 
@@ -500,9 +494,7 @@
         document.getElementById('cityListContent').innerHTML = html;
     }
 
-    window.openRegionPanelFromList = function(regionName) {
-        openRegionPanel(regionName, regionName);
-    };
+    window.openRegionPanelFromList = function(regionName) { openRegionPanel(regionName, regionName); };
 
     window.openRegionAction = function(regionName, provinceName, actionType) {
         let targetUrl = `city-detail.html?city=${encodeURIComponent(regionName)}&province=${encodeURIComponent(provinceName)}`;
@@ -558,11 +550,7 @@
         for(let name in regionLayers) {
             const st = regionStatus[name];
             const shouldShow = currentFilter === 'all' || currentFilter === st;
-            if(shouldShow) {
-                regionLayers[name].setStyle({ opacity: 1 });
-            } else {
-                regionLayers[name].setStyle({ opacity: 0.15 });
-            }
+            regionLayers[name].setStyle({ opacity: shouldShow ? 1 : 0.15 });
         }
         renderRegionList();
         toastMsg('✅ 筛选完成');
@@ -571,34 +559,26 @@
     // ========== 加载GeoJSON省级边界数据 ==========
     async function loadRegionBoundaries() {
         toastMsg('🌏 加载中国地图数据...');
-
-        // 本地GeoJSON文件路径（请将china.json放在 static/geo/ 目录下）
         const localGeoJsonUrl = '/geo/china.json';
-        // 备用CDN（阿里云DataV）
         const fallbackUrl = 'https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json';
 
         try {
             let response = await fetch(localGeoJsonUrl);
-
             if (!response.ok) {
                 console.warn('本地GeoJSON文件不存在，尝试备用CDN...');
                 response = await fetch(fallbackUrl);
             }
-
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
 
-            // 清除旧图层
             for(let k in regionLayers) if(regionLayers[k]) map.removeLayer(regionLayers[k]);
             regionLayers = {};
 
-            // 获取features
             let features = data.features;
             if (data.features && data.features[0]?.properties?.level) {
                 features = data.features.filter(f => f.properties.level === 'province');
             }
 
-            // 省份名称映射
             const nameMapping = {
                 '广西壮族自治区': '广西', '新疆维吾尔自治区': '新疆', '宁夏回族自治区': '宁夏',
                 '西藏自治区': '西藏', '内蒙古自治区': '内蒙古'
@@ -610,11 +590,7 @@
                 const status = regionStatus[mappedName] || regionStatus[name];
                 const style = getRegionStyle(status);
 
-                const layer = L.geoJSON(feature, {
-                    style: style,
-                    interactive: true
-                }).addTo(map);
-
+                const layer = L.geoJSON(feature, { style: style, interactive: true }).addTo(map);
                 layer.bindTooltip(name, { permanent: false, direction: 'center', className: 'province-tooltip' });
                 layer.on('click', () => openRegionPanel(mappedName, name));
 
@@ -624,28 +600,25 @@
 
             updateStats();
             toastMsg('✅ 地图加载完成，点击省份即可记录足迹');
-
         } catch(error) {
             console.error('加载地图数据失败:', error);
             toastMsg('地图加载失败，请检查网络后刷新');
         }
     }
 
-    // ========== 初始化地图 ==========
+    // ========== 初始化地图（使用稳定瓦片） ==========
     async function initMap() {
-        // 使用高德地图瓦片（国内可用，无需key）
         map = L.map('chinaMap').setView([35.0, 108.0], 5);
 
-        L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
-            subdomains: '1234',
-            maxZoom: 10,
-            minZoom: 4,
-            attribution: '高德地图'
+        // 使用CartoDB瓦片（国内海外都稳定）
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB',
+            subdomains: 'abcd',
+            maxZoom: 19,
+            minZoom: 4
         }).addTo(map);
 
-        // 添加比例尺控件
         L.control.scale({ metric: true, imperial: false, position: 'bottomright' }).addTo(map);
-
         await loadRegionBoundaries();
         document.getElementById('filterQueryBtn').onclick = applyFilter;
     }
@@ -653,7 +626,6 @@
     // ========== 页面启动 ==========
     window.onload = async function() {
         if (!localStorage.getItem('isLogin')) { location.href = 'login.html'; return; }
-
         try {
             const res = await fetch("/user/info", { credentials: "include" });
             const result = await res.json();
@@ -669,7 +641,6 @@
             location.href = 'login.html';
             return;
         }
-
         loadStatus();
         await initMap();
         await updateRedDot();
